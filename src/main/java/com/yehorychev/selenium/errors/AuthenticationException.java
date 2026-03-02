@@ -1,0 +1,34 @@
+package com.yehorychev.selenium.errors;
+
+/**
+ * Thrown when API or UI authentication fails.
+ *
+ * <p>Analogue of {@code AuthenticationError} in {@code test-errors.ts}.
+ *
+ * <p>Example:
+ * <pre>{@code
+ *   throw new AuthenticationException("loginViaApi returned success=false");
+ * }</pre>
+ */
+public class AuthenticationException extends FrameworkException {
+
+    public AuthenticationException() {
+        super("Authentication failed");
+    }
+
+    /**
+     * @param reason human-readable explanation of why authentication failed
+     */
+    public AuthenticationException(String reason) {
+        super("Authentication failed: " + reason);
+    }
+
+    /**
+     * @param reason human-readable explanation
+     * @param cause  underlying exception
+     */
+    public AuthenticationException(String reason, Throwable cause) {
+        super("Authentication failed: " + reason, cause);
+    }
+}
+
