@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Lightweight structured logger — analogue of {@code logger.ts}.
  *
- * <p>Wraps SLF4J with convenience methods matching the Playwright logger API:
+ * <p>Wraps SLF4J with convenience methods for structured test logging:
  * {@code debug / info / warn / error / step}.  The {@code step()} method
  * mirrors the {@code log.step("→ message")} pattern used in TypeScript.
  *

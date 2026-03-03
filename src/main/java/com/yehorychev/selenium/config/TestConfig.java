@@ -86,7 +86,7 @@ public final class TestConfig {
     /** Directory where the generated Allure HTML report is placed. */
     public static final String ALLURE_REPORT_DIR;
 
-    // ── Static initialiser — runs once when the class is first loaded ───────
+    // ── Static initializer — runs once when the class is first loaded ───────
     static {
         Properties props = loadProperties();
 

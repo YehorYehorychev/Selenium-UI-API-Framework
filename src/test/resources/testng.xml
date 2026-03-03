@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<!--
+  TestNG suite configuration for Cucumber BDD tests.
+
+  - thread-count: maps to TestConfig.PARALLEL_THREADS (default 4)
+  - parallel="methods": allows @DataProvider(parallel=true) in CucumberRunner
+-->
+<suite name="Selenium UI + API Test Suite"
+       verbose="1"
+       thread-count="4"
+       data-provider-thread-count="4">
+
+    <test name="Cucumber Scenarios">
+        <classes>
+            <class name="yehorychev.selenium.runner.CucumberRunner"/>
+        </classes>
+    </test>
+
+</suite>
+
