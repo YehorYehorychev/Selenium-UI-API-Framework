@@ -2,6 +2,7 @@ package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.utils.WaitUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
@@ -102,22 +103,22 @@ public abstract class BasePage {
 
     /**
      * Waits until the current URL contains the given fragment.
+     * Delegates to {@link WaitUtils#waitForUrl(WebDriver, String)}.
      *
      * @param urlFragment expected URL fragment
      */
     public void waitForUrl(String urlFragment) {
-        log.step("Waiting for URL to contain: " + urlFragment);
-        wait.until(ExpectedConditions.urlContains(urlFragment));
+        WaitUtils.waitForUrl(driver, urlFragment);
     }
 
     /**
      * Waits until the page title contains the given fragment.
+     * Delegates to {@link WaitUtils#waitForTitle(WebDriver, String)}.
      *
      * @param titleFragment expected title fragment
      */
     public void waitForTitle(String titleFragment) {
-        log.step("Waiting for title to contain: " + titleFragment);
-        wait.until(ExpectedConditions.titleContains(titleFragment));
+        WaitUtils.waitForTitle(driver, titleFragment);
     }
 
     // ── Element interaction ───────────────────────────────────────────────────
