@@ -5,7 +5,7 @@ import io.cucumber.testng.CucumberOptions;
 import org.testng.annotations.DataProvider;
 
 /**
- * Cucumber TestNG runner — analogue of the Playwright test runner configuration.
+ * Cucumber TestNG runner — connects Cucumber's BDD engine to TestNG.
  *
  * <p>Connects Cucumber's BDD engine to TestNG so that scenarios are discovered,
  * executed, and reported through the standard Maven Surefire / Allure pipeline.

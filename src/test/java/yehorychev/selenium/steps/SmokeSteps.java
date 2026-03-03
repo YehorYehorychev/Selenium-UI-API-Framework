@@ -1,7 +1,10 @@
 package yehorychev.selenium.steps;
 
+import com.yehorychev.selenium.pages.HomePage;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import yehorychev.selenium.context.TestContext;
 
 import static org.testng.Assert.assertTrue;
@@ -9,70 +12,73 @@ import static org.testng.Assert.assertTrue;
 /**
  * Step definitions for smoke-level navigation scenarios.
  *
- * <p>Covers the steps defined in {@code smoke.feature}:
- * <ul>
- *   <li>Opening the home page</li>
- *   <li>Asserting page title contains an expected fragment</li>
- *   <li>Asserting the current URL contains an expected fragment</li>
- * </ul>
- *
- * <p>PicoContainer injects the shared {@link TestContext} — no static state,
- * parallel-safe.
+ * <p>Uses {@link HomePage} Page Object — no raw WebDriver calls in step definitions.
+ * PicoContainer injects {@link TestContext}; parallel-safe.
  */
 public class SmokeSteps {
 
-    private final TestContext context;
+    private final HomePage homePage;
 
-    /**
-     * PicoContainer constructor injection.
-     *
-     * @param context shared test context provided by {@link yehorychev.selenium.hooks.Hooks}
-     */
     public SmokeSteps(TestContext context) {
-        this.context = context;
+        this.homePage = new HomePage(context.getDriver());
     }
 
-    // ── Step definitions ─────────────────────────────────────────────────────
+    // ── Navigation steps ─────────────────────────────────────────────────────
 
-    /**
-     * Navigates the browser to the application's base URL.
-     *
-     * <p>Feature step: {@code Given the browser is open on the home page}
-     */
     @Given("the browser is open on the home page")
     public void theBrowserIsOpenOnTheHomePage() {
-        context.openBaseUrl();
+        homePage.open();
     }
 
-    /**
-     * Asserts that the current page title contains the expected text (case-insensitive).
-     *
-     * <p>Feature step: {@code Then the page title should contain {string}}
-     *
-     * @param expected fragment that must appear in the title
-     */
+    @When("the user clicks on the {string} nav game link")
+    public void theUserClicksNavGame(String gameName) {
+        homePage.clickNavGame(gameName);
+    }
+
+    // ── Assertion steps ───────────────────────────────────────────────────────
+
     @Then("the page title should contain {string}")
     public void thePageTitleShouldContain(String expected) {
-        String actual = context.getPageTitle();
+        String actual = homePage.getTitle();
         assertTrue(
                 actual.toLowerCase().contains(expected.toLowerCase()),
                 "Expected page title to contain \"" + expected + "\" but was: \"" + actual + "\""
         );
     }
 
-    /**
-     * Asserts that the current browser URL contains the expected text (case-insensitive).
-     *
-     * <p>Feature step: {@code Then the current URL should contain {string}}
-     *
-     * @param expected fragment that must appear in the URL
-     */
     @Then("the current URL should contain {string}")
     public void theCurrentUrlShouldContain(String expected) {
-        String actual = context.getCurrentUrl();
+        String actual = homePage.getCurrentUrl();
         assertTrue(
                 actual.toLowerCase().contains(expected.toLowerCase()),
                 "Expected URL to contain \"" + expected + "\" but was: \"" + actual + "\""
+        );
+    }
+
+    @Then("the home page is loaded")
+    public void theHomePageIsLoaded() {
+        assertTrue(homePage.isLoaded(), "Expected the home page hero section to be visible");
+    }
+
+    @Then("the header should be visible")
+    public void theHeaderShouldBeVisible() {
+        assertTrue(homePage.isHeaderVisible(), "Expected the site header to be visible");
+    }
+
+    @Then("the nav game {string} should be present")
+    public void theNavGameShouldBePresent(String gameName) {
+        assertTrue(
+                homePage.isNavGamePresent(gameName),
+                "Expected nav item \"" + gameName + "\" to be present in the header"
+        );
+    }
+
+    @And("the hero heading should contain {string}")
+    public void theHeroHeadingShouldContain(String expected) {
+        String actual = homePage.getHeroHeadingText();
+        assertTrue(
+                actual.toLowerCase().contains(expected.toLowerCase()),
+                "Expected hero heading to contain \"" + expected + "\" but was: \"" + actual + "\""
         );
     }
 }

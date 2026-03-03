@@ -12,8 +12,7 @@ import yehorychev.selenium.context.TestContext;
 import java.io.ByteArrayInputStream;
 
 /**
- * Cucumber lifecycle hooks — analogue of Playwright's {@code test.beforeEach} /
- * {@code test.afterEach} fixture hooks.
+ * Cucumber lifecycle hooks — fires before and after each scenario.
  *
  * <p>PicoContainer injects the shared {@link TestContext} for every scenario,
  * so there is no static state: each scenario gets its own driver lifecycle.

@@ -5,7 +5,7 @@ import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.WebDriver;
 
 /**
- * Thread-safe WebDriver registry — analogue of the Playwright {@code browserContext} fixture.
+ * Thread-safe WebDriver registry.
  *
  * <p>Each test thread owns its own {@link WebDriver} instance stored in a
  * {@link ThreadLocal}. This makes the class safe for parallel execution without
