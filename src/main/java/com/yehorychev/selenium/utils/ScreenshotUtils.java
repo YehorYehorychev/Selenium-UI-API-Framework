@@ -174,6 +174,25 @@ public final class ScreenshotUtils {
     // ── Raw bytes helper ──────────────────────────────────────────────────────
 
     /**
+     * Returns the raw PNG bytes of a full-page screenshot (using AShot scrolling strategy).
+     * Does not attach to Allure or save to disk — use this when you want raw bytes only.
+     *
+     * @param driver active WebDriver
+     * @return PNG byte array of full-page screenshot
+     */
+    public static byte[] takeFullPageScreenshot(WebDriver driver) {
+        try {
+            Screenshot screenshot = new AShot()
+                    .shootingStrategy(ShootingStrategies.viewportPasting(100))
+                    .takeScreenshot(driver);
+            return toBytes(screenshot.getImage());
+        } catch (Exception e) {
+            log.warn("Full-page screenshot failed, falling back to viewport: " + e.getMessage());
+            return takeBytes(driver);
+        }
+    }
+
+    /**
      * Returns the raw PNG bytes of a viewport screenshot without saving or attaching.
      *
      * @param driver active WebDriver

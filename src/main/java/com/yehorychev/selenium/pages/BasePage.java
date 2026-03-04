@@ -338,6 +338,62 @@ public abstract class BasePage {
     public void scrollToBottom() {
         executeScript("window.scrollTo(0, document.body.scrollHeight);");
     }
+
+    // ── Screenshot helpers ────────────────────────────────────────────────────
+
+    /**
+     * Takes a full-page screenshot and attaches it to the Allure report.
+     *
+     * @param name screenshot name (displayed in Allure report)
+     */
+    public void takeScreenshot(String name) {
+        log.step("Taking screenshot: " + name);
+        byte[] screenshot = com.yehorychev.selenium.utils.ScreenshotUtils.takeFullPageScreenshot(driver);
+        io.qameta.allure.Allure.addAttachment(
+                name,
+                "image/png",
+                new java.io.ByteArrayInputStream(screenshot),
+                "png"
+        );
+    }
+
+    // ── Assertion helpers ─────────────────────────────────────────────────────
+
+    /**
+     * Verifies that an element's text contains the expected substring.
+     * Throws {@link AssertionError} if the text does not contain the expected value.
+     *
+     * @param locator  element locator
+     * @param expected expected text fragment (case-insensitive)
+     * @throws AssertionError if text does not contain expected value
+     */
+    public void verifyTextContains(By locator, String expected) {
+        String actual = getText(locator);
+        if (!actual.toLowerCase().contains(expected.toLowerCase())) {
+            String message = String.format(
+                    "Expected element [%s] to contain \"%s\" but was: \"%s\"",
+                    locator, expected, actual
+            );
+            log.error(message);
+            throw new AssertionError(message);
+        }
+        log.debug("Text verification passed: element contains \"" + expected + "\"");
+    }
+
+    /**
+     * Asserts that the current URL matches the given pattern (substring or regex).
+     * Throws {@link com.yehorychev.selenium.errors.NavigationException} if the URL doesn't match.
+     *
+     * @param urlPattern expected URL pattern (substring or regex)
+     * @throws com.yehorychev.selenium.errors.NavigationException if URL doesn't match
+     */
+    public void assertNavigatesTo(String urlPattern) {
+        String currentUrl = getCurrentUrl();
+        if (!currentUrl.matches(".*" + urlPattern + ".*")) {
+            throw new com.yehorychev.selenium.errors.NavigationException(currentUrl, urlPattern);
+        }
+        log.debug("Navigation assertion passed: URL matches \"" + urlPattern + "\"");
+    }
 }
 
 
