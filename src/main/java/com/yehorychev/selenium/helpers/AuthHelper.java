@@ -103,9 +103,15 @@ public final class AuthHelper {
      * Authenticates using credentials from {@link TestData.Credentials}.
      *
      * @return auth data map (token + cookies)
-     * @throws AuthenticationException if login fails
+     * @throws AuthenticationException if login fails or credentials are not configured
      */
     public static Map<String, String> loginViaApi() {
+        if (!TestData.Credentials.areConfigured()) {
+            throw new AuthenticationException(
+                "Test credentials are not configured. " +
+                "Please set TEST_USER_LOGIN and TEST_USER_PASSWORD in .env file or environment variables."
+            );
+        }
         return loginViaApi(
                 TestData.Credentials.LOGIN,
                 TestData.Credentials.PASSWORD

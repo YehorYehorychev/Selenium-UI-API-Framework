@@ -1,5 +1,7 @@
 package com.yehorychev.selenium.config;
 
+import io.github.cdimascio.dotenv.Dotenv;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -150,6 +152,24 @@ public final class TestConfig {
             System.err.println("[TestConfig] Could not load config.properties: " + e.getMessage());
         }
         return props;
+    }
+
+    /**
+     * Loads {@code .env} file from the project root.
+     * Returns {@code null} if the file is not found — non-fatal,
+     * system env vars or config.properties will be used instead.
+     */
+    private static Dotenv loadDotenv() {
+        try {
+            return Dotenv.configure()
+                    .directory(".")
+                    .ignoreIfMissing()
+                    .load();
+        } catch (Exception e) {
+            // Non-fatal: system env vars and properties will still work
+            System.err.println("[TestConfig] Could not load .env file: " + e.getMessage());
+            return null;
+        }
     }
 }
 

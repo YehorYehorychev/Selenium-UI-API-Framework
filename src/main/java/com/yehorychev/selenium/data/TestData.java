@@ -23,22 +23,42 @@ public final class TestData {
     // ── Credentials ───────────────────────────────────────────────────────────
 
     /**
-     * Test user credentials — sourced from environment variables.
+     * Test user credentials — sourced from environment variables or .env file.
+     *
+     * <p><strong>Note</strong>: Values are resolved lazily. If you access a credential
+     * that is not set, {@code null} will be returned (use {@link #areConfigured()} to check).
      */
     public static final class Credentials {
-        /** Primary test user login / email. */
-        public static final String LOGIN = requireEnv("TEST_USER_LOGIN");
+        /**
+         * Primary test user login / email.
+         * Required for API tests that use {@link com.yehorychev.selenium.helpers.AuthHelper}.
+         */
+        public static final String LOGIN = System.getenv("TEST_USER_LOGIN");
 
-        /** Primary test user password. */
-        public static final String PASSWORD = requireEnv("TEST_USER_PASSWORD");
+        /**
+         * Primary test user password.
+         * Required for API tests that use {@link com.yehorychev.selenium.helpers.AuthHelper}.
+         */
+        public static final String PASSWORD = System.getenv("TEST_USER_PASSWORD");
 
-        /** Admin user login (optional — throws {@link TestDataException} if missing). */
+        /** Admin user login (optional). */
         public static final String ADMIN_LOGIN = System.getenv("ADMIN_USER_LOGIN");
 
         /** Admin user password (optional). */
         public static final String ADMIN_PASSWORD = System.getenv("ADMIN_USER_PASSWORD");
 
         private Credentials() {}
+
+        /**
+         * Returns {@code true} if primary test credentials are configured.
+         * Use this to conditionally skip API tests if credentials are not available.
+         *
+         * @return {@code true} if both LOGIN and PASSWORD are non-null and non-blank
+         */
+        public static boolean areConfigured() {
+            return LOGIN != null && !LOGIN.isBlank()
+                && PASSWORD != null && !PASSWORD.isBlank();
+        }
     }
 
     // ── URL patterns ──────────────────────────────────────────────────────────
@@ -101,8 +121,23 @@ public final class TestData {
     // ── Utilities ─────────────────────────────────────────────────────────────
 
     /**
+     * Retrieves an environment variable or .env value without throwing an exception.
+     * Returns {@code null} if the variable is not set.
+     *
+     * <p>Use this for optional configuration values.
+     *
+     * @param key environment variable name
+     * @return the environment variable value, or {@code null} if not set
+     */
+    private static String getEnv(String key) {
+        return System.getenv(key);
+    }
+
+    /**
      * Retrieves an environment variable and throws {@link TestDataException} if it
      * is missing or blank.
+     *
+     * <p>Use this for required configuration values that must be present.
      *
      * @param key environment variable name
      * @return the environment variable value (guaranteed non-null, non-blank)
