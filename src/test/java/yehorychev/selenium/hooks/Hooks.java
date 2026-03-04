@@ -1,11 +1,11 @@
 package yehorychev.selenium.hooks;
 
-import com.yehorychev.selenium.utils.ScreenshotUtils;
 import io.cucumber.java.After;
 import io.cucumber.java.AfterStep;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
 import yehorychev.selenium.context.TestContext;
+import yehorychev.selenium.handlers.FailureHandler;
 
 
 /**
@@ -50,8 +50,7 @@ public class Hooks {
     // ── After ────────────────────────────────────────────────────────────────
 
     /**
-     * Fires after each scenario. Captures a screenshot on failure (when enabled
-     * via {@code screenshot.on.failure=true}) and quits the driver.
+     * Fires after each scenario. Captures diagnostics on failure and quits the driver.
      *
      * @param scenario Cucumber {@link Scenario} metadata
      */
@@ -59,7 +58,7 @@ public class Hooks {
     public void tearDown(Scenario scenario) {
         try {
             if (scenario.isFailed() && context.isReady()) {
-                captureScreenshot(scenario.getName());
+                FailureHandler.handleFailure(context, scenario.getName());
             }
         } finally {
             context.quit();
@@ -71,7 +70,7 @@ public class Hooks {
     // ── AfterStep ─────────────────────────────────────────────────────────────
 
     /**
-     * Fires after every step. Captures a screenshot when the step has failed so
+     * Fires after every step. Captures diagnostics when the step has failed so
      * that failures in intermediate steps are also visible in the report.
      *
      * @param scenario Cucumber {@link Scenario} metadata
@@ -79,17 +78,7 @@ public class Hooks {
     @AfterStep
     public void afterStep(Scenario scenario) {
         if (scenario.isFailed() && context.isReady()) {
-            captureScreenshot("step-failure-" + scenario.getName());
-        }
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private void captureScreenshot(String name) {
-        try {
-            ScreenshotUtils.attachToAllure(context.getDriver(), name);
-        } catch (Exception e) {
-            System.err.println("[Hooks] Could not capture screenshot: " + e.getMessage());
+            FailureHandler.handleStepFailure(context, scenario.getName(), "step");
         }
     }
 }

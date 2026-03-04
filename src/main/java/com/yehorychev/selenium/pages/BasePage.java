@@ -272,6 +272,7 @@ public abstract class BasePage {
         try {
             return shortWait.until(ExpectedConditions.visibilityOfElementLocated(locator)) != null;
         } catch (TimeoutException | NoSuchElementException e) {
+            log.debug("Element not visible: " + locator + " - " + e.getMessage());
             return false;
         }
     }
@@ -286,6 +287,7 @@ public abstract class BasePage {
         try {
             return shortWait.until(ExpectedConditions.presenceOfElementLocated(locator)) != null;
         } catch (TimeoutException | NoSuchElementException e) {
+            log.debug("Element not present: " + locator + " - " + e.getMessage());
             return false;
         }
     }
@@ -343,18 +345,12 @@ public abstract class BasePage {
 
     /**
      * Takes a full-page screenshot and attaches it to the Allure report.
+     * Delegates to {@link com.yehorychev.selenium.utils.ScreenshotUtils#attachFullPage(WebDriver, String)}.
      *
      * @param name screenshot name (displayed in Allure report)
      */
     public void takeScreenshot(String name) {
-        log.step("Taking screenshot: " + name);
-        byte[] screenshot = com.yehorychev.selenium.utils.ScreenshotUtils.takeFullPageScreenshot(driver);
-        io.qameta.allure.Allure.addAttachment(
-                name,
-                "image/png",
-                new java.io.ByteArrayInputStream(screenshot),
-                "png"
-        );
+        com.yehorychev.selenium.utils.ScreenshotUtils.attachFullPage(driver, name);
     }
 
     // ── Assertion helpers ─────────────────────────────────────────────────────

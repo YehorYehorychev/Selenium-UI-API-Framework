@@ -15,12 +15,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 /**
  * Screenshot helpers — full-page, viewport and element-level captures via AShot,
@@ -28,19 +28,26 @@ import java.time.format.DateTimeFormatter;
  *
  * <p>All methods are static — no instantiation needed.
  *
+ * <p><strong>Naming Convention</strong>:
+ * <ul>
+ *   <li>{@code capture*} — Returns raw byte[] without side effects</li>
+ *   <li>{@code attach*} — Captures and attaches to Allure report</li>
+ *   <li>{@code save*} — Captures and saves to file system (no Allure attachment)</li>
+ * </ul>
+ *
  * <p>Usage:
  * <pre>{@code
- *   // Attach a viewport screenshot to Allure
- *   ScreenshotUtils.attachToAllure(driver, "Login page");
+ *   // Attach screenshots to Allure
+ *   ScreenshotUtils.attachViewport(driver, "Login page");
+ *   ScreenshotUtils.attachFullPage(driver, "Full home page");
+ *   ScreenshotUtils.attachElement(driver, element, "Submit button");
  *
- *   // Capture a full-page screenshot (scrolling) and attach to Allure
- *   ScreenshotUtils.attachFullPageToAllure(driver, "Full home page");
+ *   // Save to disk only (no Allure attachment)
+ *   Path file = ScreenshotUtils.saveViewport(driver, "target/screenshots", "checkout");
+ *   Path fullPage = ScreenshotUtils.saveFullPage(driver, "target/screenshots", "homepage");
  *
- *   // Capture only a specific element
- *   ScreenshotUtils.attachElementToAllure(driver, element, "Submit button");
- *
- *   // Save to disk (e.g. for CI artefacts)
- *   Path file = ScreenshotUtils.saveToFile(driver, "target/screenshots", "checkout");
+ *   // Get raw bytes (for custom processing)
+ *   byte[] bytes = ScreenshotUtils.captureFullPage(driver);
  * }</pre>
  */
 public final class ScreenshotUtils {
@@ -49,88 +56,239 @@ public final class ScreenshotUtils {
     private static final DateTimeFormatter TIMESTAMP_FMT =
             DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
+    // Configuration constants (replaces magic numbers)
+    private static final int SCREENSHOT_SCROLL_PADDING = 100;
+    private static final String FILE_EXTENSION = ".png";
+    private static final String ALLURE_MIME_TYPE = "image/png";
+
     private ScreenshotUtils() {}
 
-    // ── Allure attachments ────────────────────────────────────────────────────
+    // ── Private Helpers ───────────────────────────────────────────────────────
 
     /**
-     * Takes a viewport screenshot and attaches it to the current Allure step.
+     * Single point of Allure attachment — encapsulates Allure API call.
+     * All public attach* methods delegate to this.
      *
-     * @param driver active WebDriver
-     * @param name   attachment label shown in the Allure report
+     * @param bytes screenshot bytes (PNG format)
+     * @param name  attachment label shown in the Allure report
      */
-    public static void attachToAllure(WebDriver driver, String name) {
-        log.step("Capturing screenshot: " + name);
-        byte[] bytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-        Allure.addAttachment(name, "image/png", new ByteArrayInputStream(bytes), ".png");
+    private static void attachBytesToAllure(byte[] bytes, String name) {
+        Allure.addAttachment(name, ALLURE_MIME_TYPE, new ByteArrayInputStream(bytes), FILE_EXTENSION);
     }
 
     /**
-     * Takes a full-page screenshot (scrolls the entire page via AShot) and
-     * attaches it to the current Allure step.
+     * Converts BufferedImage to PNG byte array.
      *
-     * @param driver active WebDriver
-     * @param name   attachment label shown in the Allure report
+     * @param image source image
+     * @return PNG byte array
+     * @throws IOException if image conversion fails
      */
-    public static void attachFullPageToAllure(WebDriver driver, String name) {
-        log.step("Capturing full-page screenshot: " + name);
-        try {
-            Screenshot screenshot = new AShot()
-                    .shootingStrategy(ShootingStrategies.viewportPasting(100))
-                    .takeScreenshot(driver);
-            byte[] bytes = toBytes(screenshot.getImage());
-            Allure.addAttachment(name, "image/png", new ByteArrayInputStream(bytes), ".png");
-        } catch (Exception e) {
-            log.warn("Full-page screenshot failed, falling back to viewport: " + e.getMessage());
-            attachToAllure(driver, name + " (viewport fallback)");
+    private static byte[] toBytes(BufferedImage image) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ImageIO.write(image, "PNG", out);
+        return out.toByteArray();
+    }
+
+    /**
+     * Validates WebDriver parameter.
+     *
+     * @param driver WebDriver to validate
+     * @throws NullPointerException if driver is null
+     */
+    private static void validateDriver(WebDriver driver) {
+        Objects.requireNonNull(driver, "driver cannot be null");
+    }
+
+    /**
+     * Validates name parameter.
+     *
+     * @param name name to validate
+     * @throws IllegalArgumentException if name is null or blank
+     */
+    private static void validateName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("name cannot be null or empty");
         }
     }
 
     /**
-     * Takes a screenshot of a single {@link WebElement} and attaches it to the
-     * current Allure step.
+     * Validates directory path parameter.
+     *
+     * @param dir directory path to validate
+     * @throws IllegalArgumentException if dir is null or blank
+     */
+    private static void validateDirectory(String dir) {
+        if (dir == null || dir.isBlank()) {
+            throw new IllegalArgumentException("directory path cannot be null or empty");
+        }
+    }
+
+    // ── Capture Methods (Raw Bytes, No Side Effects) ─────────────────────────
+
+    /**
+     * Captures a viewport screenshot and returns raw PNG bytes.
+     * Does not attach to Allure or save to disk.
+     *
+     * @param driver active WebDriver
+     * @return PNG byte array
+     * @throws NullPointerException if driver is null
+     */
+    public static byte[] captureViewport(WebDriver driver) {
+        validateDriver(driver);
+        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+    }
+
+    /**
+     * Captures a full-page screenshot (scrolls the entire page via AShot) and returns raw PNG bytes.
+     * Falls back to viewport screenshot if full-page capture fails.
+     * Does not attach to Allure or save to disk.
+     *
+     * @param driver active WebDriver
+     * @return PNG byte array
+     * @throws NullPointerException if driver is null
+     */
+    public static byte[] captureFullPage(WebDriver driver) {
+        validateDriver(driver);
+        try {
+            Screenshot screenshot = new AShot()
+                    .shootingStrategy(ShootingStrategies.viewportPasting(SCREENSHOT_SCROLL_PADDING))
+                    .takeScreenshot(driver);
+            return toBytes(screenshot.getImage());
+        } catch (Exception e) {
+            log.warn("Full-page screenshot failed, falling back to viewport: " + e.getMessage());
+            return captureViewport(driver);
+        }
+    }
+
+    /**
+     * Captures a screenshot of a single WebElement and returns raw PNG bytes.
+     * Does not attach to Allure or save to disk.
+     *
+     * @param driver  active WebDriver
+     * @param element element to capture
+     * @return PNG byte array
+     * @throws NullPointerException if driver or element is null
+     */
+    public static byte[] captureElement(WebDriver driver, WebElement element) {
+        validateDriver(driver);
+        Objects.requireNonNull(element, "element cannot be null");
+        try {
+            Screenshot screenshot = new AShot().takeScreenshot(driver, element);
+            return toBytes(screenshot.getImage());
+        } catch (Exception e) {
+            log.warn("Element screenshot failed: " + e.getMessage());
+            throw new RuntimeException("Failed to capture element screenshot", e);
+        }
+    }
+
+    // ── Attach Methods (Capture + Allure Attachment) ─────────────────────────
+
+    /**
+     * Captures a viewport screenshot and attaches it to the Allure report.
+     *
+     * @param driver active WebDriver
+     * @param name   attachment label shown in the Allure report
+     * @throws NullPointerException     if driver is null
+     * @throws IllegalArgumentException if name is null or blank
+     */
+    public static void attachViewport(WebDriver driver, String name) {
+        validateName(name);
+        log.step("Capturing viewport screenshot: " + name);
+        byte[] bytes = captureViewport(driver);
+        attachBytesToAllure(bytes, name);
+    }
+
+    /**
+     * Captures a full-page screenshot and attaches it to the Allure report.
+     *
+     * @param driver active WebDriver
+     * @param name   attachment label shown in the Allure report
+     * @throws NullPointerException     if driver is null
+     * @throws IllegalArgumentException if name is null or blank
+     */
+    public static void attachFullPage(WebDriver driver, String name) {
+        validateName(name);
+        log.step("Capturing full-page screenshot: " + name);
+        byte[] bytes = captureFullPage(driver);
+        attachBytesToAllure(bytes, name);
+    }
+
+    /**
+     * Captures an element screenshot and attaches it to the Allure report.
      *
      * @param driver  active WebDriver
      * @param element element to capture
      * @param name    attachment label shown in the Allure report
+     * @throws NullPointerException     if driver or element is null
+     * @throws IllegalArgumentException if name is null or blank
      */
-    public static void attachElementToAllure(WebDriver driver, WebElement element, String name) {
+    public static void attachElement(WebDriver driver, WebElement element, String name) {
+        validateName(name);
         log.step("Capturing element screenshot: " + name);
-        try {
-            Screenshot screenshot = new AShot()
-                    .takeScreenshot(driver, element);
-            byte[] bytes = toBytes(screenshot.getImage());
-            Allure.addAttachment(name, "image/png", new ByteArrayInputStream(bytes), ".png");
-        } catch (Exception e) {
-            log.warn("Element screenshot failed: " + e.getMessage());
-        }
+        byte[] bytes = captureElement(driver, element);
+        attachBytesToAllure(bytes, name);
     }
 
-    // ── Disk saves ────────────────────────────────────────────────────────────
+    // ── Save Methods (Capture + Save to Disk, NO Allure Attachment) ──────────
 
     /**
-     * Saves a viewport screenshot to {@code <dir>/<name>_<timestamp>.png} and
-     * also attaches it to the current Allure step.
+     * Captures a viewport screenshot and saves it to disk.
+     * Does NOT attach to Allure report (follows Single Responsibility Principle).
      *
      * @param driver active WebDriver
      * @param dir    target directory (created automatically if absent)
      * @param name   base filename (timestamp is appended)
      * @return path of the saved file
+     * @throws NullPointerException     if driver is null
+     * @throws IllegalArgumentException if dir or name is null/blank
+     * @throws RuntimeException         if file save fails
      */
-    public static Path saveToFile(WebDriver driver, String dir, String name) {
-        log.step("Saving screenshot to disk: " + dir + "/" + name);
+    public static Path saveViewport(WebDriver driver, String dir, String name) {
+        validateDirectory(dir);
+        validateName(name);
+        log.step("Saving viewport screenshot to disk: " + dir + "/" + name);
+        byte[] bytes = captureViewport(driver);
+        return saveBytesToFile(bytes, dir, name);
+    }
+
+    /**
+     * Captures a full-page screenshot and saves it to disk.
+     * Does NOT attach to Allure report (follows Single Responsibility Principle).
+     *
+     * @param driver active WebDriver
+     * @param dir    target directory (created automatically if absent)
+     * @param name   base filename (timestamp is appended)
+     * @return path of the saved file
+     * @throws NullPointerException     if driver is null
+     * @throws IllegalArgumentException if dir or name is null/blank
+     * @throws RuntimeException         if file save fails
+     */
+    public static Path saveFullPage(WebDriver driver, String dir, String name) {
+        validateDirectory(dir);
+        validateName(name);
+        log.step("Saving full-page screenshot to disk: " + dir + "/" + name);
+        byte[] bytes = captureFullPage(driver);
+        return saveBytesToFile(bytes, dir, name + "_fullpage");
+    }
+
+    /**
+     * Saves screenshot bytes to a file with timestamp.
+     *
+     * @param bytes screenshot bytes
+     * @param dir   target directory
+     * @param name  base filename
+     * @return path of the saved file
+     * @throws RuntimeException if file save fails
+     */
+    private static Path saveBytesToFile(byte[] bytes, String dir, String name) {
         try {
             Path directory = Paths.get(dir);
             Files.createDirectories(directory);
 
-            String filename = name + "_" + LocalDateTime.now().format(TIMESTAMP_FMT) + ".png";
-            Path filePath   = directory.resolve(filename);
+            String filename = name + "_" + LocalDateTime.now().format(TIMESTAMP_FMT) + FILE_EXTENSION;
+            Path filePath = directory.resolve(filename);
 
-            byte[] bytes = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
             Files.write(filePath, bytes);
-
-            // Also attach to Allure
-            Allure.addAttachment(name, "image/png", new ByteArrayInputStream(bytes), ".png");
             log.info("Screenshot saved", filePath.toString());
             return filePath;
         } catch (IOException e) {
@@ -138,86 +296,105 @@ public final class ScreenshotUtils {
         }
     }
 
+    // ── Deprecated Methods (Backward Compatibility) ───────────────────────────
+
     /**
-     * Saves a full-page AShot screenshot to disk.
-     *
-     * @param driver active WebDriver
-     * @param dir    target directory
-     * @param name   base filename
-     * @return path of the saved file
+     * @deprecated Use {@link #attachViewport(WebDriver, String)} instead.
+     * This method is maintained for backward compatibility.
      */
-    public static Path saveFullPageToFile(WebDriver driver, String dir, String name) {
-        log.step("Saving full-page screenshot to disk: " + dir + "/" + name);
+    @Deprecated(since = "1.1", forRemoval = true)
+    public static void attachToAllure(WebDriver driver, String name) {
+        attachViewport(driver, name);
+    }
+
+    /**
+     * @deprecated Use {@link #attachFullPage(WebDriver, String)} instead.
+     * This method is maintained for backward compatibility.
+     */
+    @Deprecated(since = "1.1", forRemoval = true)
+    public static void attachFullPageToAllure(WebDriver driver, String name) {
+        attachFullPage(driver, name);
+    }
+
+    /**
+     * @deprecated Use {@link #attachElement(WebDriver, WebElement, String)} instead.
+     * This method is maintained for backward compatibility.
+     */
+    @Deprecated(since = "1.1", forRemoval = true)
+    public static void attachElementToAllure(WebDriver driver, WebElement element, String name) {
+        attachElement(driver, element, name);
+    }
+
+    /**
+     * @deprecated Use {@link #captureFullPage(WebDriver)} instead.
+     * This method is maintained for backward compatibility.
+     */
+    @Deprecated(since = "1.1", forRemoval = true)
+    public static byte[] takeFullPageScreenshot(WebDriver driver) {
+        return captureFullPage(driver);
+    }
+
+    /**
+     * @deprecated Use {@link #captureViewport(WebDriver)} instead.
+     * This method is maintained for backward compatibility.
+     */
+    @Deprecated(since = "1.1", forRemoval = true)
+    public static byte[] takeBytes(WebDriver driver) {
+        return captureViewport(driver);
+    }
+
+    // ── Cleanup Utilities ─────────────────────────────────────────────────────
+
+    /**
+     * Cleans up old screenshot files from the specified directory.
+     * Removes PNG files older than the specified number of days.
+     *
+     * @param dir     directory to clean
+     * @param daysOld files older than this will be deleted
+     * @throws RuntimeException if cleanup fails
+     */
+    public static void cleanupOldScreenshots(String dir, int daysOld) {
+        validateDirectory(dir);
+        if (daysOld < 0) {
+            throw new IllegalArgumentException("daysOld must be non-negative");
+        }
+
+        log.info("Cleaning up screenshots older than " + daysOld + " days from: " + dir);
         try {
             Path directory = Paths.get(dir);
-            Files.createDirectories(directory);
+            if (!Files.exists(directory)) {
+                log.debug("Directory does not exist, nothing to clean: " + dir);
+                return;
+            }
 
-            String filename = name + "_fullpage_" + LocalDateTime.now().format(TIMESTAMP_FMT) + ".png";
-            Path filePath   = directory.resolve(filename);
+            long cutoffTime = System.currentTimeMillis() - (daysOld * 24L * 60 * 60 * 1000);
+            final long[] deletedCount = {0};
 
-            Screenshot screenshot = new AShot()
-                    .shootingStrategy(ShootingStrategies.viewportPasting(100))
-                    .takeScreenshot(driver);
+            Files.walk(directory)
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(FILE_EXTENSION))
+                    .filter(path -> {
+                        try {
+                            return Files.getLastModifiedTime(path).toMillis() < cutoffTime;
+                        } catch (IOException e) {
+                            log.warn("Could not check file time: " + path, e);
+                            return false;
+                        }
+                    })
+                    .forEach(path -> {
+                        try {
+                            Files.deleteIfExists(path);
+                            deletedCount[0]++;
+                            log.debug("Deleted old screenshot: " + path);
+                        } catch (IOException e) {
+                            log.warn("Could not delete file: " + path, e);
+                        }
+                    });
 
-            ImageIO.write(screenshot.getImage(), "PNG", filePath.toFile());
-
-            // Also attach to Allure
-            byte[] bytes = toBytes(screenshot.getImage());
-            Allure.addAttachment(name, "image/png", new ByteArrayInputStream(bytes), ".png");
-            log.info("Full-page screenshot saved", filePath.toString());
-            return filePath;
+            log.info("Cleanup complete. Deleted " + deletedCount[0] + " old screenshot(s)");
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save full-page screenshot to: " + dir, e);
+            throw new RuntimeException("Failed to cleanup screenshots in: " + dir, e);
         }
-    }
-
-    // ── Raw bytes helper ──────────────────────────────────────────────────────
-
-    /**
-     * Returns the raw PNG bytes of a full-page screenshot (using AShot scrolling strategy).
-     * Does not attach to Allure or save to disk — use this when you want raw bytes only.
-     *
-     * @param driver active WebDriver
-     * @return PNG byte array of full-page screenshot
-     */
-    public static byte[] takeFullPageScreenshot(WebDriver driver) {
-        try {
-            Screenshot screenshot = new AShot()
-                    .shootingStrategy(ShootingStrategies.viewportPasting(100))
-                    .takeScreenshot(driver);
-            return toBytes(screenshot.getImage());
-        } catch (Exception e) {
-            log.warn("Full-page screenshot failed, falling back to viewport: " + e.getMessage());
-            return takeBytes(driver);
-        }
-    }
-
-    /**
-     * Returns the raw PNG bytes of a viewport screenshot without saving or attaching.
-     *
-     * @param driver active WebDriver
-     * @return PNG byte array
-     */
-    public static byte[] takeBytes(WebDriver driver) {
-        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
-    }
-
-    /**
-     * Returns an {@link InputStream} wrapping the PNG bytes of a viewport screenshot.
-     *
-     * @param driver active WebDriver
-     * @return PNG input stream
-     */
-    public static InputStream takeAsStream(WebDriver driver) {
-        return new ByteArrayInputStream(takeBytes(driver));
-    }
-
-    // ── Internal helpers ──────────────────────────────────────────────────────
-
-    private static byte[] toBytes(BufferedImage image) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImageIO.write(image, "PNG", out);
-        return out.toByteArray();
     }
 }
 

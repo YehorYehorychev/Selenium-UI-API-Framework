@@ -77,6 +77,7 @@ public abstract class BaseComponent {
         try {
             return wait.until(ExpectedConditions.visibilityOfElementLocated(rootLocator)) != null;
         } catch (TimeoutException | NoSuchElementException e) {
+            log.debug("Component not visible: " + rootLocator + " - " + e.getMessage());
             return false;
         }
     }
@@ -91,6 +92,7 @@ public abstract class BaseComponent {
         try {
             return getRoot() != null;
         } catch (TimeoutException | NoSuchElementException e) {
+            log.debug("Component not present: " + rootLocator + " - " + e.getMessage());
             return false;
         }
     }
