@@ -10,21 +10,17 @@ import java.util.stream.Collectors;
 /**
  * Footer component — represents the site footer with links, social icons, and legal info.
  *
- * <p>This component encapsulates the footer section including:
- * <ul>
- *   <li>Footer navigation links (About, Careers, Support, etc.)</li>
- *   <li>Social media icons</li>
- *   <li>Copyright notice</li>
- *   <li>Legal links (Privacy Policy, Terms of Service)</li>
- * </ul>
+ * Encapsulates:
+ *   - Footer navigation links (About, Careers, Support, etc.)
+ *   - Social media icons
+ *   - Copyright notice
+ *   - Legal links (Privacy Policy, Terms of Service)
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   FooterComponent footer = new FooterComponent(driver);
  *   footer.clickLink("About Us");
  *   String copyright = footer.getCopyrightText();
  *   assertTrue(footer.hasLegalLink("Privacy Policy"));
- * }</pre>
  */
 public class FooterComponent extends BaseComponent {
 
@@ -41,9 +37,9 @@ public class FooterComponent extends BaseComponent {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code FooterComponent} bound to the site footer.
+     * Creates a FooterComponent bound to the site footer.
      *
-     * @param driver active {@link WebDriver} instance
+     * @param driver active WebDriver instance
      */
     public FooterComponent(WebDriver driver) {
         super(driver, By.cssSelector("footer, [role='contentinfo']"));
@@ -54,7 +50,7 @@ public class FooterComponent extends BaseComponent {
     /**
      * Clicks a footer link by its visible text.
      *
-     * @param linkText visible text of the link (e.g. {@code "About Us"}, {@code "Careers"})
+     * @param linkText visible text of the link (e.g. "About Us", "Careers")
      */
     public void clickLink(String linkText) {
         log.step("Clicking footer link: " + linkText);
@@ -75,7 +71,7 @@ public class FooterComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if a link with the given text is present in the footer.
+     * Returns true if a link with the given text is present in the footer.
      *
      * @param linkText link text to check
      * @return presence status
@@ -97,7 +93,7 @@ public class FooterComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if social media icons are visible in the footer.
+     * Returns true if social media icons are visible in the footer.
      *
      * @return social icons visibility status
      */
@@ -128,7 +124,7 @@ public class FooterComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if the copyright text contains the current year.
+     * Returns true if the copyright text contains the current year.
      *
      * @return whether copyright contains current year
      */
@@ -150,9 +146,9 @@ public class FooterComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if a legal link with the given text is present.
+     * Returns true if a legal link with the given text is present.
      *
-     * @param linkText legal link text to check (e.g. {@code "Privacy Policy"})
+     * @param linkText legal link text to check (e.g. "Privacy Policy")
      * @return presence status
      */
     public boolean hasLegalLink(String linkText) {
@@ -171,4 +167,3 @@ public class FooterComponent extends BaseComponent {
         click(locator);
     }
 }
-

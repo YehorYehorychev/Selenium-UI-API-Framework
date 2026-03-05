@@ -12,8 +12,8 @@ import static org.testng.Assert.assertTrue;
 /**
  * Step definitions for smoke-level navigation scenarios.
  *
- * <p>Uses {@link HomePage} Page Object — no raw WebDriver calls in step definitions.
- * PicoContainer injects {@link DriverContext}; parallel-safe.
+ * Uses HomePage Page Object — no raw WebDriver calls in step definitions.
+ * PicoContainer injects DriverContext; parallel-safe.
  */
 public class SmokeSteps {
 
@@ -82,4 +82,3 @@ public class SmokeSteps {
         );
     }
 }
-

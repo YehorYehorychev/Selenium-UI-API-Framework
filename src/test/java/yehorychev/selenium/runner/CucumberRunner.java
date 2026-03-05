@@ -7,19 +7,17 @@ import org.testng.annotations.DataProvider;
 /**
  * Cucumber TestNG runner — connects Cucumber's BDD engine to TestNG.
  *
- * <p>Connects Cucumber's BDD engine to TestNG so that scenarios are discovered,
- * executed, and reported through the standard Maven Surefire / Allure pipeline.
+ * Scenarios are discovered, executed, and reported through the standard
+ * Maven Surefire / Allure pipeline.
  *
- * <p>Configuration:
- * <ul>
- *   <li>{@code features}   — path to {@code .feature} files</li>
- *   <li>{@code glue}       — packages containing step definitions, hooks, and context</li>
- *   <li>{@code plugin}     — report formatters (pretty console, Allure JSON)</li>
- *   <li>{@code monochrome} — clean console output without ANSI colour codes</li>
- *   <li>{@code tags}       — run only scenarios matching this tag expression</li>
- * </ul>
+ * Configuration:
+ *   features   — path to .feature files
+ *   glue       — packages containing step definitions, hooks, and context
+ *   plugin     — report formatters (pretty console, Allure JSON)
+ *   monochrome — clean console output without ANSI colour codes
+ *   tags       — run only scenarios matching this tag expression
  *
- * <p>Parallel execution is controlled by TestNG's {@code @DataProvider(parallel = true)}
+ * Parallel execution is controlled by TestNG's @DataProvider(parallel = true)
  * together with Maven Surefire's thread count configuration.
  */
 @CucumberOptions(
@@ -40,10 +38,9 @@ import org.testng.annotations.DataProvider;
 public class CucumberRunner extends AbstractTestNGCucumberTests {
 
     /**
-     * Enables parallel scenario execution when {@code parallel = true}.
-     *
-     * <p>The thread count is governed by the TestNG suite XML or Surefire config.
-     * Set {@code parallel = false} to run scenarios sequentially (useful for debugging).
+     * Enables parallel scenario execution when parallel = true.
+     * The thread count is governed by the TestNG suite XML or Surefire config.
+     * Set parallel = false to run scenarios sequentially (useful for debugging).
      *
      * @return scenario data provider for TestNG
      */
@@ -53,4 +50,3 @@ public class CucumberRunner extends AbstractTestNGCucumberTests {
         return super.scenarios();
     }
 }
-

@@ -8,22 +8,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Game Cards component — represents a grid of game cards displayed on the home page.
+ * Game Cards component — represents the grid of game cards on the home page.
  *
- * <p>This component encapsulates the game cards section including:
- * <ul>
- *   <li>Individual game cards (LoL, TFT, Valorant, etc.)</li>
- *   <li>Card images and titles</li>
- *   <li>Hover effects and CTAs</li>
- * </ul>
+ * Encapsulates:
+ *   - Individual game cards (LoL, TFT, Valorant, etc.)
+ *   - Card images and titles
+ *   - Hover effects and CTAs
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   GameCardsComponent gameCards = new GameCardsComponent(driver);
  *   gameCards.clickGameCard("League of Legends");
  *   int count = gameCards.getCardCount();
  *   assertTrue(gameCards.hasCard("TFT"));
- * }</pre>
  */
 public class GameCardsComponent extends BaseComponent {
 
@@ -39,9 +35,9 @@ public class GameCardsComponent extends BaseComponent {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code GameCardsComponent} bound to the game cards section.
+     * Creates a GameCardsComponent bound to the game cards section.
      *
-     * @param driver active {@link WebDriver} instance
+     * @param driver active WebDriver instance
      */
     public GameCardsComponent(WebDriver driver) {
         super(driver, By.cssSelector(".game-cards, [data-testid='game-cards-section']"));
@@ -52,7 +48,7 @@ public class GameCardsComponent extends BaseComponent {
     /**
      * Clicks a game card by its title.
      *
-     * @param gameTitle game title (e.g. {@code "League of Legends"}, {@code "TFT"})
+     * @param gameTitle game title (e.g. "League of Legends", "TFT")
      */
     public void clickGameCard(String gameTitle) {
         log.step("Clicking game card: " + gameTitle);
@@ -82,7 +78,7 @@ public class GameCardsComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if a card with the given title is present.
+     * Returns true if a card with the given title is present.
      *
      * @param gameTitle game title to check
      * @return presence status
@@ -108,4 +104,3 @@ public class GameCardsComponent extends BaseComponent {
                 .perform();
     }
 }
-

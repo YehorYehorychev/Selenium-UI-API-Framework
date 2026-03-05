@@ -3,27 +3,21 @@ package com.yehorychev.selenium.helpers;
 import org.slf4j.LoggerFactory;
 
 /**
- * Lightweight structured logger — analogue of {@code logger.ts}.
+ * Lightweight structured logger — wraps SLF4J with test-friendly convenience methods.
  *
- * <p>Wraps SLF4J with convenience methods for structured test logging:
- * {@code debug / info / warn / error / step}.  The {@code step()} method
- * mirrors the {@code log.step("→ message")} pattern used in TypeScript.
+ * Methods:
+ *   - step()  — marks a key test milestone, always at INFO level with a → prefix
+ *   - info()  — general informational message
+ *   - debug() — verbose detail, only visible at DEBUG log level
+ *   - warn()  — non-fatal issue worth noting
+ *   - error() — failure or unexpected condition
  *
- * <p>Log verbosity is controlled by SLF4J / the underlying implementation
- * (Simple, Logback, etc.) via the standard {@code org.slf4j.simpleLogger.defaultLogLevel}
- * system property or {@code simplelogger.properties} on the classpath.
+ * Log verbosity is controlled via simplelogger.properties on the classpath
+ * or the org.slf4j.simpleLogger.defaultLogLevel system property.
  *
- * <p>Usage:
- * <pre>{@code
- *   public class HomePage extends BasePage {
- *       private final Logger log = new Logger(HomePage.class);
- *
- *       public void navigate() {
- *           log.step("Navigating to home page");
- *           driver.get(TestConfig.BASE_URL);
- *       }
- *   }
- * }</pre>
+ * Usage:
+ *   private final Logger log = new Logger(HomePage.class);
+ *   log.step("Navigating to home page");
  */
 public class Logger {
 
@@ -40,9 +34,8 @@ public class Logger {
 
     /**
      * Creates a logger with an arbitrary string name.
-     * Useful for non-class contexts such as static helpers.
      *
-     * @param name logger name (e.g. {@code "AuthHelper"}, {@code "Fixtures"})
+     * @param name logger name (e.g. "AuthHelper")
      */
     public Logger(String name) {
         this.log = LoggerFactory.getLogger(name);
@@ -51,8 +44,7 @@ public class Logger {
     // ── Logging methods ─────────────────────────────────────────────────────
 
     /**
-     * Logs an important milestone — analogue of {@code log.step("→ message")} in TS.
-     * Always logged at INFO level, prefixed with {@code →} for visual distinction.
+     * Logs an important milestone — always at INFO level, prefixed with → for visual distinction.
      *
      * @param message step description
      */
@@ -111,7 +103,7 @@ public class Logger {
      * Logs a warning with an optional cause.
      *
      * @param message warning description
-     * @param cause   optional throwable (may be {@code null})
+     * @param cause   optional throwable (may be null)
      */
     public void warn(String message, Throwable cause) {
         log.warn(message, cause);
@@ -136,4 +128,3 @@ public class Logger {
         log.error(message, cause);
     }
 }
-

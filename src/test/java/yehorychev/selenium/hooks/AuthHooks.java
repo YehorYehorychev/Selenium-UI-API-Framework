@@ -11,33 +11,22 @@ import yehorychev.selenium.context.ScenarioContext;
 import java.util.Map;
 
 /**
- * Authentication setup hook — analogous to the {@code authenticatedPage} auto-fixture
- * in Playwright that calls {@code loginViaAPI()} before authenticated scenarios.
+ * Authentication setup hook — logs in via API before @authenticated scenarios.
  *
- * <p>Only scenarios tagged with {@code @authenticated} trigger this hook.
+ * Responsibilities:
+ *   - @Before("@authenticated", order=2) — POST /api/auth/login, inject token+cookies into WebDriver
+ *   - @After("@authenticated",  order=3) — clear browser cookies, remove authToken from ScenarioContext
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>{@code @Before("@authenticated", order = 2)} — calls {@link AuthHelper#loginAndInject(org.openqa.selenium.WebDriver)}
- *       to authenticate via the REST API and inject the session token/cookies
- *       into the active {@link org.openqa.selenium.WebDriver}</li>
- *   <li>Stores the auth token in {@link ScenarioContext} under key {@code "authToken"}
- *       so step definitions can access it without re-authenticating</li>
- * </ul>
+ * Hook order:
+ *   Before "not @api"      order=0 — DriverHooks.setUp        (driver starts)
+ *   Before "@api"          order=1 — ApiHooks.setUpApi         (if also @api)
+ *   Before "@authenticated" order=2 — AuthHooks.setUpAuthentication (this class)
+ *   After  "@authenticated" order=3 — AuthHooks.tearDownAuthentication (this class)
+ *   After  "@api"          order=5 — ApiHooks.tearDownApi
+ *   After  "not @api"      order=10 — DriverHooks.captureFailure
+ *   After  "not @api"      order=0  — DriverHooks.tearDown
  *
- * <p>Hook execution order:
- * <ol>
- *   <li>{@code Before order=0} — DriverHooks.setUp — driver starts</li>
- *   <li>{@code Before order=1} — ApiHooks.setUpApi — API client configured (if {@code @api})</li>
- *   <li>{@code Before order=2} — {@link #setUpAuthentication(Scenario)} — login via API + inject cookies</li>
- *   <li>scenario runs as an authenticated user</li>
- *   <li>{@code After order=5}  — ApiHooks.tearDownApi — API state reset</li>
- *   <li>{@code After order=10} — DriverHooks.captureFailure</li>
- *   <li>{@code After order=0}  — DriverHooks.tearDown — driver quits</li>
- * </ol>
- *
- * <p>PicoContainer injects {@link DriverContext} and {@link ScenarioContext}
- * per-scenario — no static state.
+ * PicoContainer injects DriverContext and ScenarioContext per-scenario — no static state.
  */
 public class AuthHooks {
 
@@ -60,16 +49,12 @@ public class AuthHooks {
     // ── Before ───────────────────────────────────────────────────────────────
 
     /**
-     * Fires before each {@code @authenticated}-tagged scenario.
+     * Fires before each @authenticated scenario.
+     * Authenticates via the REST API and injects the session token/cookies into
+     * the WebDriver — no UI login form required.
+     * Stores the token in ScenarioContext under key "authToken" for use in steps.
      *
-     * <p>Authenticates via the REST API and injects the resulting session
-     * token / cookies into the WebDriver so that subsequent page navigations
-     * are already authenticated — no UI login form required.
-     *
-     * <p>The auth token is stored in {@link ScenarioContext} under key
-     * {@code "authToken"} for use in step definitions.
-     *
-     * @param scenario Cucumber {@link Scenario} metadata
+     * @param scenario Cucumber Scenario metadata
      */
     @Before(value = "@authenticated", order = 2)
     public void setUpAuthentication(Scenario scenario) {
@@ -102,14 +87,11 @@ public class AuthHooks {
     // ── After ────────────────────────────────────────────────────────────────
 
     /**
-     * Fires after each {@code @authenticated}-tagged scenario.
+     * Fires after each @authenticated scenario.
+     * Clears browser cookies and removes authToken from ScenarioContext
+     * so no auth state leaks between scenarios.
      *
-     * <p>Clears browser cookies and removes the auth token from {@link ScenarioContext}
-     * to ensure no auth state leaks between scenarios.
-     *
-     * <p>Runs at {@code order = 3} — after steps but well before driver quit (order 0).
-     *
-     * @param scenario Cucumber {@link Scenario} metadata
+     * @param scenario Cucumber Scenario metadata
      */
     @After(value = "@authenticated", order = 3)
     public void tearDownAuthentication(Scenario scenario) {
@@ -126,4 +108,3 @@ public class AuthHooks {
         }
     }
 }
-

@@ -23,32 +23,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
- * Screenshot helpers — full-page, viewport and element-level captures via AShot,
+ * Screenshot helpers — full-page, viewport, and element-level captures via AShot,
  * with automatic Allure report attachment.
  *
- * <p>All methods are static — no instantiation needed.
+ * All methods are static — no instantiation needed.
  *
- * <p><strong>Naming Convention</strong>:
- * <ul>
- *   <li>{@code capture*} — Returns raw byte[] without side effects</li>
- *   <li>{@code attach*} — Captures and attaches to Allure report</li>
- *   <li>{@code save*} — Captures and saves to file system (no Allure attachment)</li>
- * </ul>
+ * Naming convention:
+ *   capture* — returns raw byte[] without side effects
+ *   attach*  — captures and attaches to the Allure report
+ *   save*    — captures and saves to the file system (no Allure attachment)
  *
- * <p>Usage:
- * <pre>{@code
- *   // Attach screenshots to Allure
+ * Usage:
  *   ScreenshotUtils.attachViewport(driver, "Login page");
  *   ScreenshotUtils.attachFullPage(driver, "Full home page");
  *   ScreenshotUtils.attachElement(driver, element, "Submit button");
- *
- *   // Save to disk only (no Allure attachment)
  *   Path file = ScreenshotUtils.saveViewport(driver, "target/screenshots", "checkout");
- *   Path fullPage = ScreenshotUtils.saveFullPage(driver, "target/screenshots", "homepage");
- *
- *   // Get raw bytes (for custom processing)
  *   byte[] bytes = ScreenshotUtils.captureFullPage(driver);
- * }</pre>
  */
 public final class ScreenshotUtils {
 
@@ -299,8 +289,7 @@ public final class ScreenshotUtils {
     // ── Deprecated Methods (Backward Compatibility) ───────────────────────────
 
     /**
-     * @deprecated Use {@link #attachViewport(WebDriver, String)} instead.
-     * This method is maintained for backward compatibility.
+     * @deprecated Use attachViewport(WebDriver, String) instead.
      */
     @Deprecated(since = "1.1", forRemoval = true)
     public static void attachToAllure(WebDriver driver, String name) {
@@ -308,8 +297,7 @@ public final class ScreenshotUtils {
     }
 
     /**
-     * @deprecated Use {@link #attachFullPage(WebDriver, String)} instead.
-     * This method is maintained for backward compatibility.
+     * @deprecated Use attachFullPage(WebDriver, String) instead.
      */
     @Deprecated(since = "1.1", forRemoval = true)
     public static void attachFullPageToAllure(WebDriver driver, String name) {
@@ -317,8 +305,7 @@ public final class ScreenshotUtils {
     }
 
     /**
-     * @deprecated Use {@link #attachElement(WebDriver, WebElement, String)} instead.
-     * This method is maintained for backward compatibility.
+     * @deprecated Use attachElement(WebDriver, WebElement, String) instead.
      */
     @Deprecated(since = "1.1", forRemoval = true)
     public static void attachElementToAllure(WebDriver driver, WebElement element, String name) {
@@ -326,8 +313,7 @@ public final class ScreenshotUtils {
     }
 
     /**
-     * @deprecated Use {@link #captureFullPage(WebDriver)} instead.
-     * This method is maintained for backward compatibility.
+     * @deprecated Use captureFullPage(WebDriver) instead.
      */
     @Deprecated(since = "1.1", forRemoval = true)
     public static byte[] takeFullPageScreenshot(WebDriver driver) {
@@ -335,8 +321,7 @@ public final class ScreenshotUtils {
     }
 
     /**
-     * @deprecated Use {@link #captureViewport(WebDriver)} instead.
-     * This method is maintained for backward compatibility.
+     * @deprecated Use captureViewport(WebDriver) instead.
      */
     @Deprecated(since = "1.1", forRemoval = true)
     public static byte[] takeBytes(WebDriver driver) {

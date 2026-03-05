@@ -7,16 +7,14 @@ import org.openqa.selenium.WebDriver;
 /**
  * Page Object for the Mobalytics home page.
  *
- * <p>All selectors are encapsulated here; steps and tests interact only through
- * the public methods, so selector changes require edits in a single place.
+ * All selectors are encapsulated here — steps interact only through public methods,
+ * so selector changes require edits in a single place.
  *
- * <p>Usage:
- * <pre>{@code
- *   HomePage homePage = new HomePage(context.getDriver());
+ * Usage:
+ *   HomePage homePage = new HomePage(driverContext.getDriver());
  *   homePage.open();
  *   assertTrue(homePage.isLoaded());
  *   homePage.clickNavGame("LoL");
- * }</pre>
  */
 public class HomePage extends BasePage {
 
@@ -49,7 +47,7 @@ public class HomePage extends BasePage {
 
     /**
      * A specific navigation game link by its visible text.
-     * Use {@link #getNavGameLocator(String)} to build the locator dynamically.
+     * Use getNavGameLocator(String) to build the locator dynamically.
      */
     private static final String NAV_LINK_XPATH = "//nav[contains(@class,'site-navigation')]//li[contains(@class,'menu-item')]/a[normalize-space()='%s']";
 
@@ -61,9 +59,9 @@ public class HomePage extends BasePage {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code HomePage} instance bound to the given driver.
+     * Creates a HomePage instance bound to the given driver.
      *
-     * @param driver active {@link WebDriver} from {@code TestContext}
+     * @param driver active WebDriver from DriverContext
      */
     public HomePage(WebDriver driver) {
         super(driver);
@@ -111,16 +109,16 @@ public class HomePage extends BasePage {
     // ── Page state / assertions ───────────────────────────────────────────────
 
     /**
-     * Returns {@code true} when the hero section is visible — page is fully loaded.
+     * Returns true when the hero section is visible — page is fully loaded.
      *
-     * @return {@code true} if the home page is loaded
+     * @return true if the home page is loaded
      */
     public boolean isLoaded() {
         return isVisible(HERO_SECTION);
     }
 
     /**
-     * Returns {@code true} if the site header is visible.
+     * Returns true if the site header is visible.
      *
      * @return header visibility
      */
@@ -147,7 +145,7 @@ public class HomePage extends BasePage {
     }
 
     /**
-     * Returns {@code true} if a game nav link with the given label exists in the header.
+     * Returns true if a game nav link with the given label exists in the header.
      *
      * @param gameName the visible text of the nav item
      * @return presence of the nav item
@@ -170,8 +168,8 @@ public class HomePage extends BasePage {
     /**
      * Builds an XPath locator for a navigation game link by its visible text.
      *
-     * @param gameName visible nav item label (e.g. {@code "LoL"})
-     * @return {@link By} XPath locator
+     * @param gameName visible nav item label (e.g. "LoL")
+     * @return By XPath locator
      */
     private By getNavGameLocator(String gameName) {
         return By.xpath(String.format(NAV_LINK_XPATH, gameName));

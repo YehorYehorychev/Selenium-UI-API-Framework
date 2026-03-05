@@ -3,12 +3,8 @@ package com.yehorychev.selenium.errors;
 /**
  * Thrown when API or UI authentication fails.
  *
- * <p>Analogue of {@code AuthenticationError} in {@code test-errors.ts}.
- *
- * <p>Example:
- * <pre>{@code
- *   throw new AuthenticationException("loginViaApi returned success=false");
- * }</pre>
+ * Example:
+ *   throw new AuthenticationException("loginViaApi returned HTTP 401");
  */
 public class AuthenticationException extends FrameworkException {
 

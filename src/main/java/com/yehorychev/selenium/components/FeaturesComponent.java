@@ -10,20 +10,16 @@ import java.util.stream.Collectors;
 /**
  * Features component — represents the features/benefits section on the landing page.
  *
- * <p>This component encapsulates the features section including:
- * <ul>
- *   <li>Feature cards with icons and descriptions</li>
- *   <li>Section heading and subheading</li>
- *   <li>Feature highlights</li>
- * </ul>
+ * Encapsulates:
+ *   - Feature cards with icons and descriptions
+ *   - Section heading and subheading
+ *   - Feature highlights
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   FeaturesComponent features = new FeaturesComponent(driver);
  *   int count = features.getFeatureCount();
  *   List<String> titles = features.getFeatureTitles();
  *   assertTrue(features.hasFeature("Real-time Analytics"));
- * }</pre>
  */
 public class FeaturesComponent extends BaseComponent {
 
@@ -38,9 +34,9 @@ public class FeaturesComponent extends BaseComponent {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code FeaturesComponent} bound to the features section.
+     * Creates a FeaturesComponent bound to the features section.
      *
-     * @param driver active {@link WebDriver} instance
+     * @param driver active WebDriver instance
      */
     public FeaturesComponent(WebDriver driver) {
         super(driver, By.cssSelector(".features, [data-testid='features-section']"));
@@ -91,7 +87,7 @@ public class FeaturesComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if a feature with the given title is present.
+     * Returns true if a feature with the given title is present.
      *
      * @param featureTitle feature title to check
      * @return presence status
@@ -102,7 +98,7 @@ public class FeaturesComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if feature icons are visible.
+     * Returns true if feature icons are visible.
      *
      * @return icon visibility status
      */
@@ -110,4 +106,3 @@ public class FeaturesComponent extends BaseComponent {
         return !findElements(FEATURE_ICONS).isEmpty();
     }
 }
-

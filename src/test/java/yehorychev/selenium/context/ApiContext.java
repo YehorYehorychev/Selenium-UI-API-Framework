@@ -10,29 +10,22 @@ import io.restassured.specification.RequestSpecification;
 import java.util.Map;
 
 /**
- * REST API context for Cucumber scenarios — wraps RestAssured {@link RequestSpecification}.
+ * REST API context for Cucumber scenarios — wraps RestAssured RequestSpecification.
  *
- * <p>Injected via PicoContainer into API-focused step definitions. Pre-configures
- * base URI, headers, logging, and provides convenience wrappers for GET / POST / PUT / DELETE.
+ * Injected via PicoContainer into API-focused step definitions.
+ * Pre-configures base URI, content type, and logging for every request.
+ * Provides convenience wrappers for GET / POST / PUT / PATCH / DELETE / GraphQL.
  *
- * <p>Analogous to Playwright's {@code request} fixture or Axios/fetch client instances.
- *
- * <p>Usage in step definitions:
- * <pre>{@code
+ * Usage in step definitions:
  *   public class ApiSteps {
  *       private final ApiContext api;
+ *       public ApiSteps(ApiContext api) { this.api = api; }
  *
- *       public ApiSteps(ApiContext api) {
- *           this.api = api;
- *       }
- *
- *       @When("I fetch user profile via API")
- *       public void iFetchUserProfile() {
+ *       @When("I fetch user profile")
+ *       public void fetchProfile() {
  *           Response response = api.get("/api/users/me");
- *           // assertions...
  *       }
  *   }
- * }</pre>
  */
 public class ApiContext {
 
@@ -43,7 +36,8 @@ public class ApiContext {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Initializes the API context with sensible defaults from {@link TestConfig}.
+     * Initializes the API context with defaults from TestConfig.
+     * Base URI, JSON content type, and validation-fail logging are pre-configured.
      */
     public ApiContext() {
         log.debug("Initialising ApiContext");
@@ -57,7 +51,7 @@ public class ApiContext {
     // ── Accessors ────────────────────────────────────────────────────────────
 
     /**
-     * Returns the underlying {@link RequestSpecification} for advanced customisation.
+     * Returns the underlying RequestSpecification for advanced customisation.
      *
      * @return RestAssured request spec
      */
@@ -66,20 +60,20 @@ public class ApiContext {
     }
 
     /**
-     * Clones the current spec and adds an authorization header.
+     * Returns a spec clone with a Bearer token authorization header.
      *
      * @param token bearer token
-     * @return new {@link RequestSpecification} with the auth header
+     * @return new RequestSpecification with the auth header
      */
     public RequestSpecification withAuth(String token) {
         return requestSpec.auth().oauth2(token);
     }
 
     /**
-     * Clones the current spec and adds custom headers.
+     * Returns a spec clone with additional custom headers.
      *
      * @param headers map of header names to values
-     * @return new {@link RequestSpecification} with the headers
+     * @return new RequestSpecification with the headers
      */
     public RequestSpecification withHeaders(Map<String, String> headers) {
         return requestSpec.headers(headers);
@@ -88,10 +82,10 @@ public class ApiContext {
     // ── HTTP verbs ───────────────────────────────────────────────────────────
 
     /**
-     * Sends a GET request to the given endpoint.
+     * Sends a GET request.
      *
      * @param endpoint relative or absolute API path
-     * @return {@link Response} object for assertions
+     * @return Response for assertions
      */
     public Response get(String endpoint) {
         log.step("GET " + endpoint);
@@ -102,8 +96,8 @@ public class ApiContext {
      * Sends a POST request with a JSON body.
      *
      * @param endpoint relative or absolute API path
-     * @param body     request body (will be serialised to JSON)
-     * @return {@link Response} object for assertions
+     * @param body     request body (serialised to JSON)
+     * @return Response for assertions
      */
     public Response post(String endpoint, Object body) {
         log.step("POST " + endpoint);
@@ -114,8 +108,8 @@ public class ApiContext {
      * Sends a PUT request with a JSON body.
      *
      * @param endpoint relative or absolute API path
-     * @param body     request body (will be serialised to JSON)
-     * @return {@link Response} object for assertions
+     * @param body     request body (serialised to JSON)
+     * @return Response for assertions
      */
     public Response put(String endpoint, Object body) {
         log.step("PUT " + endpoint);
@@ -126,8 +120,8 @@ public class ApiContext {
      * Sends a PATCH request with a JSON body.
      *
      * @param endpoint relative or absolute API path
-     * @param body     request body (will be serialised to JSON)
-     * @return {@link Response} object for assertions
+     * @param body     request body (serialised to JSON)
+     * @return Response for assertions
      */
     public Response patch(String endpoint, Object body) {
         log.step("PATCH " + endpoint);
@@ -138,7 +132,7 @@ public class ApiContext {
      * Sends a DELETE request.
      *
      * @param endpoint relative or absolute API path
-     * @return {@link Response} object for assertions
+     * @return Response for assertions
      */
     public Response delete(String endpoint) {
         log.step("DELETE " + endpoint);
@@ -148,11 +142,12 @@ public class ApiContext {
     // ── GraphQL ──────────────────────────────────────────────────────────────
 
     /**
-     * Sends a GraphQL query or mutation to {@code /api/graphql/v1/query}.
+     * Sends a GraphQL query or mutation to /api/graphql/v1/query.
+     * Use constants from GraphqlQueries for the query string.
      *
-     * @param query     GraphQL query string (use constants from {@link com.yehorychev.selenium.data.GraphqlQueries})
+     * @param query     GraphQL query string
      * @param variables map of variable names to values (nullable)
-     * @return {@link Response} object for assertions
+     * @return Response for assertions
      */
     public Response graphql(String query, Map<String, Object> variables) {
         log.step("GraphQL query");
@@ -166,10 +161,9 @@ public class ApiContext {
      * Sends a GraphQL query without variables.
      *
      * @param query GraphQL query string
-     * @return {@link Response} object for assertions
+     * @return Response for assertions
      */
     public Response graphql(String query) {
         return graphql(query, null);
     }
 }
-

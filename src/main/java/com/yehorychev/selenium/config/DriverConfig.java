@@ -13,51 +13,39 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import java.time.Duration;
 
 /**
- * WebDriver factory — analogue of the browser-launch logic in {@code playwright.config.ts}.
+ * WebDriver factory — creates browser instances for Chrome, Firefox, and Edge.
  *
- * <p>Reads browser type, headless flag, and viewport from {@link TestConfig} and
- * delegates driver binary management to WebDriverManager so that no manual
- * driver downloads are required.
+ * Reads browser type, headless flag, and viewport from TestConfig.
+ * Delegates driver binary management to WebDriverManager — no manual downloads needed.
  *
- * <p>Usage:
- * <pre>{@code
- *   WebDriver driver = DriverConfig.createDriver();
- *   // or explicitly:
- *   WebDriver driver = DriverConfig.createDriver("firefox");
- * }</pre>
+ * Usage:
+ *   WebDriver driver = DriverConfig.createDriver();           // uses TestConfig.BROWSER
+ *   WebDriver driver = DriverConfig.createDriver("firefox");  // explicit override
  *
- * <p>Supported browser values (case-insensitive):
- * <ul>
- *   <li>{@code chrome}  — Google Chrome (default)</li>
- *   <li>{@code firefox} — Mozilla Firefox</li>
- *   <li>{@code edge}    — Microsoft Edge</li>
- * </ul>
+ * Supported browsers (case-insensitive): chrome | firefox | edge
  */
 public final class DriverConfig {
 
-    /**
-     * Not instantiable — all members are static.
-     */
-    private DriverConfig() {
-    }
+    /** Not instantiable — all members are static. */
+    private DriverConfig() {}
 
     // ── Public factory methods ──────────────────────────────────────────────
 
     /**
-     * Creates a {@link WebDriver} using the browser defined in {@link TestConfig}.
+     * Creates a WebDriver using the browser defined in TestConfig.
      *
-     * @return configured and ready-to-use {@link WebDriver} instance
+     * @return configured and ready-to-use WebDriver instance
      */
     public static WebDriver createDriver() {
         return createDriver(TestConfig.BROWSER);
     }
 
     /**
-     * Creates a {@link WebDriver} for the requested browser, applying headless
-     * mode and viewport from {@link TestConfig}.
+     * Creates a WebDriver for the requested browser.
+     * Applies headless mode and viewport from TestConfig.
      *
-     * @param browser target browser: {@code chrome}, {@code firefox}, or {@code edge}
-     * @return configured {@link WebDriver} instance
+     * @param browser target browser: chrome | firefox | edge
+     * @return configured WebDriver instance
      * @throws IllegalArgumentException if the browser name is not supported
      */
     public static WebDriver createDriver(String browser) {
@@ -135,8 +123,7 @@ public final class DriverConfig {
 
     /**
      * Sets the browser window size to the configured viewport dimensions.
-     * This is a no-op when {@code --window-size} is already passed via CLI args,
-     * but acts as a safety net for drivers that ignore the argument.
+     * Safety net for drivers that ignore the --window-size CLI argument.
      */
     private static void applyViewport(WebDriver driver) {
         driver.manage().window()
@@ -144,11 +131,9 @@ public final class DriverConfig {
     }
 
     /**
-     * Applies implicit wait and script/page-load timeouts.
-     *
-     * <p><strong>Note:</strong> explicit waits ({@link org.openqa.selenium.support.ui.WebDriverWait})
-     * are preferred over implicit waits for individual element interactions, but a
-     * small implicit wait here prevents flaky NoSuchElementExceptions on slow pages.
+     * Applies page-load and script timeouts.
+     * Note: a small implicit wait (500ms) is set here as a safety net for slow pages.
+     * Prefer explicit WebDriverWait for individual element interactions.
      */
     private static void applyTimeouts(WebDriver driver) {
         driver.manage().timeouts()
@@ -157,4 +142,3 @@ public final class DriverConfig {
                 .scriptTimeout(Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
     }
 }
-

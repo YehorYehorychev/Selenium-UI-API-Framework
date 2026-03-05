@@ -7,15 +7,13 @@ import org.openqa.selenium.WebDriver;
 /**
  * Page Object for the League of Legends section.
  *
- * <p>Represents the LoL-specific page with champion builds, tier lists, and game analytics.
+ * Represents the LoL-specific page with champion builds, tier lists, and game analytics.
  *
- * <p>Usage:
- * <pre>{@code
- *   LolPage lolPage = new LolPage(context.getDriver());
+ * Usage:
+ *   LolPage lolPage = new LolPage(driverContext.getDriver());
  *   lolPage.open();
  *   assertTrue(lolPage.isLoaded());
  *   lolPage.searchChampion("Ahri");
- * }</pre>
  */
 public class LolPage extends BasePage {
 
@@ -30,9 +28,9 @@ public class LolPage extends BasePage {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code LolPage} instance bound to the given driver.
+     * Creates a LolPage instance bound to the given driver.
      *
-     * @param driver active {@link WebDriver} from {@code TestContext}
+     * @param driver active WebDriver from DriverContext
      */
     public LolPage(WebDriver driver) {
         super(driver);
@@ -50,7 +48,7 @@ public class LolPage extends BasePage {
     }
 
     /**
-     * Returns {@code true} if the page is loaded (heading is visible).
+     * Returns true if the page is loaded (heading is visible).
      *
      * @return page load status
      */
@@ -82,7 +80,7 @@ public class LolPage extends BasePage {
     // ── Sections ──────────────────────────────────────────────────────────────
 
     /**
-     * Returns {@code true} if the tier list section is visible.
+     * Returns true if the tier list section is visible.
      *
      * @return tier list visibility status
      */
@@ -91,7 +89,7 @@ public class LolPage extends BasePage {
     }
 
     /**
-     * Returns {@code true} if the builds section is visible.
+     * Returns true if the builds section is visible.
      *
      * @return builds section visibility status
      */

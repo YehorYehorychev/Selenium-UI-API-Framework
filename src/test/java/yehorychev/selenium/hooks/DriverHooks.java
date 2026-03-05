@@ -9,29 +9,15 @@ import io.cucumber.java.Scenario;
 import yehorychev.selenium.context.DriverContext;
 
 /**
- * WebDriver lifecycle hooks — analogous to the {@code browser} / {@code page} auto-fixtures
- * in Playwright that set up and tear down a browser for every scenario.
+ * WebDriver lifecycle hooks — sets up and tears down a browser for every scenario.
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>{@code @Before(order = 0)} — initialize WebDriver via {@link DriverContext}</li>
- *   <li>{@code @After(order = 10)} — capture a full-page AShot screenshot and attach it
- *       to the Allure report when the scenario has failed (analogous to the
- *       {@code screenshotOnFailure} auto-fixture)</li>
- *   <li>{@code @After(order = 0)} — quit WebDriver and release resources</li>
- * </ul>
+ * Responsibilities:
+ *   - @Before("not @api", order=0)  — start WebDriver via DriverContext
+ *   - @After("not @api",  order=10) — capture AShot screenshot on failure
+ *   - @After("not @api",  order=0)  — quit WebDriver and release resources
  *
- * <p>Hook execution order (lower number fires first):
- * <ol>
- *   <li>{@code Before "not @api" order=0}  — {@link #setUp(Scenario)} — driver starts</li>
- *   <li>scenario runs</li>
- *   <li>{@code After "not @api" order=10} — {@link #captureFailureScreenshot(Scenario)} — screenshot if failed</li>
- *   <li>{@code After "not @api" order=0}  — {@link #tearDown(Scenario)} — driver quits</li>
- * </ol>
- *
- * <p>Pure {@code @api} scenarios skip all three hooks — no browser is launched.
- *
- * <p>PicoContainer injects {@link DriverContext} per-scenario — no static state.
+ * Pure @api scenarios skip all three hooks — no browser is launched.
+ * PicoContainer injects DriverContext per-scenario — no static state.
  */
 public class DriverHooks {
 
@@ -51,12 +37,10 @@ public class DriverHooks {
     // ── Before ───────────────────────────────────────────────────────────────
 
     /**
-     * Fires before each scenario that requires a browser (all except {@code @api}-only).
+     * Fires before each scenario that requires a browser (all except @api-only).
+     * No browser is started for pure API scenarios — saves time and resources.
      *
-     * <p>Pure API scenarios tagged {@code @api} (without {@code @ui}) skip this hook
-     * entirely — no browser is started, saving time and resources.
-     *
-     * @param scenario Cucumber {@link Scenario} metadata (tags, name, id)
+     * @param scenario Cucumber Scenario metadata (tags, name, id)
      */
     @Before(value = "not @api", order = 0)
     public void setUp(Scenario scenario) {
@@ -67,15 +51,12 @@ public class DriverHooks {
     // ── After ────────────────────────────────────────────────────────────────
 
     /**
-     * Fires after each scenario that had a browser — captures a full-page screenshot
-     * and attaches it to the Allure report when the scenario has failed
-     * <strong>and</strong> {@link TestConfig#SCREENSHOT_ON_FAILURE} is {@code true}.
+     * Fires after each scenario that had a browser.
+     * Captures a full-page AShot screenshot and attaches it to the Allure report
+     * when the scenario failed AND TestConfig.SCREENSHOT_ON_FAILURE is true.
+     * Runs at order=10 so the driver is still alive when the screenshot is taken.
      *
-     * <p>Runs at {@code order = 10} so it executes <em>before</em> the driver is
-     * quit (order 0), giving us a live browser window to screenshot.
-     * Skipped for {@code @api}-only scenarios (no browser).
-     *
-     * @param scenario Cucumber {@link Scenario} metadata
+     * @param scenario Cucumber Scenario metadata
      */
     @After(value = "not @api", order = 10)
     public void captureFailureScreenshot(Scenario scenario) {
@@ -101,14 +82,11 @@ public class DriverHooks {
     }
 
     /**
-     * Fires after each scenario that had a browser. Quits the WebDriver and
-     * releases all resources.
+     * Fires after each scenario that had a browser.
+     * Quits the WebDriver and releases all resources.
+     * Runs at order=0 — always last, after the screenshot hook (order=10).
      *
-     * <p>Runs at {@code order = 0} — always last so the driver is available for
-     * the screenshot hook (order 10) and any other cleanup hooks.
-     * Skipped for {@code @api}-only scenarios (no browser was started).
-     *
-     * @param scenario Cucumber {@link Scenario} metadata
+     * @param scenario Cucumber Scenario metadata
      */
     @After(value = "not @api", order = 0)
     public void tearDown(Scenario scenario) {
@@ -123,7 +101,7 @@ public class DriverHooks {
     // ── Private helpers ───────────────────────────────────────────────────────
 
     /**
-     * Replaces characters that are unsafe in file names with underscores.
+     * Replaces characters unsafe in file names with underscores.
      *
      * @param name raw scenario name
      * @return file-safe string
@@ -133,5 +111,4 @@ public class DriverHooks {
         return name.replaceAll("[^a-zA-Z0-9_\\-]", "_");
     }
 }
-
 

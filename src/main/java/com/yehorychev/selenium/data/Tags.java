@@ -1,20 +1,14 @@
 package com.yehorychev.selenium.data;
 
 /**
- * Cucumber tag constants used in {@code @CucumberOptions(tags=...)} and {@code .feature} files.
+ * Cucumber tag constants — use in @CucumberOptions(tags=...) and .feature files.
  *
- * <p>Usage in runner:
- * <pre>{@code
- *   @CucumberOptions(
- *       tags = Tags.SMOKE + " and " + Tags.UI
- *   )
- * }</pre>
+ * Usage in runner:
+ *   @CucumberOptions(tags = Tags.SMOKE + " and " + Tags.UI)
  *
- * <p>Usage in feature files:
- * <pre>{@code
+ * Usage in feature files:
  *   @smoke @ui @critical
  *   Scenario: User logs in successfully
- * }</pre>
  */
 public final class Tags {
 
@@ -106,4 +100,3 @@ public final class Tags {
     private Tags() {
     }
 }
-

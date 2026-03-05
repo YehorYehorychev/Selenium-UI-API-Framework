@@ -10,33 +10,21 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 
 /**
- * API lifecycle hooks — manages global RestAssured state for {@code @api}-tagged scenarios.
+ * API lifecycle hooks — manages global RestAssured state for @api-tagged scenarios.
  *
- * <p>Only scenarios tagged with {@code @api} trigger these hooks, so UI-only
- * scenarios are not affected.
+ * Responsibilities:
+ *   - @Before("@api", order=1) — configure RestAssured base URI and logging filters
+ *   - @After("@api",  order=5) — reset RestAssured global state between scenarios
  *
- * <p>Responsibilities:
- * <ul>
- *   <li>{@code @Before("@api", order = 1)} — configure RestAssured global baseline
- *       (base URI, logging filters) before the scenario runs</li>
- *   <li>{@code @After("@api", order = 5)}  — reset RestAssured global state so
- *       subsequent scenarios start from a clean slate</li>
- * </ul>
+ * Per-scenario ApiContext is managed by PicoContainer independently —
+ * inject it directly in step definitions, not here.
  *
- * <p>Note: Per-scenario {@link yehorychev.selenium.context.ApiContext} is managed
- * independently by PicoContainer — inject it directly in step definitions.
- *
- * <p>Hook execution order relative to {@link DriverHooks}:
- * <ol>
- *   <li>{@code Before "not @api" order=0} — DriverHooks.setUp — driver starts (UI only)</li>
- *   <li>{@code Before "@api" order=1} — {@link #setUpApi(Scenario)} — RestAssured configured</li>
- *   <li>scenario runs</li>
- *   <li>{@code After "@api" order=5}  — {@link #tearDownApi(Scenario)} — RestAssured reset</li>
- *   <li>{@code After "not @api" order=10} — DriverHooks.captureFailure (UI only)</li>
- *   <li>{@code After "not @api" order=0}  — DriverHooks.tearDown — driver quits (UI only)</li>
- * </ol>
- *
- * <p>No constructor injection required — this hook has no scenario-scoped dependencies.
+ * Hook order relative to DriverHooks:
+ *   Before "not @api" order=0 — DriverHooks.setUp       (UI only)
+ *   Before "@api"     order=1 — ApiHooks.setUpApi        (this class)
+ *   After  "@api"     order=5 — ApiHooks.tearDownApi     (this class)
+ *   After  "not @api" order=10 — DriverHooks.captureFailure (UI only)
+ *   After  "not @api" order=0  — DriverHooks.tearDown    (UI only)
  */
 public class ApiHooks {
 
@@ -45,13 +33,11 @@ public class ApiHooks {
     // ── Before ───────────────────────────────────────────────────────────────
 
     /**
-     * Fires before each {@code @api}-tagged scenario.
+     * Fires before each @api-tagged scenario.
+     * Sets RestAssured global baseline (base URI, logging) so every request
+     * uses the correct environment config without per-request setup in steps.
      *
-     * <p>Sets the RestAssured global baseline (base URI, logging filters) so every
-     * request in the scenario uses the correct environment configuration without
-     * requiring per-request setup in step definitions.
-     *
-     * @param scenario Cucumber {@link Scenario} metadata
+     * @param scenario Cucumber Scenario metadata
      */
     @Before(value = "@api", order = 1)
     public void setUpApi(Scenario scenario) {
@@ -71,15 +57,11 @@ public class ApiHooks {
     // ── After ─────────────────────────────────────────────────────────────────
 
     /**
-     * Fires after each {@code @api}-tagged scenario.
+     * Fires after each @api-tagged scenario.
+     * Resets all global RestAssured config (base URI, filters, auth)
+     * to prevent cross-scenario pollution.
      *
-     * <p>Resets all global RestAssured configuration (base URI, filters, auth) so
-     * subsequent scenarios start from a clean state — prevents cross-scenario pollution.
-     *
-     * <p>Runs at {@code order = 5} so it executes after step definitions complete
-     * but before any driver teardown.
-     *
-     * @param scenario Cucumber {@link Scenario} metadata
+     * @param scenario Cucumber Scenario metadata
      */
     @After(value = "@api", order = 5)
     public void tearDownApi(Scenario scenario) {

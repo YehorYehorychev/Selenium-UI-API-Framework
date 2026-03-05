@@ -13,27 +13,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * API-based authentication helper for bypassing UI login flows.
+ * API-based authentication helper — bypasses the UI login form.
  *
- * <p>Authenticates via REST {@code POST /api/auth/login}, extracts the session
- * token or cookies, and optionally injects them into a {@link WebDriver} instance
- * so that subsequent UI navigation is already authenticated.
+ * Authenticates via POST /api/auth/login, extracts the session token/cookies,
+ * and optionally injects them into a WebDriver so subsequent navigation is
+ * already authenticated.
  *
- * <p>Usage:
- * <pre>{@code
- *   // Authenticate and get token
- *   Map<String, String> auth = AuthHelper.loginViaApi(
- *       TestData.Credentials.LOGIN,
- *       TestData.Credentials.PASSWORD
- *   );
- *   String token = auth.get("token");
- *
- *   // Inject authentication into WebDriver
+ * Usage:
+ *   Map<String, String> auth = AuthHelper.loginViaApi(email, password);
  *   AuthHelper.injectAuthIntoDriver(driver, auth);
- *
- *   // Now navigate to an authenticated page without manual login
  *   driver.get(TestConfig.BASE_URL + "/dashboard");
- * }</pre>
+ *
+ * Or in one call:
+ *   AuthHelper.loginAndInject(driver);  // uses TestData.Credentials
  */
 public final class AuthHelper {
 
@@ -45,17 +37,12 @@ public final class AuthHelper {
     // ── API login ─────────────────────────────────────────────────────────────
 
     /**
-     * Authenticates a user via the REST API and returns the auth token + cookies.
+     * Authenticates via the REST API and returns auth data (token + cookies).
      *
      * @param email    user email
      * @param password user password
-     * @return a {@link Map} containing:
-     * <ul>
-     *   <li>{@code "token"} — bearer token or session ID</li>
-     *   <li>{@code "cookieName"} — cookie name (if applicable)</li>
-     *   <li>{@code "cookieValue"} — cookie value (if applicable)</li>
-     * </ul>
-     * @throws AuthenticationException if the login fails (non-2xx status or error payload)
+     * @return Map containing: "token", "cookieName", "cookieValue" (where applicable)
+     * @throws AuthenticationException if login returns non-2xx or no token in response
      */
     public static Map<String, String> loginViaApi(String email, String password) {
         log.step("Authenticating via API: " + email);
@@ -101,7 +88,7 @@ public final class AuthHelper {
     }
 
     /**
-     * Authenticates using credentials from {@link TestData.Credentials}.
+     * Authenticates using credentials from TestData.Credentials.
      *
      * @return auth data map (token + cookies)
      * @throws AuthenticationException if login fails or credentials are not configured
@@ -122,14 +109,11 @@ public final class AuthHelper {
     // ── WebDriver injection ───────────────────────────────────────────────────
 
     /**
-     * Injects authentication data (token or cookies) into the given {@link WebDriver}.
+     * Injects auth token and cookies into a WebDriver session.
+     * The driver must already be on a page from the same domain before cookies are set.
      *
-     * <p>The driver <strong>must</strong> first navigate to a page on the same domain
-     * as the cookie (WebDriver restriction). This method handles that by navigating
-     * to the base URL if no domain match is present.
-     *
-     * @param driver   active {@link WebDriver}
-     * @param authData map returned by {@link #loginViaApi(String, String)}
+     * @param driver   active WebDriver
+     * @param authData map returned by loginViaApi()
      */
     public static void injectAuthIntoDriver(WebDriver driver, Map<String, String> authData) {
         log.step("Injecting authentication into WebDriver");
@@ -165,7 +149,7 @@ public final class AuthHelper {
     /**
      * Logs in via API and injects auth into the driver in one step.
      *
-     * @param driver   active {@link WebDriver}
+     * @param driver   active WebDriver
      * @param email    user email
      * @param password user password
      */
@@ -175,9 +159,9 @@ public final class AuthHelper {
     }
 
     /**
-     * Logs in via API using default credentials and injects auth into the driver.
+     * Logs in via API using TestData.Credentials and injects auth into the driver.
      *
-     * @param driver active {@link WebDriver}
+     * @param driver active WebDriver
      */
     public static void loginAndInject(WebDriver driver) {
         loginAndInject(driver, TestData.Credentials.LOGIN, TestData.Credentials.PASSWORD);
@@ -186,7 +170,7 @@ public final class AuthHelper {
     // ── Logout ────────────────────────────────────────────────────────────────
 
     /**
-     * Logs out via API (invalidates token server-side).
+     * Logs out via API, invalidating the token server-side.
      *
      * @param token bearer token to invalidate
      */
@@ -201,4 +185,3 @@ public final class AuthHelper {
         log.info("API logout complete");
     }
 }
-

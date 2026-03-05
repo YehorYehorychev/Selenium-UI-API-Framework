@@ -7,21 +7,17 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Centralised test configuration — analogue of {@code test.config.ts}.
+ * Centralised test configuration — reads from env vars, config.properties, then hard-coded defaults.
  *
- * <p>Resolution order (highest priority wins):
- * <ol>
- *   <li>Environment variable (e.g. {@code BASE_URL})</li>
- *   <li>Value from {@code config.properties} on the classpath</li>
- *   <li>Hard-coded fallback constant defined in this class</li>
- * </ol>
+ * Resolution order (highest priority wins):
+ *   1. Environment variable  (e.g. BASE_URL)
+ *   2. config.properties on the classpath  (e.g. base.url)
+ *   3. Hard-coded fallback constant in this class
  *
- * <p>Usage:
- * <pre>{@code
- *   String url     = TestConfig.BASE_URL;
- *   long   timeout = TestConfig.DEFAULT_TIMEOUT_MS;
+ * Usage:
+ *   String  url      = TestConfig.BASE_URL;
+ *   long    timeout  = TestConfig.DEFAULT_TIMEOUT_MS;
  *   boolean headless = TestConfig.HEADLESS;
- * }</pre>
  */
 public final class TestConfig {
 
@@ -43,75 +39,46 @@ public final class TestConfig {
 
     // ── Resolved public constants ───────────────────────────────────────────
 
-    /**
-     * Application base URL — used as the starting point for page navigation.
-     */
+    /** Application base URL — starting point for page navigation. */
     public static final String BASE_URL;
 
-    /**
-     * API base URL — used for REST / GraphQL requests.
-     */
+    /** API base URL — used for REST and GraphQL requests. */
     public static final String API_BASE_URL;
 
-    /**
-     * Target browser: {@code chrome} | {@code firefox} | {@code edge}.
-     * Maps to a concrete WebDriver in {@code DriverConfig}.
-     */
+    /** Target browser: chrome | firefox | edge. */
     public static final String BROWSER;
 
-    /**
-     * Run browser without a UI window when {@code true}.
-     */
+    /** Run browser without a UI window when true. */
     public static final boolean HEADLESS;
 
-    /**
-     * Default element-wait timeout in milliseconds.
-     */
+    /** Default element-wait timeout in milliseconds. */
     public static final long DEFAULT_TIMEOUT_MS;
 
-    /**
-     * Page navigation timeout in milliseconds.
-     */
+    /** Page navigation timeout in milliseconds. */
     public static final long NAVIGATION_TIMEOUT_MS;
 
-    /**
-     * API call timeout in milliseconds.
-     */
+    /** API call timeout in milliseconds. */
     public static final long API_TIMEOUT_MS;
 
-    /**
-     * Number of test retries on failure (0 = no retry).
-     */
+    /** Number of test retries on failure (0 = no retry). */
     public static final int RETRY_COUNT;
 
-    /**
-     * Number of parallel test threads.
-     */
+    /** Number of parallel test threads. */
     public static final int PARALLEL_THREADS;
 
-    /**
-     * Browser viewport width in pixels.
-     */
+    /** Browser viewport width in pixels. */
     public static final int VIEWPORT_WIDTH;
 
-    /**
-     * Browser viewport height in pixels.
-     */
+    /** Browser viewport height in pixels. */
     public static final int VIEWPORT_HEIGHT;
 
-    /**
-     * Attach a screenshot to the Allure report when a test fails.
-     */
+    /** Attach a screenshot to the Allure report when a test fails. */
     public static final boolean SCREENSHOT_ON_FAILURE;
 
-    /**
-     * Directory where Allure raw results are written.
-     */
+    /** Directory where Allure raw results are written. */
     public static final String ALLURE_RESULTS_DIR;
 
-    /**
-     * Directory where the generated Allure HTML report is placed.
-     */
+    /** Directory where the generated Allure HTML report is placed. */
     public static final String ALLURE_REPORT_DIR;
 
     // ── Static initializer — runs once when the class is first loaded ───────
@@ -136,21 +103,17 @@ public final class TestConfig {
 
     // ── Private utilities ───────────────────────────────────────────────────
 
-    /**
-     * Not instantiable — all members are static.
-     */
-    private TestConfig() {
-    }
+    /** Not instantiable — all members are static. */
+    private TestConfig() {}
 
     /**
-     * Resolves a configuration value using the three-level priority chain:
-     * env var → property file → hard-coded default.
+     * Resolves a config value: env var → property file → hard-coded fallback.
      *
-     * @param envKey   environment variable name  (e.g. {@code "BASE_URL"})
-     * @param propKey  key in {@code config.properties} (e.g. {@code "base.url"})
+     * @param envKey   environment variable name (e.g. "BASE_URL")
+     * @param propKey  key in config.properties   (e.g. "base.url")
      * @param fallback hard-coded default value
-     * @param props    loaded {@link Properties} instance
-     * @return the resolved string value (never {@code null})
+     * @param props    loaded Properties instance
+     * @return resolved string value (never null)
      */
     private static String resolve(String envKey, String propKey, String fallback, Properties props) {
         String envValue = System.getenv(envKey);
@@ -165,9 +128,8 @@ public final class TestConfig {
     }
 
     /**
-     * Loads {@code config.properties} from the classpath.
-     * Returns an empty {@link Properties} instance if the file is not found,
-     * so that the fallback defaults are used instead.
+     * Loads config.properties from the classpath.
+     * Returns an empty Properties instance if the file is not found.
      */
     private static Properties loadProperties() {
         Properties props = new Properties();
@@ -184,9 +146,8 @@ public final class TestConfig {
     }
 
     /**
-     * Loads {@code .env} file from the project root.
-     * Returns {@code null} if the file is not found — non-fatal,
-     * system env vars or config.properties will be used instead.
+     * Loads .env from the project root.
+     * Returns null if the file is missing — non-fatal.
      */
     private static Dotenv loadDotenv() {
         try {
