@@ -5,7 +5,7 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import yehorychev.selenium.context.TestContext;
+import yehorychev.selenium.context.DriverContext;
 
 import static org.testng.Assert.assertTrue;
 
@@ -13,14 +13,14 @@ import static org.testng.Assert.assertTrue;
  * Step definitions for smoke-level navigation scenarios.
  *
  * <p>Uses {@link HomePage} Page Object — no raw WebDriver calls in step definitions.
- * PicoContainer injects {@link TestContext}; parallel-safe.
+ * PicoContainer injects {@link DriverContext}; parallel-safe.
  */
 public class SmokeSteps {
 
     private final HomePage homePage;
 
-    public SmokeSteps(TestContext context) {
-        this.homePage = new HomePage(context.getDriver());
+    public SmokeSteps(DriverContext driverContext) {
+        this.homePage = new HomePage(driverContext.getDriver());
     }
 
     // ── Navigation steps ─────────────────────────────────────────────────────
