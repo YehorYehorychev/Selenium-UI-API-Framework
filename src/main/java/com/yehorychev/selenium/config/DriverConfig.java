@@ -35,8 +35,11 @@ import java.time.Duration;
  */
 public final class DriverConfig {
 
-    /** Not instantiable — all members are static. */
-    private DriverConfig() {}
+    /**
+     * Not instantiable — all members are static.
+     */
+    private DriverConfig() {
+    }
 
     // ── Public factory methods ──────────────────────────────────────────────
 
@@ -60,9 +63,9 @@ public final class DriverConfig {
     public static WebDriver createDriver(String browser) {
         WebDriver driver = switch (browser.toLowerCase().trim()) {
             case "firefox" -> createFirefoxDriver();
-            case "edge"    -> createEdgeDriver();
-            case "chrome"  -> createChromeDriver();
-            default        -> throw new IllegalArgumentException(
+            case "edge" -> createEdgeDriver();
+            case "chrome" -> createChromeDriver();
+            default -> throw new IllegalArgumentException(
                     "Unsupported browser: \"" + browser + "\". Use: chrome | firefox | edge"
             );
         };

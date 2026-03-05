@@ -27,11 +27,16 @@ public final class DriverManager {
 
     private static final Logger log = new Logger(DriverManager.class);
 
-    /** One WebDriver instance per thread. */
+    /**
+     * One WebDriver instance per thread.
+     */
     private static final ThreadLocal<WebDriver> DRIVER_THREAD_LOCAL = new ThreadLocal<>();
 
-    /** Not instantiable — all members are static. */
-    private DriverManager() {}
+    /**
+     * Not instantiable — all members are static.
+     */
+    private DriverManager() {
+    }
 
     // ── Lifecycle ───────────────────────────────────────────────────────────
 
@@ -80,7 +85,7 @@ public final class DriverManager {
         if (driver == null) {
             throw new IllegalStateException(
                     "No WebDriver found on thread '" + Thread.currentThread().getName() +
-                    "'. Call DriverManager.initDriver() before accessing the driver."
+                            "'. Call DriverManager.initDriver() before accessing the driver."
             );
         }
         return driver;

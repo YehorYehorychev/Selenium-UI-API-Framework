@@ -26,27 +26,31 @@ import java.util.Properties;
 public final class TestConfig {
 
     // ── Fallback defaults (lowest priority) ────────────────────────────────
-    private static final String DEFAULT_BASE_URL            = "https://mobalytics.gg";
-    private static final String DEFAULT_API_BASE_URL        = "https://api.mobalytics.gg";
-    private static final String DEFAULT_BROWSER             = "chrome";
-    private static final String DEFAULT_HEADLESS            = "true";
-    private static final String DEFAULT_TIMEOUT             = "15000";
-    private static final String DEFAULT_NAVIGATION_TIMEOUT  = "30000";
-    private static final String DEFAULT_API_TIMEOUT         = "10000";
-    private static final String DEFAULT_RETRY_COUNT         = "1";
-    private static final String DEFAULT_PARALLEL_THREADS    = "4";
-    private static final String DEFAULT_VIEWPORT_WIDTH      = "1920";
-    private static final String DEFAULT_VIEWPORT_HEIGHT     = "1080";
-    private static final String DEFAULT_SCREENSHOT_FAILURE  = "true";
-    private static final String DEFAULT_ALLURE_RESULTS_DIR  = "target/allure-results";
-    private static final String DEFAULT_ALLURE_REPORT_DIR   = "target/allure-report";
+    private static final String DEFAULT_BASE_URL = "https://mobalytics.gg";
+    private static final String DEFAULT_API_BASE_URL = "https://api.mobalytics.gg";
+    private static final String DEFAULT_BROWSER = "chrome";
+    private static final String DEFAULT_HEADLESS = "true";
+    private static final String DEFAULT_TIMEOUT = "15000";
+    private static final String DEFAULT_NAVIGATION_TIMEOUT = "30000";
+    private static final String DEFAULT_API_TIMEOUT = "10000";
+    private static final String DEFAULT_RETRY_COUNT = "1";
+    private static final String DEFAULT_PARALLEL_THREADS = "4";
+    private static final String DEFAULT_VIEWPORT_WIDTH = "1920";
+    private static final String DEFAULT_VIEWPORT_HEIGHT = "1080";
+    private static final String DEFAULT_SCREENSHOT_FAILURE = "true";
+    private static final String DEFAULT_ALLURE_RESULTS_DIR = "target/allure-results";
+    private static final String DEFAULT_ALLURE_REPORT_DIR = "target/allure-report";
 
     // ── Resolved public constants ───────────────────────────────────────────
 
-    /** Application base URL — used as the starting point for page navigation. */
+    /**
+     * Application base URL — used as the starting point for page navigation.
+     */
     public static final String BASE_URL;
 
-    /** API base URL — used for REST / GraphQL requests. */
+    /**
+     * API base URL — used for REST / GraphQL requests.
+     */
     public static final String API_BASE_URL;
 
     /**
@@ -55,73 +59,98 @@ public final class TestConfig {
      */
     public static final String BROWSER;
 
-    /** Run browser without a UI window when {@code true}. */
+    /**
+     * Run browser without a UI window when {@code true}.
+     */
     public static final boolean HEADLESS;
 
-    /** Default element-wait timeout in milliseconds. */
+    /**
+     * Default element-wait timeout in milliseconds.
+     */
     public static final long DEFAULT_TIMEOUT_MS;
 
-    /** Page navigation timeout in milliseconds. */
+    /**
+     * Page navigation timeout in milliseconds.
+     */
     public static final long NAVIGATION_TIMEOUT_MS;
 
-    /** API call timeout in milliseconds. */
+    /**
+     * API call timeout in milliseconds.
+     */
     public static final long API_TIMEOUT_MS;
 
-    /** Number of test retries on failure (0 = no retry). */
+    /**
+     * Number of test retries on failure (0 = no retry).
+     */
     public static final int RETRY_COUNT;
 
-    /** Number of parallel test threads. */
+    /**
+     * Number of parallel test threads.
+     */
     public static final int PARALLEL_THREADS;
 
-    /** Browser viewport width in pixels. */
+    /**
+     * Browser viewport width in pixels.
+     */
     public static final int VIEWPORT_WIDTH;
 
-    /** Browser viewport height in pixels. */
+    /**
+     * Browser viewport height in pixels.
+     */
     public static final int VIEWPORT_HEIGHT;
 
-    /** Attach a screenshot to the Allure report when a test fails. */
+    /**
+     * Attach a screenshot to the Allure report when a test fails.
+     */
     public static final boolean SCREENSHOT_ON_FAILURE;
 
-    /** Directory where Allure raw results are written. */
+    /**
+     * Directory where Allure raw results are written.
+     */
     public static final String ALLURE_RESULTS_DIR;
 
-    /** Directory where the generated Allure HTML report is placed. */
+    /**
+     * Directory where the generated Allure HTML report is placed.
+     */
     public static final String ALLURE_REPORT_DIR;
 
     // ── Static initializer — runs once when the class is first loaded ───────
     static {
         Properties props = loadProperties();
 
-        BASE_URL           = resolve("BASE_URL",            "base.url",            DEFAULT_BASE_URL,           props);
-        API_BASE_URL       = resolve("API_BASE_URL",        "api.base.url",        DEFAULT_API_BASE_URL,       props);
-        BROWSER            = resolve("BROWSER",             "browser",             DEFAULT_BROWSER,            props).toLowerCase();
-        HEADLESS           = Boolean.parseBoolean(resolve("HEADLESS",             "headless",             DEFAULT_HEADLESS,           props));
-        DEFAULT_TIMEOUT_MS = Long.parseLong(resolve("DEFAULT_TIMEOUT",       "timeout.default",      DEFAULT_TIMEOUT,            props));
-        NAVIGATION_TIMEOUT_MS = Long.parseLong(resolve("NAVIGATION_TIMEOUT",    "timeout.navigation",   DEFAULT_NAVIGATION_TIMEOUT, props));
-        API_TIMEOUT_MS     = Long.parseLong(resolve("API_TIMEOUT",           "timeout.api",          DEFAULT_API_TIMEOUT,        props));
-        RETRY_COUNT        = Integer.parseInt(resolve("RETRY_COUNT",           "retry.count",          DEFAULT_RETRY_COUNT,        props));
-        PARALLEL_THREADS   = Integer.parseInt(resolve("PARALLEL_THREADS",      "parallel.threads",     DEFAULT_PARALLEL_THREADS,   props));
-        VIEWPORT_WIDTH     = Integer.parseInt(resolve("VIEWPORT_WIDTH",        "viewport.width",       DEFAULT_VIEWPORT_WIDTH,     props));
-        VIEWPORT_HEIGHT    = Integer.parseInt(resolve("VIEWPORT_HEIGHT",       "viewport.height",      DEFAULT_VIEWPORT_HEIGHT,    props));
+        BASE_URL = resolve("BASE_URL", "base.url", DEFAULT_BASE_URL, props);
+        API_BASE_URL = resolve("API_BASE_URL", "api.base.url", DEFAULT_API_BASE_URL, props);
+        BROWSER = resolve("BROWSER", "browser", DEFAULT_BROWSER, props).toLowerCase();
+        HEADLESS = Boolean.parseBoolean(resolve("HEADLESS", "headless", DEFAULT_HEADLESS, props));
+        DEFAULT_TIMEOUT_MS = Long.parseLong(resolve("DEFAULT_TIMEOUT", "timeout.default", DEFAULT_TIMEOUT, props));
+        NAVIGATION_TIMEOUT_MS = Long.parseLong(resolve("NAVIGATION_TIMEOUT", "timeout.navigation", DEFAULT_NAVIGATION_TIMEOUT, props));
+        API_TIMEOUT_MS = Long.parseLong(resolve("API_TIMEOUT", "timeout.api", DEFAULT_API_TIMEOUT, props));
+        RETRY_COUNT = Integer.parseInt(resolve("RETRY_COUNT", "retry.count", DEFAULT_RETRY_COUNT, props));
+        PARALLEL_THREADS = Integer.parseInt(resolve("PARALLEL_THREADS", "parallel.threads", DEFAULT_PARALLEL_THREADS, props));
+        VIEWPORT_WIDTH = Integer.parseInt(resolve("VIEWPORT_WIDTH", "viewport.width", DEFAULT_VIEWPORT_WIDTH, props));
+        VIEWPORT_HEIGHT = Integer.parseInt(resolve("VIEWPORT_HEIGHT", "viewport.height", DEFAULT_VIEWPORT_HEIGHT, props));
         SCREENSHOT_ON_FAILURE = Boolean.parseBoolean(resolve("SCREENSHOT_ON_FAILURE", "screenshot.on.failure", DEFAULT_SCREENSHOT_FAILURE, props));
-        ALLURE_RESULTS_DIR = resolve("ALLURE_RESULTS_DIR",  "allure.results.dir",  DEFAULT_ALLURE_RESULTS_DIR, props);
-        ALLURE_REPORT_DIR  = resolve("ALLURE_REPORT_DIR",   "allure.report.dir",   DEFAULT_ALLURE_REPORT_DIR,  props);
+        ALLURE_RESULTS_DIR = resolve("ALLURE_RESULTS_DIR", "allure.results.dir", DEFAULT_ALLURE_RESULTS_DIR, props);
+        ALLURE_REPORT_DIR = resolve("ALLURE_REPORT_DIR", "allure.report.dir", DEFAULT_ALLURE_REPORT_DIR, props);
     }
 
     // ── Private utilities ───────────────────────────────────────────────────
 
-    /** Not instantiable — all members are static. */
-    private TestConfig() {}
+    /**
+     * Not instantiable — all members are static.
+     */
+    private TestConfig() {
+    }
 
     /**
      * Resolves a configuration value using the three-level priority chain:
      * env var → property file → hard-coded default.
      *
-     * @param envKey      environment variable name  (e.g. {@code "BASE_URL"})
-     * @param propKey     key in {@code config.properties} (e.g. {@code "base.url"})
-     * @param fallback    hard-coded default value
-     * @param props       loaded {@link Properties} instance
-     * @return            the resolved string value (never {@code null})
+     * @param envKey   environment variable name  (e.g. {@code "BASE_URL"})
+     * @param propKey  key in {@code config.properties} (e.g. {@code "base.url"})
+     * @param fallback hard-coded default value
+     * @param props    loaded {@link Properties} instance
+     * @return the resolved string value (never {@code null})
      */
     private static String resolve(String envKey, String propKey, String fallback, Properties props) {
         String envValue = System.getenv(envKey);

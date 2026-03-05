@@ -16,7 +16,8 @@ package com.yehorychev.selenium.data;
  */
 public final class GraphqlQueries {
 
-    private GraphqlQueries() {}
+    private GraphqlQueries() {
+    }
 
     // ── User queries ──────────────────────────────────────────────────────────
 
@@ -26,15 +27,15 @@ public final class GraphqlQueries {
      * <p>Returns: {@code id, username, email, createdAt}
      */
     public static final String GET_CURRENT_USER = """
-        query GetCurrentUser {
-          currentUser {
-            id
-            username
-            email
-            createdAt
-          }
-        }
-        """;
+            query GetCurrentUser {
+              currentUser {
+                id
+                username
+                email
+                createdAt
+              }
+            }
+            """;
 
     /**
      * Fetches a user profile by user ID.
@@ -43,16 +44,16 @@ public final class GraphqlQueries {
      * <p>Returns: {@code id, username, email, avatar, bio}
      */
     public static final String GET_USER_PROFILE = """
-        query GetUserProfile($userId: ID!) {
-          user(id: $userId) {
-            id
-            username
-            email
-            avatar
-            bio
-          }
-        }
-        """;
+            query GetUserProfile($userId: ID!) {
+              user(id: $userId) {
+                id
+                username
+                email
+                avatar
+                bio
+              }
+            }
+            """;
 
     // ── Authentication mutations ──────────────────────────────────────────────
 
@@ -63,17 +64,17 @@ public final class GraphqlQueries {
      * <p>Returns: {@code token, user { id, username, email }}
      */
     public static final String LOGIN = """
-        mutation Login($email: String!, $password: String!) {
-          login(email: $email, password: $password) {
-            token
-            user {
-              id
-              username
-              email
+            mutation Login($email: String!, $password: String!) {
+              login(email: $email, password: $password) {
+                token
+                user {
+                  id
+                  username
+                  email
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 
     /**
      * Performs a logout mutation (invalidates token server-side).
@@ -81,12 +82,12 @@ public final class GraphqlQueries {
      * <p>Returns: {@code success: Boolean}
      */
     public static final String LOGOUT = """
-        mutation Logout {
-          logout {
-            success
-          }
-        }
-        """;
+            mutation Logout {
+              logout {
+                success
+              }
+            }
+            """;
 
     // ── Game data queries ─────────────────────────────────────────────────────
 
@@ -96,15 +97,15 @@ public final class GraphqlQueries {
      * <p>Returns: {@code id, name, slug, iconUrl}
      */
     public static final String GET_GAMES = """
-        query GetGames {
-          games {
-            id
-            name
-            slug
-            iconUrl
-          }
-        }
-        """;
+            query GetGames {
+              games {
+                id
+                name
+                slug
+                iconUrl
+              }
+            }
+            """;
 
     /**
      * Fetches detailed statistics for a summoner.
@@ -113,22 +114,22 @@ public final class GraphqlQueries {
      * <p>Returns: summoner stats including rank, winrate, KDA, etc.
      */
     public static final String GET_SUMMONER_STATS = """
-        query GetSummonerStats($summonerName: String!, $region: String!) {
-          summoner(name: $summonerName, region: $region) {
-            id
-            name
-            level
-            profileIconId
-            stats {
-              rank
-              tier
-              wins
-              losses
-              winrate
-              kda
+            query GetSummonerStats($summonerName: String!, $region: String!) {
+              summoner(name: $summonerName, region: $region) {
+                id
+                name
+                level
+                profileIconId
+                stats {
+                  rank
+                  tier
+                  wins
+                  losses
+                  winrate
+                  kda
+                }
+              }
             }
-          }
-        }
-        """;
+            """;
 }
 

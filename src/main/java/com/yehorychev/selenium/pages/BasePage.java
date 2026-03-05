@@ -42,11 +42,11 @@ import java.util.List;
  */
 public abstract class BasePage {
 
-    protected final WebDriver     driver;
+    protected final WebDriver driver;
     protected final WebDriverWait wait;
     protected final WebDriverWait shortWait;
-    protected final Actions       actions;
-    protected final Logger        log;
+    protected final Actions actions;
+    protected final Logger log;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -56,11 +56,11 @@ public abstract class BasePage {
      * @param driver active {@link WebDriver} instance (injected from {@code TestContext} via PicoContainer)
      */
     protected BasePage(WebDriver driver) {
-        this.driver    = driver;
-        this.wait      = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
         this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        this.actions   = new Actions(driver);
-        this.log       = new Logger(this.getClass());
+        this.actions = new Actions(driver);
+        this.log = new Logger(this.getClass());
         PageFactory.initElements(driver, this);
     }
 

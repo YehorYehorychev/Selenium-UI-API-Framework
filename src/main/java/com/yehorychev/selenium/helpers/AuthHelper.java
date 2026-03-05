@@ -39,7 +39,8 @@ public final class AuthHelper {
 
     private static final Logger log = new Logger(AuthHelper.class);
 
-    private AuthHelper() {}
+    private AuthHelper() {
+    }
 
     // ── API login ─────────────────────────────────────────────────────────────
 
@@ -49,11 +50,11 @@ public final class AuthHelper {
      * @param email    user email
      * @param password user password
      * @return a {@link Map} containing:
-     *         <ul>
-     *           <li>{@code "token"} — bearer token or session ID</li>
-     *           <li>{@code "cookieName"} — cookie name (if applicable)</li>
-     *           <li>{@code "cookieValue"} — cookie value (if applicable)</li>
-     *         </ul>
+     * <ul>
+     *   <li>{@code "token"} — bearer token or session ID</li>
+     *   <li>{@code "cookieName"} — cookie name (if applicable)</li>
+     *   <li>{@code "cookieValue"} — cookie value (if applicable)</li>
+     * </ul>
      * @throws AuthenticationException if the login fails (non-2xx status or error payload)
      */
     public static Map<String, String> loginViaApi(String email, String password) {
@@ -108,8 +109,8 @@ public final class AuthHelper {
     public static Map<String, String> loginViaApi() {
         if (!TestData.Credentials.areConfigured()) {
             throw new AuthenticationException(
-                "Test credentials are not configured. " +
-                "Please set TEST_USER_LOGIN and TEST_USER_PASSWORD in .env file or environment variables."
+                    "Test credentials are not configured. " +
+                            "Please set TEST_USER_LOGIN and TEST_USER_PASSWORD in .env file or environment variables."
             );
         }
         return loginViaApi(

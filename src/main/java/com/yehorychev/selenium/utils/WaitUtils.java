@@ -37,7 +37,8 @@ public final class WaitUtils {
 
     private static final Logger log = new Logger(WaitUtils.class);
 
-    private WaitUtils() {}
+    private WaitUtils() {
+    }
 
     // ── Generic condition waits ───────────────────────────────────────────────
 
@@ -80,8 +81,8 @@ public final class WaitUtils {
     /**
      * Waits until the page title contains the expected fragment.
      *
-     * @param driver          active WebDriver
-     * @param titleFragment   substring expected in the title
+     * @param driver        active WebDriver
+     * @param titleFragment substring expected in the title
      */
     public static void waitForTitle(WebDriver driver, String titleFragment) {
         log.step("Waiting for title to contain: " + titleFragment);
@@ -130,9 +131,9 @@ public final class WaitUtils {
      * Waits until the element's text changes to a value different from the one
      * captured before an action.
      *
-     * @param driver      active WebDriver
-     * @param element     the element whose text is being observed
-     * @param oldText     the text that was present before triggering the change
+     * @param driver  active WebDriver
+     * @param element the element whose text is being observed
+     * @param oldText the text that was present before triggering the change
      */
     public static void waitForTextChange(WebDriver driver, WebElement element, String oldText) {
         log.step("Waiting for text to change from: \"" + oldText + "\"");
@@ -163,8 +164,8 @@ public final class WaitUtils {
      * <p>Useful for waiting on async state that is not directly reflected in the DOM
      * (e.g. a value stored in localStorage, a network response flag, etc.).
      *
-     * @param supplier      value provider to poll
-     * @param timeoutMs     maximum total wait time in milliseconds
+     * @param supplier       value provider to poll
+     * @param timeoutMs      maximum total wait time in milliseconds
      * @param pollIntervalMs sleep duration between polls in milliseconds
      * @return the first non-null, non-empty value returned by the supplier
      * @throws RuntimeException if the timeout expires before a value is obtained
