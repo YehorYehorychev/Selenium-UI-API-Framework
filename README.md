@@ -80,7 +80,7 @@ selenium-ui-api/
 │   │   ├── TestConfig.java          # Multi-level configuration (env → .env → props → defaults)
 │   │   └── DriverConfig.java        # WebDriver factory (Chrome/Firefox/Edge)
 │   │
-│   ├── components/                   # ✨ NEW: Reusable page sections
+│   ├── components/                  
 │   │   ├── BaseComponent.java       # Component base class (scoped element lookups)
 │   │   ├── NavigationComponent.java # Header navigation
 │   │   ├── HeroComponent.java       # Hero section
@@ -124,12 +124,12 @@ selenium-ui-api/
 │   └── config.properties            # Default configuration values
 │
 ├── src/test/java/yehorychev/selenium/
-│   ├── context/                      # Layer 5 — PicoContainer DI context
+│   ├── context/                      
 │   │   ├── DriverContext.java        # WebDriver lifecycle + thread-local access
 │   │   ├── ApiContext.java           # RestAssured wrapper
 │   │   └── ScenarioContext.java      # Cross-step state storage
 │   │
-│   ├── hooks/                        # Layer 6 — Cucumber lifecycle hooks
+│   ├── hooks/                        
 │   │   ├── DriverHooks.java          # @Before/@After — driver start/quit + failure screenshot
 │   │   ├── ApiHooks.java             # @Before/@After("@api") — RestAssured setup/reset
 │   │   └── AuthHooks.java            # @Before("@authenticated") — API login + cookie inject
