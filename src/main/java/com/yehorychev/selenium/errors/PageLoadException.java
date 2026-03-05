@@ -3,12 +3,8 @@ package com.yehorychev.selenium.errors;
 /**
  * Thrown when a page fails to load within the allowed timeout.
  *
- * <p>Analogue of {@code PageLoadError} in {@code test-errors.ts}.
- *
- * <p>Example:
- * <pre>{@code
+ * Example:
  *   throw new PageLoadException("https://mobalytics.gg", 30_000);
- * }</pre>
  */
 public class PageLoadException extends FrameworkException {
 

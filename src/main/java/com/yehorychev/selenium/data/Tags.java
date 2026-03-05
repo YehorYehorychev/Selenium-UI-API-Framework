@@ -1,78 +1,102 @@
 package com.yehorychev.selenium.data;
 
 /**
- * Cucumber tag constants used in {@code @CucumberOptions(tags=...)} and {@code .feature} files.
+ * Cucumber tag constants — use in @CucumberOptions(tags=...) and .feature files.
  *
- * <p>Usage in runner:
- * <pre>{@code
- *   @CucumberOptions(
- *       tags = Tags.SMOKE + " and " + Tags.UI
- *   )
- * }</pre>
+ * Usage in runner:
+ *   @CucumberOptions(tags = Tags.SMOKE + " and " + Tags.UI)
  *
- * <p>Usage in feature files:
- * <pre>{@code
+ * Usage in feature files:
  *   @smoke @ui @critical
  *   Scenario: User logs in successfully
- * }</pre>
  */
 public final class Tags {
 
     // ── Test levels ───────────────────────────────────────────────────────────
 
-    /** Smoke tests — critical path scenarios executed on every commit. */
+    /**
+     * Smoke tests — critical path scenarios executed on every commit.
+     */
     public static final String SMOKE = "@smoke";
 
-    /** Regression tests — full suite coverage. */
+    /**
+     * Regression tests — full suite coverage.
+     */
     public static final String REGRESSION = "@regression";
 
     // ── Test types ────────────────────────────────────────────────────────────
 
-    /** UI / browser-based tests (Selenium). */
+    /**
+     * UI / browser-based tests (Selenium).
+     */
     public static final String UI = "@ui";
 
-    /** API / backend tests (REST / GraphQL). */
+    /**
+     * API / backend tests (REST / GraphQL).
+     */
     public static final String API = "@api";
 
     // ── Priority ──────────────────────────────────────────────────────────────
 
-    /** Critical business scenarios — must pass before deployment. */
+    /**
+     * Critical business scenarios — must pass before deployment.
+     */
     public static final String CRITICAL = "@critical";
 
     // ── Functional areas ──────────────────────────────────────────────────────
 
-    /** Navigation / routing tests. */
+    /**
+     * Navigation / routing tests.
+     */
     public static final String NAVIGATION = "@navigation";
 
-    /** Authentication / login flows. */
+    /**
+     * Authentication / login flows.
+     */
     public static final String AUTH = "@auth";
 
-    /** Tests requiring an authenticated user. */
+    /**
+     * Tests requiring an authenticated user.
+     */
     public static final String AUTHENTICATED = "@authenticated";
 
-    /** Profile / user settings tests. */
+    /**
+     * Profile / user settings tests.
+     */
     public static final String PROFILE = "@profile";
 
-    /** Dashboard / home page tests. */
+    /**
+     * Dashboard / home page tests.
+     */
     public static final String DASHBOARD = "@dashboard";
 
-    /** Search functionality tests. */
+    /**
+     * Search functionality tests.
+     */
     public static final String SEARCH = "@search";
 
     // ── Special flags ─────────────────────────────────────────────────────────
 
-    /** Work in progress — excluded from CI. */
+    /**
+     * Work in progress — excluded from CI.
+     */
     public static final String WIP = "@wip";
 
-    /** Known bug — tracked but not blocking. */
+    /**
+     * Known bug — tracked but not blocking.
+     */
     public static final String KNOWN_BUG = "@known-bug";
 
-    /** Flaky test — requires stabilization. */
+    /**
+     * Flaky test — requires stabilization.
+     */
     public static final String FLAKY = "@flaky";
 
-    /** Slow test — may exceed standard timeout. */
+    /**
+     * Slow test — may exceed standard timeout.
+     */
     public static final String SLOW = "@slow";
 
-    private Tags() {}
+    private Tags() {
+    }
 }
-

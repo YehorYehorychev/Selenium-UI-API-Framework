@@ -124,22 +124,21 @@ selenium-ui-api/
 │   └── config.properties            # Default configuration values
 │
 ├── src/test/java/yehorychev/selenium/
-│   ├── context/                      # PicoContainer DI context
-│   │   ├── TestContext.java         # Main context (WebDriver lifecycle)
-│   │   ├── ApiContext.java          # RestAssured wrapper
-│   │   └── ScenarioContext.java     # Cross-step state storage
+│   ├── context/                      # Layer 5 — PicoContainer DI context
+│   │   ├── DriverContext.java        # WebDriver lifecycle + thread-local access
+│   │   ├── ApiContext.java           # RestAssured wrapper
+│   │   └── ScenarioContext.java      # Cross-step state storage
 │   │
-│   ├── handlers/
-│   │   └── FailureHandler.java      # ✨ NEW: Centralized failure diagnostics
-│   │
-│   ├── hooks/
-│   │   └── Hooks.java               # Cucumber lifecycle (@Before/@After/@AfterStep)
+│   ├── hooks/                        # Layer 6 — Cucumber lifecycle hooks
+│   │   ├── DriverHooks.java          # @Before/@After — driver start/quit + failure screenshot
+│   │   ├── ApiHooks.java             # @Before/@After("@api") — RestAssured setup/reset
+│   │   └── AuthHooks.java            # @Before("@authenticated") — API login + cookie inject
 │   │
 │   ├── steps/
-│   │   └── SmokeSteps.java          # Step definitions
+│   │   └── SmokeSteps.java           # Step definitions
 │   │
 │   └── runner/
-│       └── CucumberRunner.java      # TestNG + Cucumber + Parallel execution
+│       └── CucumberRunner.java       # TestNG + Cucumber + Parallel execution
 │
 └── src/test/resources/
     └── features/
@@ -148,9 +147,9 @@ selenium-ui-api/
 
 ### 📊 Framework Stats
 
-- **36 Java classes** (28 main + 8 test)
+- **35 Java classes** (28 main + 7 test)
 - **~8,000 lines of code**
-- **Zero code duplication** (after March 2026 refactoring)
+- **Zero code duplication**
 - **95%+ JavaDoc coverage**
 - **Parallel execution ready** (ThreadLocal pattern)
 - **7 custom exceptions** with proper chaining
@@ -502,11 +501,10 @@ mvn test -Dcucumber.filter.tags="@regression and not @flaky"
 ### Reporting
 
 - ✅ **Allure HTML reports** with trends
-- ✅ **Automatic screenshots** on failure (full-page + viewport)
+- ✅ **Automatic screenshots** on failure (full-page via AShot, attached to Allure)
 - ✅ **Step-by-step logs** with `Logger.step()`
 - ✅ **Test duration tracking** in Allure
 - ✅ **Categorization** via Cucumber tags
-- ✅ **Failure diagnostics** via `FailureHandler`
 
 ### Configuration
 

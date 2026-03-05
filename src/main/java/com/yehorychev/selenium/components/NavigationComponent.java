@@ -10,21 +10,17 @@ import java.util.stream.Collectors;
 /**
  * Navigation component — represents the site header with logo and game navigation links.
  *
- * <p>This component encapsulates the main site navigation (header) including:
- * <ul>
- *   <li>Logo link</li>
- *   <li>Game navigation links (LoL, TFT, Valorant, etc.)</li>
- *   <li>Social media links</li>
- *   <li>Authentication buttons (login/sign up)</li>
- * </ul>
+ * Encapsulates:
+ *   - Logo link
+ *   - Game navigation links (LoL, TFT, Valorant, etc.)
+ *   - Social media links
+ *   - Authentication buttons (login / sign up)
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   NavigationComponent nav = new NavigationComponent(driver);
  *   nav.clickGameLink("LoL");
  *   assertTrue(nav.isLogoVisible());
  *   List<String> games = nav.getAvailableGames();
- * }</pre>
  */
 public class NavigationComponent extends BaseComponent {
 
@@ -42,9 +38,9 @@ public class NavigationComponent extends BaseComponent {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code NavigationComponent} bound to the site header.
+     * Creates a NavigationComponent bound to the site header.
      *
-     * @param driver active {@link WebDriver} instance
+     * @param driver active WebDriver instance
      */
     public NavigationComponent(WebDriver driver) {
         super(driver, By.cssSelector("header.site-header, header[role='banner']"));
@@ -61,7 +57,7 @@ public class NavigationComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if the logo is visible.
+     * Returns true if the logo is visible.
      *
      * @return logo visibility status
      */
@@ -78,7 +74,7 @@ public class NavigationComponent extends BaseComponent {
     /**
      * Clicks a game navigation link by its visible text.
      *
-     * @param gameName visible game name (e.g. {@code "LoL"}, {@code "TFT"}, {@code "Valorant"})
+     * @param gameName visible game name (e.g. "LoL", "TFT", "Valorant")
      */
     public void clickGameLink(String gameName) {
         log.step("Clicking game link: " + gameName);
@@ -99,7 +95,7 @@ public class NavigationComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if a game link with the given name is present.
+     * Returns true if a game link with the given name is present.
      *
      * @param gameName game name to check
      * @return presence status
@@ -145,7 +141,7 @@ public class NavigationComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if social links are visible.
+     * Returns true if social links are visible.
      *
      * @return social links visibility status
      */
@@ -164,7 +160,7 @@ public class NavigationComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if the login button is visible (user not authenticated).
+     * Returns true if the login button is visible (user not authenticated).
      *
      * @return login button visibility status
      */
@@ -176,4 +172,3 @@ public class NavigationComponent extends BaseComponent {
         }
     }
 }
-

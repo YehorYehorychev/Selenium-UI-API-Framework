@@ -3,15 +3,9 @@ package com.yehorychev.selenium.errors;
 /**
  * Thrown when required test data or environment variables are missing or empty.
  *
- * <p>Analogue of {@code TestDataError} in {@code test-errors.ts}.
- *
- * <p>Example:
- * <pre>{@code
+ * Example:
  *   String email = System.getenv("USER_EMAIL");
- *   if (email == null || email.isBlank()) {
- *       throw new TestDataException("USER_EMAIL");
- *   }
- * }</pre>
+ *   if (email == null) throw new TestDataException("USER_EMAIL");
  */
 public class TestDataException extends FrameworkException {
 

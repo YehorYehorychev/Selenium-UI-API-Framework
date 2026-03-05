@@ -8,18 +8,15 @@ import java.util.Locale;
 /**
  * Faker-based test data generators.
  *
- * <p>All methods are static — no instantiation needed.
- * Each call returns a freshly generated value so parallel tests
- * never share the same data.
+ * All methods are static — no instantiation needed.
+ * Each call returns a freshly generated value so parallel tests never share the same data.
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   String email    = TestDataUtils.randomEmail();
  *   String username = TestDataUtils.randomUsername();
  *   String password = TestDataUtils.randomPassword();
  *   String name     = TestDataUtils.randomFullName();
  *   String phone    = TestDataUtils.randomPhone();
- * }</pre>
  */
 public final class TestDataUtils {
 
@@ -33,8 +30,7 @@ public final class TestDataUtils {
 
     /**
      * Generates a unique e-mail address suitable for registration forms.
-     *
-     * <p>Format: {@code firstname.lastname.<random>@qa-test.com}
+     * Format: firstname.lastname.<random>@qa-test.com
      *
      * @return e-mail string
      */
@@ -57,12 +53,10 @@ public final class TestDataUtils {
     }
 
     /**
-     * Generates a strong password that satisfies most registration requirements:
-     * <ul>
-     *   <li>At least 12 characters</li>
-     *   <li>Upper and lower case letters</li>
-     *   <li>Digits and special characters</li>
-     * </ul>
+     * Generates a strong password satisfying most registration requirements:
+     *   - At least 12 characters
+     *   - Upper and lower case letters
+     *   - Digits and special characters
      *
      * @return password string
      */
@@ -144,7 +138,7 @@ public final class TestDataUtils {
     // ── Numbers ───────────────────────────────────────────────────────────────
 
     /**
-     * Generates a random integer between {@code min} (inclusive) and {@code max} (exclusive).
+     * Generates a random integer between min (inclusive) and max (exclusive).
      *
      * @param min lower bound (inclusive)
      * @param max upper bound (exclusive)
@@ -155,7 +149,7 @@ public final class TestDataUtils {
     }
 
     /**
-     * Generates a string of {@code count} random digits.
+     * Generates a string of count random digits.
      *
      * @param count number of digits
      * @return digit string
@@ -168,8 +162,7 @@ public final class TestDataUtils {
 
     /**
      * Generates a gamer-style username (adjective + noun + 2-digit number).
-     *
-     * <p>Example: {@code SwiftDragon42}
+     * Example: SwiftDragon42
      *
      * @return gamer tag string
      */

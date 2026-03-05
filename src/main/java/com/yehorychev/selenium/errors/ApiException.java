@@ -3,15 +3,10 @@ package com.yehorychev.selenium.errors;
 import lombok.Getter;
 
 /**
- * Thrown when an API call returns an unexpected HTTP status code or a
- * malformed / error payload.
+ * Thrown when an API call returns an unexpected HTTP status code or error payload.
  *
- * <p>Analogue of {@code ApiError} in {@code test-errors.ts}.
- *
- * <p>Example:
- * <pre>{@code
+ * Example:
  *   throw new ApiException(401, "Unauthorized", "/api/graphql/v1/query");
- * }</pre>
  */
 @Getter
 public class ApiException extends FrameworkException {
@@ -19,7 +14,7 @@ public class ApiException extends FrameworkException {
     /** The HTTP status code returned by the API. */
     private final int statusCode;
 
-    /** The API endpoint that produced the error (may be {@code null}). */
+    /** The API endpoint that produced the error (may be null). */
     private final String endpoint;
 
     /**

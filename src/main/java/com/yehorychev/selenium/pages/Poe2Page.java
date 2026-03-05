@@ -7,15 +7,13 @@ import org.openqa.selenium.WebDriver;
 /**
  * Page Object for the Path of Exile 2 section.
  *
- * <p>Represents the PoE2-specific page with builds, guides, and game information.
+ * Represents the PoE2-specific page with builds, guides, and game information.
  *
- * <p>Usage:
- * <pre>{@code
- *   Poe2Page poe2Page = new Poe2Page(context.getDriver());
+ * Usage:
+ *   Poe2Page poe2Page = new Poe2Page(driverContext.getDriver());
  *   poe2Page.open();
  *   assertTrue(poe2Page.isLoaded());
  *   poe2Page.selectClass("Sorcerer");
- * }</pre>
  */
 public class Poe2Page extends BasePage {
 
@@ -30,9 +28,9 @@ public class Poe2Page extends BasePage {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code Poe2Page} instance bound to the given driver.
+     * Creates a Poe2Page instance bound to the given driver.
      *
-     * @param driver active {@link WebDriver} from {@code TestContext}
+     * @param driver active WebDriver from DriverContext
      */
     public Poe2Page(WebDriver driver) {
         super(driver);
@@ -50,7 +48,7 @@ public class Poe2Page extends BasePage {
     }
 
     /**
-     * Returns {@code true} if the page is loaded (heading is visible).
+     * Returns true if the page is loaded (heading is visible).
      *
      * @return page load status
      */
@@ -63,7 +61,7 @@ public class Poe2Page extends BasePage {
     /**
      * Selects a character class from the class selector.
      *
-     * @param className class name (e.g. {@code "Sorcerer"}, {@code "Ranger"})
+     * @param className class name (e.g. "Sorcerer", "Ranger")
      */
     public void selectClass(String className) {
         log.step("Selecting class: " + className);
@@ -72,7 +70,7 @@ public class Poe2Page extends BasePage {
     }
 
     /**
-     * Returns {@code true} if the class selector is visible.
+     * Returns true if the class selector is visible.
      *
      * @return class selector visibility status
      */
@@ -104,7 +102,7 @@ public class Poe2Page extends BasePage {
     // ── Sections ──────────────────────────────────────────────────────────────
 
     /**
-     * Returns {@code true} if the guides section is visible.
+     * Returns true if the guides section is visible.
      *
      * @return guides section visibility status
      */

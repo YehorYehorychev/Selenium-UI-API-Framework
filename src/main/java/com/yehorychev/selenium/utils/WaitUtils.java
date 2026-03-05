@@ -14,30 +14,22 @@ import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 
 /**
- * Fluent wait, retry and polling helpers.
+ * Fluent wait, retry, and polling helpers.
  *
- * <p>All methods are static — no instantiation needed.
+ * All methods are static — no instantiation needed.
  *
- * <p>Usage:
- * <pre>{@code
- *   // Wait for a custom condition with default timeout
+ * Usage:
  *   WaitUtils.waitFor(driver, d -> d.getTitle().contains("Dashboard"));
- *
- *   // Poll until a supplier returns a non-null / non-empty value
- *   String token = WaitUtils.pollUntil(() -> getAuthToken(), 10_000);
- *
- *   // Retry a flaky action up to N times
+ *   String token = WaitUtils.pollUntilNotEmpty(() -> getAuthToken(), 10_000, 500);
  *   WaitUtils.retry(3, () -> driver.findElement(By.id("btn")).click());
- *
- *   // Wait for the page to finish loading
  *   WaitUtils.waitForPageLoad(driver);
- * }</pre>
  */
 public final class WaitUtils {
 
     private static final Logger log = new Logger(WaitUtils.class);
 
-    private WaitUtils() {}
+    private WaitUtils() {
+    }
 
     // ── Generic condition waits ───────────────────────────────────────────────
 
@@ -54,7 +46,7 @@ public final class WaitUtils {
     }
 
     /**
-     * Waits up to {@code timeoutMs} for the given condition to become true.
+     * Waits up to timeoutMs for the given condition to become true.
      *
      * @param driver    active WebDriver
      * @param condition expected condition to evaluate
@@ -80,8 +72,8 @@ public final class WaitUtils {
     /**
      * Waits until the page title contains the expected fragment.
      *
-     * @param driver          active WebDriver
-     * @param titleFragment   substring expected in the title
+     * @param driver        active WebDriver
+     * @param titleFragment substring expected in the title
      */
     public static void waitForTitle(WebDriver driver, String titleFragment) {
         log.step("Waiting for title to contain: " + titleFragment);
@@ -91,7 +83,7 @@ public final class WaitUtils {
     // ── Page load ─────────────────────────────────────────────────────────────
 
     /**
-     * Waits until the browser's {@code document.readyState} equals {@code "complete"},
+     * Waits until the browser's document.readyState equals "complete",
      * meaning all resources have been loaded.
      *
      * @param driver active WebDriver
@@ -130,9 +122,9 @@ public final class WaitUtils {
      * Waits until the element's text changes to a value different from the one
      * captured before an action.
      *
-     * @param driver      active WebDriver
-     * @param element     the element whose text is being observed
-     * @param oldText     the text that was present before triggering the change
+     * @param driver  active WebDriver
+     * @param element the element whose text is being observed
+     * @param oldText the text that was present before triggering the change
      */
     public static void waitForTextChange(WebDriver driver, WebElement element, String oldText) {
         log.step("Waiting for text to change from: \"" + oldText + "\"");
@@ -145,7 +137,7 @@ public final class WaitUtils {
      *
      * @param driver    active WebDriver
      * @param element   target element
-     * @param attribute attribute name (e.g. {@code "value"}, {@code "class"})
+     * @param attribute attribute name (e.g. "value", "class")
      * @param value     expected attribute value
      */
     public static void waitForAttributeValue(
@@ -157,14 +149,14 @@ public final class WaitUtils {
     // ── Polling ───────────────────────────────────────────────────────────────
 
     /**
-     * Polls the given {@link Supplier} every {@code pollIntervalMs} until it
-     * returns a non-null, non-empty string, or until {@code timeoutMs} elapses.
+     * Polls the given Supplier every pollIntervalMs until it returns a non-null,
+     * non-empty string, or until timeoutMs elapses.
      *
-     * <p>Useful for waiting on async state that is not directly reflected in the DOM
+     * Useful for waiting on async state not directly reflected in the DOM
      * (e.g. a value stored in localStorage, a network response flag, etc.).
      *
-     * @param supplier      value provider to poll
-     * @param timeoutMs     maximum total wait time in milliseconds
+     * @param supplier       value provider to poll
+     * @param timeoutMs      maximum total wait time in milliseconds
      * @param pollIntervalMs sleep duration between polls in milliseconds
      * @return the first non-null, non-empty value returned by the supplier
      * @throws RuntimeException if the timeout expires before a value is obtained
@@ -184,8 +176,8 @@ public final class WaitUtils {
     }
 
     /**
-     * Polls the given {@link Supplier} every 500 ms until it returns a non-null,
-     * non-empty string, using the default timeout from {@link TestConfig}.
+     * Polls the given Supplier every 500ms until it returns a non-null, non-empty string,
+     * using the default timeout from TestConfig.
      *
      * @param supplier value provider to poll
      * @return the first non-null, non-empty value returned by the supplier
@@ -197,12 +189,10 @@ public final class WaitUtils {
     // ── Retry ─────────────────────────────────────────────────────────────────
 
     /**
-     * Retries a {@link Runnable} action up to {@code maxAttempts} times.
+     * Retries a Runnable action up to maxAttempts times.
+     * Each failed attempt is logged. If all attempts fail, the last exception is re-thrown.
      *
-     * <p>Each failed attempt is logged. If all attempts fail, the last exception
-     * is re-thrown.
-     *
-     * @param maxAttempts maximum number of attempts (must be ≥ 1)
+     * @param maxAttempts maximum number of attempts (must be >= 1)
      * @param action      action to execute
      * @throws RuntimeException wrapping the last caught exception if all attempts fail
      */
@@ -222,10 +212,9 @@ public final class WaitUtils {
     }
 
     /**
-     * Retries a {@link Callable} action up to {@code maxAttempts} times and
-     * returns the result on the first success.
+     * Retries a Callable action up to maxAttempts times and returns the result on first success.
      *
-     * @param maxAttempts maximum number of attempts (must be ≥ 1)
+     * @param maxAttempts maximum number of attempts (must be >= 1)
      * @param action      callable returning a result
      * @param <T>         return type
      * @return result of the first successful call
@@ -249,9 +238,8 @@ public final class WaitUtils {
 
     /**
      * Pauses execution for the given number of milliseconds.
-     *
-     * <p><strong>Prefer explicit waits</strong> over this method. Use only as a
-     * last resort for cases where no DOM/state condition can be observed.
+     * Prefer explicit waits over this method — use only as a last resort
+     * when no DOM or state condition can be observed.
      *
      * @param ms sleep duration in milliseconds
      */

@@ -6,38 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Cross-step scenario state storage for Cucumber scenarios.
+ * Cross-step scenario state storage — shares data between steps in the same scenario.
  *
- * <p>Injected via PicoContainer into step definitions to share data between steps
- * within the same scenario (e.g. storing a user ID from a registration step to use
- * in a verification step).
+ * Injected via PicoContainer into step definitions. Typical use: store a value
+ * produced in one step (e.g. a user ID) and read it in a later step.
  *
- * <p>Analogous to closure-captured variables or Playwright fixture state that is
- * shared across test hooks and steps.
- *
- * <p>Usage:
- * <pre>{@code
- *   public class RegistrationSteps {
- *       private final ScenarioContext scenarioContext;
- *
- *       public RegistrationSteps(ScenarioContext scenarioContext) {
- *           this.scenarioContext = scenarioContext;
- *       }
- *
- *       @When("I register a new user")
- *       public void iRegisterANewUser() {
- *           String email = TestDataUtils.randomEmail();
- *           scenarioContext.set("registeredEmail", email);
- *           // perform registration...
- *       }
- *
- *       @Then("the user should receive a confirmation email")
- *       public void theUserShouldReceiveConfirmationEmail() {
- *           String email = scenarioContext.get("registeredEmail");
- *           // verify email sent...
- *       }
- *   }
- * }</pre>
+ * Usage:
+ *   scenarioContext.set("registeredEmail", email);   // in a @When step
+ *   String email = scenarioContext.get("registeredEmail"); // in a @Then step
  */
 public class ScenarioContext {
 
@@ -48,10 +24,10 @@ public class ScenarioContext {
     // ── State management ─────────────────────────────────────────────────────
 
     /**
-     * Stores a key-value pair in the scenario context.
+     * Stores a value under the given key.
      *
-     * @param key   unique key for the value (e.g. {@code "userId"}, {@code "authToken"})
-     * @param value the value to store (any object)
+     * @param key   unique identifier (e.g. "userId", "authToken")
+     * @param value any object to store
      */
     public void set(String key, Object value) {
         log.debug("ScenarioContext.set: " + key + " = " + value);
@@ -59,11 +35,11 @@ public class ScenarioContext {
     }
 
     /**
-     * Retrieves a value from the scenario context by key.
+     * Retrieves a stored value by key. Returns null if not found.
      *
-     * @param key the key previously set via {@link #set(String, Object)}
+     * @param key the key used in set()
      * @param <T> expected return type
-     * @return the stored value, or {@code null} if not found
+     * @return the stored value, or null
      */
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
@@ -71,12 +47,12 @@ public class ScenarioContext {
     }
 
     /**
-     * Retrieves a value from the scenario context, returning a default if absent.
+     * Retrieves a stored value, returning defaultValue if the key is absent.
      *
-     * @param key          the key previously set via {@link #set(String, Object)}
-     * @param defaultValue value to return if the key is not found
+     * @param key          the key used in set()
+     * @param defaultValue fallback value
      * @param <T>          expected return type
-     * @return the stored value, or {@code defaultValue} if not found
+     * @return the stored value, or defaultValue
      */
     @SuppressWarnings("unchecked")
     public <T> T getOrDefault(String key, T defaultValue) {
@@ -84,10 +60,10 @@ public class ScenarioContext {
     }
 
     /**
-     * Checks if the context contains the given key.
+     * Returns true if the context contains the given key.
      *
-     * @param key the key to check
-     * @return {@code true} if the key exists
+     * @param key key to check
+     * @return true if present
      */
     public boolean contains(String key) {
         return context.containsKey(key);
@@ -96,7 +72,7 @@ public class ScenarioContext {
     /**
      * Removes a key-value pair from the context.
      *
-     * @param key the key to remove
+     * @param key key to remove
      */
     public void remove(String key) {
         log.debug("ScenarioContext.remove: " + key);
@@ -104,8 +80,7 @@ public class ScenarioContext {
     }
 
     /**
-     * Clears all scenario context state.
-     * Typically called from an {@code @After} hook if needed.
+     * Clears all stored state. Useful in @After hooks for explicit cleanup.
      */
     public void clear() {
         log.debug("ScenarioContext.clear");
@@ -122,7 +97,7 @@ public class ScenarioContext {
     }
 
     /**
-     * Returns {@code true} if the context is empty.
+     * Returns true if no values are stored.
      *
      * @return empty status
      */
@@ -133,10 +108,9 @@ public class ScenarioContext {
     /**
      * Returns a read-only view of all stored keys.
      *
-     * @return set of context keys
+     * @return unmodifiable set of keys
      */
     public java.util.Set<String> keys() {
         return java.util.Collections.unmodifiableSet(context.keySet());
     }
 }
-

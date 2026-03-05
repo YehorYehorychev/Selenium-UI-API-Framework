@@ -15,52 +15,45 @@ import java.util.List;
 /**
  * Abstract base class for all Page Objects.
  *
- * <p>Every concrete page class extends {@code BasePage} and gets:
- * <ul>
- *   <li>A pre-configured {@link WebDriverWait} with the default timeout</li>
- *   <li>Reusable wait/interact helpers: {@code click}, {@code type}, {@code getText}, etc.</li>
- *   <li>Visibility / presence checks: {@code isVisible}, {@code isPresent}</li>
- *   <li>Navigation utilities: {@code open}, {@code waitForUrl}, {@code getTitle}</li>
- *   <li>JavaScript executor shortcuts: {@code scrollIntoView}, {@code jsClick}</li>
- * </ul>
+ * Every concrete page extends BasePage and gets:
+ *   - Pre-configured WebDriverWait with the default timeout
+ *   - Reusable helpers: click, type, getText, isVisible, isPresent
+ *   - Navigation utilities: open, waitForUrl, getTitle, getCurrentUrl
+ *   - JavaScript shortcuts: scrollIntoView, jsClick
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   public class LoginPage extends BasePage {
  *       private final By emailInput = By.id("email");
  *
- *       public LoginPage(WebDriver driver) {
- *           super(driver);
- *       }
+ *       public LoginPage(WebDriver driver) { super(driver); }
  *
  *       public void login(String email, String password) {
  *           type(emailInput, email);
  *           click(By.id("submit"));
  *       }
  *   }
- * }</pre>
  */
 public abstract class BasePage {
 
-    protected final WebDriver     driver;
+    protected final WebDriver driver;
     protected final WebDriverWait wait;
     protected final WebDriverWait shortWait;
-    protected final Actions       actions;
-    protected final Logger        log;
+    protected final Actions actions;
+    protected final Logger log;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Initialises the page with the default timeout from {@link TestConfig}.
+     * Initialises the page with the default timeout from TestConfig.
      *
-     * @param driver active {@link WebDriver} instance (injected from {@code TestContext} via PicoContainer)
+     * @param driver active WebDriver instance injected from DriverContext
      */
     protected BasePage(WebDriver driver) {
-        this.driver    = driver;
-        this.wait      = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
         this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
-        this.actions   = new Actions(driver);
-        this.log       = new Logger(this.getClass());
+        this.actions = new Actions(driver);
+        this.log = new Logger(this.getClass());
         PageFactory.initElements(driver, this);
     }
 
@@ -77,7 +70,7 @@ public abstract class BasePage {
     }
 
     /**
-     * Opens the base URL from {@link TestConfig}.
+     * Opens the base URL from TestConfig.
      */
     public void openBaseUrl() {
         open(TestConfig.BASE_URL);
@@ -103,7 +96,7 @@ public abstract class BasePage {
 
     /**
      * Waits until the current URL contains the given fragment.
-     * Delegates to {@link WaitUtils#waitForUrl(WebDriver, String)}.
+     * Delegates to WaitUtils.waitForUrl().
      *
      * @param urlFragment expected URL fragment
      */
@@ -113,7 +106,7 @@ public abstract class BasePage {
 
     /**
      * Waits until the page title contains the given fragment.
-     * Delegates to {@link WaitUtils#waitForTitle(WebDriver, String)}.
+     * Delegates to WaitUtils.waitForTitle().
      *
      * @param titleFragment expected title fragment
      */
@@ -136,7 +129,7 @@ public abstract class BasePage {
     /**
      * Waits for an element to be clickable and clicks it.
      *
-     * @param element pre-located {@link WebElement}
+     * @param element pre-located WebElement
      */
     public void click(WebElement element) {
         log.step("Clicking element: " + element);
@@ -159,7 +152,7 @@ public abstract class BasePage {
     /**
      * Clears the field and types the given text.
      *
-     * @param element pre-located {@link WebElement}
+     * @param element pre-located WebElement
      * @param text    text to enter
      */
     public void type(WebElement element, String text) {
@@ -193,7 +186,7 @@ public abstract class BasePage {
      * Retrieves the value of an attribute on an element.
      *
      * @param locator   element locator
-     * @param attribute attribute name (e.g. {@code "href"}, {@code "value"})
+     * @param attribute attribute name (e.g. "href", "value")
      * @return attribute value string
      */
     public String getAttribute(By locator, String attribute) {
@@ -201,7 +194,7 @@ public abstract class BasePage {
     }
 
     /**
-     * Submits a form by pressing {@code ENTER} on the element.
+     * Submits a form by pressing ENTER on the element.
      *
      * @param locator element locator
      */
@@ -225,7 +218,7 @@ public abstract class BasePage {
      * Waits until the element is visible in the DOM.
      *
      * @param locator element locator
-     * @return visible {@link WebElement}
+     * @return visible WebElement
      */
     public WebElement waitForVisible(By locator) {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
@@ -235,7 +228,7 @@ public abstract class BasePage {
      * Waits until the element is present in the DOM (not necessarily visible).
      *
      * @param locator element locator
-     * @return present {@link WebElement}
+     * @return present WebElement
      */
     public WebElement waitForPresent(By locator) {
         return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
@@ -254,7 +247,7 @@ public abstract class BasePage {
      * Waits until at least one element matching the locator is present.
      *
      * @param locator element locator
-     * @return list of matching {@link WebElement}s
+     * @return list of matching WebElements
      */
     public List<WebElement> waitForAll(By locator) {
         return wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
@@ -263,7 +256,7 @@ public abstract class BasePage {
     // ── Visibility checks ─────────────────────────────────────────────────────
 
     /**
-     * Returns {@code true} if the element is currently visible (no explicit wait).
+     * Returns true if the element is currently visible (no explicit wait).
      *
      * @param locator element locator
      * @return visibility status
@@ -278,7 +271,7 @@ public abstract class BasePage {
     }
 
     /**
-     * Returns {@code true} if the element is present in the DOM (no explicit wait).
+     * Returns true if the element is present in the DOM (no explicit wait).
      *
      * @param locator element locator
      * @return presence status
@@ -298,7 +291,7 @@ public abstract class BasePage {
      * Executes a JavaScript snippet in the context of the current page.
      *
      * @param script JavaScript code
-     * @param args   optional arguments passed as {@code arguments[0]}, {@code arguments[1]}, …
+     * @param args   optional arguments passed as arguments[0], arguments[1], etc.
      * @return script return value
      */
     public Object executeScript(String script, Object... args) {
@@ -345,7 +338,7 @@ public abstract class BasePage {
 
     /**
      * Takes a full-page screenshot and attaches it to the Allure report.
-     * Delegates to {@link com.yehorychev.selenium.utils.ScreenshotUtils#attachFullPage(WebDriver, String)}.
+     * Delegates to ScreenshotUtils.attachFullPage().
      *
      * @param name screenshot name (displayed in Allure report)
      */
@@ -357,7 +350,7 @@ public abstract class BasePage {
 
     /**
      * Verifies that an element's text contains the expected substring.
-     * Throws {@link AssertionError} if the text does not contain the expected value.
+     * Throws AssertionError if the text does not match.
      *
      * @param locator  element locator
      * @param expected expected text fragment (case-insensitive)
@@ -378,7 +371,7 @@ public abstract class BasePage {
 
     /**
      * Asserts that the current URL matches the given pattern (substring or regex).
-     * Throws {@link com.yehorychev.selenium.errors.NavigationException} if the URL doesn't match.
+     * Throws NavigationException if the URL doesn't match.
      *
      * @param urlPattern expected URL pattern (substring or regex)
      * @throws com.yehorychev.selenium.errors.NavigationException if URL doesn't match
@@ -391,5 +384,4 @@ public abstract class BasePage {
         log.debug("Navigation assertion passed: URL matches \"" + urlPattern + "\"");
     }
 }
-
 

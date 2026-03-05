@@ -3,12 +3,8 @@ package com.yehorychev.selenium.errors;
 /**
  * Thrown when an expected element cannot be found or is not in the required state.
  *
- * <p>Analogue of {@code ElementNotFoundError} in {@code test-errors.ts}.
- *
- * <p>Example:
- * <pre>{@code
+ * Example:
  *   throw new ElementNotFoundException("button[data-testid='submit']", 15_000);
- * }</pre>
  */
 public class ElementNotFoundException extends FrameworkException {
 

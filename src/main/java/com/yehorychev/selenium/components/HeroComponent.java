@@ -6,21 +6,17 @@ import org.openqa.selenium.WebDriver;
 /**
  * Hero component — represents the hero section at the top of the home page.
  *
- * <p>This component encapsulates the hero section including:
- * <ul>
- *   <li>Main headline (h1)</li>
- *   <li>Sub-headline / description</li>
- *   <li>CTA buttons (Download App, Sign Up, etc.)</li>
- *   <li>Hero image / background</li>
- * </ul>
+ * Encapsulates:
+ *   - Main headline (h1)
+ *   - Sub-headline / description
+ *   - CTA buttons (Download App, Sign Up, etc.)
+ *   - Hero image / background
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   HeroComponent hero = new HeroComponent(driver);
  *   String heading = hero.getHeadingText();
  *   hero.clickDownloadButton();
  *   assertTrue(hero.isCtaVisible());
- * }</pre>
  */
 public class HeroComponent extends BaseComponent {
 
@@ -35,9 +31,9 @@ public class HeroComponent extends BaseComponent {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a {@code HeroComponent} bound to the hero section.
+     * Creates a HeroComponent bound to the hero section.
      *
-     * @param driver active {@link WebDriver} instance
+     * @param driver active WebDriver instance
      */
     public HeroComponent(WebDriver driver) {
         super(driver, By.cssSelector("section.hero, [data-testid='hero-section']"));
@@ -64,7 +60,7 @@ public class HeroComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if the hero heading contains the expected text.
+     * Returns true if the hero heading contains the expected text.
      *
      * @param expected expected text fragment (case-insensitive)
      * @return whether heading contains the text
@@ -92,7 +88,7 @@ public class HeroComponent extends BaseComponent {
     }
 
     /**
-     * Returns {@code true} if CTA buttons are visible in the hero section.
+     * Returns true if CTA buttons are visible in the hero section.
      *
      * @return CTA visibility status
      */
@@ -118,4 +114,3 @@ public class HeroComponent extends BaseComponent {
         return getAttribute(DOWNLOAD_BUTTON, "href");
     }
 }
-

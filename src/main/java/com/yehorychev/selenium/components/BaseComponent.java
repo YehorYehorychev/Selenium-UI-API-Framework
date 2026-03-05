@@ -12,12 +12,11 @@ import java.util.List;
 /**
  * Abstract base class for all page components (sections, widgets, modals).
  *
- * <p>Components represent reusable sections of a page (e.g. header, footer, modals).
- * Each component is scoped to a root element and all element lookups happen
- * within that root, providing better encapsulation and test stability.
+ * Components represent reusable sections of a page (e.g. header, footer, modal).
+ * Each component is scoped to a root element — all lookups happen within that root,
+ * providing better encapsulation and test stability.
  *
- * <p>Usage:
- * <pre>{@code
+ * Usage:
  *   public class NavigationComponent extends BaseComponent {
  *       private static final By NAV_LINKS = By.cssSelector("nav a");
  *
@@ -32,7 +31,6 @@ import java.util.List;
  *               .ifPresent(WebElement::click);
  *       }
  *   }
- * }</pre>
  */
 public abstract class BaseComponent {
 
@@ -46,8 +44,8 @@ public abstract class BaseComponent {
     /**
      * Initializes the component with its root element locator.
      *
-     * @param driver      active {@link WebDriver} instance
-     * @param rootLocator {@link By} locator for the component's root element
+     * @param driver      active WebDriver instance
+     * @param rootLocator By locator for the component's root element
      */
     protected BaseComponent(WebDriver driver, By rootLocator) {
         this.driver = driver;
@@ -175,4 +173,3 @@ public abstract class BaseComponent {
         return findElement(locator).getAttribute(attribute);
     }
 }
-

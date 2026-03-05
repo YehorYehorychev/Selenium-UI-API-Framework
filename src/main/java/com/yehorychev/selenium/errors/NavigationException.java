@@ -3,12 +3,8 @@ package com.yehorychev.selenium.errors;
 /**
  * Thrown when a navigation action does not produce the expected URL.
  *
- * <p>Analogue of {@code NavigationError} in {@code test-errors.ts}.
- *
- * <p>Example:
- * <pre>{@code
+ * Example:
  *   throw new NavigationException(driver.getCurrentUrl(), ".*lol.*");
- * }</pre>
  */
 public class NavigationException extends FrameworkException {
 
