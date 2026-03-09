@@ -67,9 +67,21 @@ selenium-ui-api/
 │
 ├── src/main/java/com/yehorychev/selenium/
 │   │
-│   ├── config/                       # Layer 1 — Core Infrastructure
-│   │   ├── TestConfig.java           # Singleton config: env → .env → props → defaults
-│   │   └── DriverConfig.java         # WebDriver factory (Chrome / Firefox / Edge)
+│   ├── components/                  
+│   │   ├── BaseComponent.java       # Component base class (scoped element lookups)
+│   │   ├── NavigationComponent.java # Header navigation
+│   │   ├── HeroComponent.java       # Hero section
+│   │   ├── FooterComponent.java     # Footer section
+│   │   ├── GameCardsComponent.java  # Game cards grid
+│   │   └── FeaturesComponent.java   # Features section
+│   │
+│   ├── data/
+│   │   ├── TestData.java            # Static test data (Credentials, URLs, UI strings)
+│   │   ├── Tags.java                # Cucumber tags (@smoke, @api, @critical, etc.)
+│   │   └── GraphqlQueries.java      # GraphQL query constants
+│   │
+│   ├── driver/
+│   │   └── DriverManager.java       # ThreadLocal WebDriver lifecycle
 │   │
 │   ├── errors/                       # Layer 1 — Custom exception hierarchy
 │   │   ├── FrameworkException.java   # Base runtime exception
@@ -116,13 +128,12 @@ selenium-ui-api/
 │   └── simplelogger.properties       # SLF4J Simple logger settings
 │
 ├── src/test/java/yehorychev/selenium/
+│   ├── context/                      
+│   │   ├── DriverContext.java        # WebDriver lifecycle + thread-local access
+│   │   ├── ApiContext.java           # RestAssured wrapper
+│   │   └── ScenarioContext.java      # Cross-step state storage
 │   │
-│   ├── context/                      # Layer 5 — PicoContainer DI
-│   │   ├── DriverContext.java        # WebDriver lifecycle (setUp / tearDown / getDriver)
-│   │   ├── ApiContext.java           # RestAssured wrapper + CookieFilter (session sharing)
-│   │   └── ScenarioContext.java      # Cross-step key/value store
-│   │
-│   ├── hooks/                        # Layer 6 — Cucumber lifecycle hooks
+│   ├── hooks/                        
 │   │   ├── DriverHooks.java          # @Before/@After — driver start/quit + failure screenshot
 │   │   ├── ApiHooks.java             # @Before/@After("@api") — RestAssured init/reset
 │   │   └── AuthHooks.java            # @Before("@authenticated") — sign-in + cookie inject
