@@ -3,128 +3,101 @@ package com.yehorychev.selenium.data;
 /**
  * GraphQL query and mutation constants for API tests.
  *
- * All queries are formatted as text blocks and can be passed directly
- * to ApiContext.graphql() or RestAssured.
+ * All queries target https://account.mobalytics.gg/api/graphql/v1/query.
+ * This is the accounts service — it handles auth and user account operations.
  *
  * Usage:
- *   Response response = api.graphql(GraphqlQueries.GET_CURRENT_USER);
- *   Response response = api.graphql(GraphqlQueries.GET_USER_PROFILE, Map.of("userId", "123"));
+ *   Response response = api.graphql(GraphqlQueries.HEALTH_CHECK);
+ *   Response response = api.graphql(GraphqlQueries.SIGN_IN, vars);
  */
 public final class GraphqlQueries {
 
     private GraphqlQueries() {
     }
 
-    // ── User queries ──────────────────────────────────────────────────────────
+    // ── Health check ──────────────────────────────────────────────────────────
 
     /**
-     * Fetches the current authenticated user's profile.
+     * Introspects the root query type name — works without authentication.
+     * Used as a lightweight health check to verify the endpoint is reachable.
      *
-     * Returns: id, username, email, createdAt
+     * Returns: __typename (always "Query")
      */
-    public static final String GET_CURRENT_USER = """
-            query GetCurrentUser {
-              currentUser {
-                id
-                username
-                email
-                createdAt
-              }
-            }
-            """;
-
-    /**
-     * Fetches a user profile by user ID.
-     *
-     * Variables: $userId: ID!
-     * Returns: id, username, email, avatar, bio
-     */
-    public static final String GET_USER_PROFILE = """
-            query GetUserProfile($userId: ID!) {
-              user(id: $userId) {
-                id
-                username
-                email
-                avatar
-                bio
-              }
+    public static final String HEALTH_CHECK = """
+            query HealthCheck {
+              __typename
             }
             """;
 
     // ── Authentication mutations ──────────────────────────────────────────────
 
     /**
-     * Performs a login mutation via GraphQL.
+     * Signs in with email, password and optional continueFrom redirect URL.
+     * Sets a session cookie in the response. Returns Boolean (true on success).
      *
-     * Variables: $email: String!, $password: String!
-     * Returns: token, user { id, username, email }
+     * Variables: $email: String!, $password: String!, $continueFrom: String
      */
-    public static final String LOGIN = """
-            mutation Login($email: String!, $password: String!) {
-              login(email: $email, password: $password) {
-                token
-                user {
-                  id
-                  username
-                  email
-                }
-              }
+    public static final String SIGN_IN = """
+            mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
+              signIn(email: $email, password: $password, continueFrom: $continueFrom)
             }
             """;
 
     /**
-     * Performs a logout mutation (invalidates token server-side).
-     *
-     * Returns: success: Boolean
+     * Signs out the currently authenticated user.
+     * Returns Boolean (true on success).
      */
-    public static final String LOGOUT = """
-            mutation Logout {
-              logout {
-                success
-              }
+    public static final String SIGN_OUT = """
+            mutation SignOut {
+              signOut
             }
             """;
 
-    // ── Game data queries ─────────────────────────────────────────────────────
+    // ── Account queries ───────────────────────────────────────────────────────
 
     /**
-     * Fetches a list of supported games.
+     * Fetches all fields for the currently authenticated user's account.
+     * Requires a valid session cookie obtained via SIGN_IN.
      *
-     * Returns: id, name, slug, iconUrl
+     * Returns: uid, email, login, level, referrerCode, referralStatus
      */
-    public static final String GET_GAMES = """
-            query GetGames {
-              games {
-                id
-                name
-                slug
-                iconUrl
-              }
-            }
-            """;
-
-    /**
-     * Fetches detailed statistics for a summoner.
-     *
-     * Variables: $summonerName: String!, $region: String!
-     * Returns: summoner stats including rank, winrate, KDA, etc.
-     */
-    public static final String GET_SUMMONER_STATS = """
-            query GetSummonerStats($summonerName: String!, $region: String!) {
-              summoner(name: $summonerName, region: $region) {
-                id
-                name
+    public static final String ACCOUNT_QUERY = """
+            query {
+              account {
+                uid
+                email
+                login
                 level
-                profileIconId
-                stats {
-                  rank
-                  tier
-                  wins
-                  losses
-                  winrate
-                  kda
-                }
+                referrerCode
+                referralStatus
               }
             }
             """;
+
+    /**
+     * Fetches only uid and email — partial field selection.
+     * Used to verify GraphQL partial query support.
+     */
+    public static final String ACCOUNT_QUERY_PARTIAL = """
+            query {
+              account {
+                uid
+                email
+              }
+            }
+            """;
+
+    // ── Legacy aliases — keep existing step definitions compiling ─────────────
+
+    /** Alias of HEALTH_CHECK — used by "query the list of supported games" step. */
+    public static final String GET_GAMES = HEALTH_CHECK;
+
+    /** Alias of HEALTH_CHECK — used by "query the current user" step. */
+    public static final String GET_CURRENT_USER = HEALTH_CHECK;
+
+    /** Alias of HEALTH_CHECK — placeholder; summoner data is on a different service. */
+    public static final String GET_SUMMONER_STATS = HEALTH_CHECK;
+
+    /** Alias of HEALTH_CHECK — placeholder; user-by-ID is on a different service. */
+    public static final String GET_USER_PROFILE = HEALTH_CHECK;
 }

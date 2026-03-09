@@ -28,9 +28,15 @@ public class NavigationComponent extends BaseComponent {
 
     private static final By LOGO = By.cssSelector("a.base-logo");
     private static final By NAV_LINKS = By.cssSelector("nav a");
-    private static final By GAME_LINKS = By.cssSelector("nav a[href*='/lol'], nav a[href*='/tft'], nav a[href*='/valorant']");
+    // All anchor tags inside the nav — includes LoL, TFT, PoE2, Diablo 4, etc.
+    private static final By GAME_LINKS = By.cssSelector("nav a");
     private static final By SOCIAL_LINKS = By.cssSelector("a[href*='twitter'], a[href*='discord'], a[href*='youtube']");
-    private static final By LOGIN_BUTTON = By.cssSelector("button[data-testid='login'], a[href*='/login']");
+
+    // Sign In button — lives in the React app header on sub-pages (LoL, PoE2, etc.),
+    // NOT on the marketing homepage. Uses XPath text match since the class names are
+    // atomic/hashed and change on every deploy.
+    private static final By SIGN_IN_BUTTON_XPATH =
+            By.xpath("//button[.//span[translate(normalize-space(text()),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='sign in']]");
 
     // XPath template for finding links by visible text
     private static final String LINK_BY_TEXT_XPATH = ".//nav//a[contains(text(),'%s')]";
@@ -152,21 +158,26 @@ public class NavigationComponent extends BaseComponent {
     // ── Authentication ───────────────────────────────────────────────────────
 
     /**
-     * Clicks the login button in the header.
+     * Clicks the Sign In button in the React app header (sub-pages only).
+     * The Sign In button does not exist on the marketing homepage.
      */
     public void clickLogin() {
-        log.step("Clicking login button");
-        click(LOGIN_BUTTON);
+        log.step("Clicking Sign In button");
+        waitForClickableGlobal(SIGN_IN_BUTTON_XPATH).click();
     }
 
     /**
-     * Returns true if the login button is visible (user not authenticated).
+     * Returns true if the Sign In button is visible.
+     * The button only appears on sub-pages (LoL, PoE2, etc.), not on the homepage.
      *
-     * @return login button visibility status
+     * @return sign in button visibility status
      */
     public boolean isLoginButtonVisible() {
         try {
-            return findElement(LOGIN_BUTTON).isDisplayed();
+            return wait.until(
+                org.openqa.selenium.support.ui.ExpectedConditions
+                    .visibilityOfElementLocated(SIGN_IN_BUTTON_XPATH)
+            ) != null;
         } catch (Exception e) {
             return false;
         }

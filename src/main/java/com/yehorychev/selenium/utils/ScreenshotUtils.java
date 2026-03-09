@@ -286,47 +286,6 @@ public final class ScreenshotUtils {
         }
     }
 
-    // ── Deprecated Methods (Backward Compatibility) ───────────────────────────
-
-    /**
-     * @deprecated Use attachViewport(WebDriver, String) instead.
-     */
-    @Deprecated(since = "1.1", forRemoval = true)
-    public static void attachToAllure(WebDriver driver, String name) {
-        attachViewport(driver, name);
-    }
-
-    /**
-     * @deprecated Use attachFullPage(WebDriver, String) instead.
-     */
-    @Deprecated(since = "1.1", forRemoval = true)
-    public static void attachFullPageToAllure(WebDriver driver, String name) {
-        attachFullPage(driver, name);
-    }
-
-    /**
-     * @deprecated Use attachElement(WebDriver, WebElement, String) instead.
-     */
-    @Deprecated(since = "1.1", forRemoval = true)
-    public static void attachElementToAllure(WebDriver driver, WebElement element, String name) {
-        attachElement(driver, element, name);
-    }
-
-    /**
-     * @deprecated Use captureFullPage(WebDriver) instead.
-     */
-    @Deprecated(since = "1.1", forRemoval = true)
-    public static byte[] takeFullPageScreenshot(WebDriver driver) {
-        return captureFullPage(driver);
-    }
-
-    /**
-     * @deprecated Use captureViewport(WebDriver) instead.
-     */
-    @Deprecated(since = "1.1", forRemoval = true)
-    public static byte[] takeBytes(WebDriver driver) {
-        return captureViewport(driver);
-    }
 
     // ── Cleanup Utilities ─────────────────────────────────────────────────────
 

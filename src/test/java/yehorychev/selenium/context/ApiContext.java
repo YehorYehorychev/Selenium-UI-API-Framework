@@ -3,6 +3,7 @@ package yehorychev.selenium.context;
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
 import io.restassured.RestAssured;
+import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -14,18 +15,9 @@ import java.util.Map;
  *
  * Injected via PicoContainer into API-focused step definitions.
  * Pre-configures base URI, content type, and logging for every request.
+ * Uses a CookieFilter so session cookies from signIn are automatically sent on all
+ * subsequent requests within the same scenario (cookie jar pattern).
  * Provides convenience wrappers for GET / POST / PUT / PATCH / DELETE / GraphQL.
- *
- * Usage in step definitions:
- *   public class ApiSteps {
- *       private final ApiContext api;
- *       public ApiSteps(ApiContext api) { this.api = api; }
- *
- *       @When("I fetch user profile")
- *       public void fetchProfile() {
- *           Response response = api.get("/api/users/me");
- *       }
- *   }
  */
 public class ApiContext {
 
@@ -37,7 +29,8 @@ public class ApiContext {
 
     /**
      * Initializes the API context with defaults from TestConfig.
-     * Base URI, JSON content type, and validation-fail logging are pre-configured.
+     * A CookieFilter is added so session cookies (e.g. from signIn) are
+     * automatically propagated to all subsequent requests.
      */
     public ApiContext() {
         log.debug("Initialising ApiContext");
@@ -45,6 +38,7 @@ public class ApiContext {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
+                .filter(new CookieFilter())
                 .log().ifValidationFails();
     }
 
@@ -79,7 +73,16 @@ public class ApiContext {
         return requestSpec.headers(headers);
     }
 
-    // ── HTTP verbs ───────────────────────────────────────────────────────────
+    /**
+     * Returns the configured base URI for this API context.
+     *
+     * @return base URI string
+     */
+    public String getBaseUri() {
+        return TestConfig.API_BASE_URL;
+    }
+
+    // ── HTTP methods ─────────────────────────────────────────────────────────
 
     /**
      * Sends a GET request.
@@ -143,10 +146,10 @@ public class ApiContext {
 
     /**
      * Sends a GraphQL query or mutation to /api/graphql/v1/query.
-     * Use constants from GraphqlQueries for the query string.
+     * Session cookies from a previous signIn are automatically included via CookieFilter.
      *
-     * @param query     GraphQL query string
-     * @param variables map of variable names to values (nullable)
+     * @param query     GraphQL query or mutation string
+     * @param variables variable map (nullable)
      * @return Response for assertions
      */
     public Response graphql(String query, Map<String, Object> variables) {
@@ -154,13 +157,14 @@ public class ApiContext {
         Map<String, Object> body = variables != null
                 ? Map.of("query", query, "variables", variables)
                 : Map.of("query", query);
-        return post("/api/graphql/v1/query", body);
+        log.step("POST /api/graphql/v1/query");
+        return requestSpec.body(body).post("/api/graphql/v1/query");
     }
 
     /**
      * Sends a GraphQL query without variables.
      *
-     * @param query GraphQL query string
+     * @param query GraphQL query or mutation string
      * @return Response for assertions
      */
     public Response graphql(String query) {

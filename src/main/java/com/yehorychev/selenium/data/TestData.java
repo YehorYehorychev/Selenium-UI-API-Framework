@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.data;
 
+import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.errors.TestDataException;
 
 /**
@@ -31,10 +32,10 @@ public final class TestData {
     public static final class Credentials {
 
         /** Primary test user login / email. Required for AuthHelper. */
-        public static final String LOGIN = System.getenv("TEST_USER_LOGIN");
+        public static final String LOGIN = TestConfig.USER_LOGIN;
 
         /** Primary test user password. Required for AuthHelper. */
-        public static final String PASSWORD = System.getenv("TEST_USER_PASSWORD");
+        public static final String PASSWORD = TestConfig.USER_PASSWORD;
 
         /** Admin user login (optional). */
         public static final String ADMIN_LOGIN = System.getenv("ADMIN_USER_LOGIN");

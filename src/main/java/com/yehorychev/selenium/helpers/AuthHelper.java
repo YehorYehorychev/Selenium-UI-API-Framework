@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.helpers;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.data.GraphqlQueries;
 import com.yehorychev.selenium.data.TestData;
 import com.yehorychev.selenium.errors.AuthenticationException;
 import io.restassured.RestAssured;
@@ -15,14 +16,13 @@ import java.util.Map;
 /**
  * API-based authentication helper — bypasses the UI login form.
  *
- * Authenticates via POST /api/auth/login, extracts the session token/cookies,
- * and optionally injects them into a WebDriver so subsequent navigation is
- * already authenticated.
+ * Authenticates via the GraphQL signIn mutation, which sets an HTTP-only
+ * session cookie on the account.mobalytics.gg domain.
+ * The session cookie can then be injected into a WebDriver.
  *
  * Usage:
  *   Map<String, String> auth = AuthHelper.loginViaApi(email, password);
  *   AuthHelper.injectAuthIntoDriver(driver, auth);
- *   driver.get(TestConfig.BASE_URL + "/dashboard");
  *
  * Or in one call:
  *   AuthHelper.loginAndInject(driver);  // uses TestData.Credentials
@@ -30,117 +30,110 @@ import java.util.Map;
 public final class AuthHelper {
 
     private static final Logger log = new Logger(AuthHelper.class);
+    // Key used in the returned authData map to indicate sign-in succeeded
+    public static final String KEY_SIGNED_IN = "signedIn";
 
     private AuthHelper() {
     }
 
-    // ── API login ─────────────────────────────────────────────────────────────
+    // ── GraphQL login ─────────────────────────────────────────────────────────
 
     /**
-     * Authenticates via the REST API and returns auth data (token + cookies).
+     * Authenticates via the GraphQL signIn mutation and returns auth data.
+     *
+     * The mobalytics account service uses cookie-based sessions; no token is
+     * returned in the response body. Session cookies set by the server are
+     * captured in the RestAssured response and stored in the returned map.
      *
      * @param email    user email
      * @param password user password
-     * @return Map containing: "token", "cookieName", "cookieValue" (where applicable)
-     * @throws AuthenticationException if login returns non-2xx or no token in response
+     * @return Map with: "signedIn"="true", plus any response cookie name/value pairs
+     * @throws AuthenticationException if the mutation returns false or HTTP error
      */
     public static Map<String, String> loginViaApi(String email, String password) {
-        log.step("Authenticating via API: " + email);
+        log.step("Authenticating via GraphQL signIn: " + email);
+
+        Map<String, Object> variables = Map.of("email", email, "password", password, "continueFrom", "");
+        Map<String, Object> body = Map.of(
+                "query", GraphqlQueries.SIGN_IN,
+                "variables", variables
+        );
 
         Response response = RestAssured.given()
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
-                .body(Map.of(
-                        "email", email,
-                        "password", password
-                ))
-                .post(TestData.UrlPatterns.API_LOGIN);
+                .accept(ContentType.JSON)
+                .body(body)
+                .post("/api/graphql/v1/query");
 
         int status = response.getStatusCode();
         if (status < 200 || status >= 300) {
-            String body = response.getBody().asString();
             throw new AuthenticationException(
-                    "loginViaApi returned HTTP " + status + ": " + body
+                    "signIn mutation returned HTTP " + status + ": " + response.getBody().asString()
             );
         }
 
-        // Extract token from JSON response
-        String token = response.jsonPath().getString("token");
-        if (token == null || token.isBlank()) {
+        // signIn returns { data: { signIn: true/false } }
+        Boolean signedIn = response.jsonPath().getBoolean("data.signIn");
+        if (!Boolean.TRUE.equals(signedIn)) {
             throw new AuthenticationException(
-                    "loginViaApi returned success=true but no token in response: "
-                            + response.getBody().asString()
+                    "signIn returned false — invalid credentials for: " + email
             );
         }
 
         Map<String, String> authData = new HashMap<>();
-        authData.put("token", token);
+        authData.put(KEY_SIGNED_IN, "true");
+        authData.put("email", email);
 
-        // Extract session cookie if present
-        io.restassured.http.Cookie sessionCookie = response.getDetailedCookie("session");
-        if (sessionCookie != null) {
-            authData.put("cookieName", sessionCookie.getName());
-            authData.put("cookieValue", sessionCookie.getValue());
-        }
+        // Capture any session cookies set by the server
+        authData.putAll(response.getCookies());
 
-        log.info("API login successful for: " + email);
+        log.info("GraphQL signIn successful for: " + email);
         return authData;
     }
 
     /**
      * Authenticates using credentials from TestData.Credentials.
      *
-     * @return auth data map (token + cookies)
+     * @return auth data map
      * @throws AuthenticationException if login fails or credentials are not configured
      */
     public static Map<String, String> loginViaApi() {
         if (!TestData.Credentials.areConfigured()) {
             throw new AuthenticationException(
                     "Test credentials are not configured. " +
-                            "Please set TEST_USER_LOGIN and TEST_USER_PASSWORD in .env file or environment variables."
+                            "Set TEST_USER_LOGIN and TEST_USER_PASSWORD in .env or environment variables."
             );
         }
-        return loginViaApi(
-                TestData.Credentials.LOGIN,
-                TestData.Credentials.PASSWORD
-        );
+        return loginViaApi(TestData.Credentials.LOGIN, TestData.Credentials.PASSWORD);
     }
 
     // ── WebDriver injection ───────────────────────────────────────────────────
 
     /**
-     * Injects auth token and cookies into a WebDriver session.
-     * The driver must already be on a page from the same domain before cookies are set.
+     * Injects session cookies from loginViaApi() into a WebDriver.
+     * The driver must already be on a page from the account domain.
      *
      * @param driver   active WebDriver
      * @param authData map returned by loginViaApi()
      */
     public static void injectAuthIntoDriver(WebDriver driver, Map<String, String> authData) {
-        log.step("Injecting authentication into WebDriver");
+        log.step("Injecting authentication cookies into WebDriver");
 
-        // Navigate to base URL to set cookies on the correct domain
+        // Navigate to the account domain so cookies can be set
         String currentUrl = driver.getCurrentUrl();
-        if (currentUrl == null || !currentUrl.startsWith(TestConfig.BASE_URL)) {
-            log.debug("Navigating to base URL to enable cookie injection");
+        if (currentUrl == null || (!currentUrl.startsWith(TestConfig.BASE_URL)
+                && !currentUrl.startsWith(TestConfig.API_BASE_URL))) {
             driver.get(TestConfig.BASE_URL);
         }
 
-        // Inject session cookie if present
-        String cookieName = authData.get("cookieName");
-        String cookieValue = authData.get("cookieValue");
-        if (cookieName != null && cookieValue != null) {
-            Cookie cookie = new Cookie(cookieName, cookieValue);
+        // Inject all cookies except the metadata keys
+        for (Map.Entry<String, String> entry : authData.entrySet()) {
+            String key = entry.getKey();
+            if (KEY_SIGNED_IN.equals(key) || "email".equals(key)) continue;
+            Cookie cookie = new Cookie(key, entry.getValue());
             driver.manage().addCookie(cookie);
-            log.debug("Injected cookie: " + cookieName);
-        }
-
-        // Store token in localStorage (alternative auth pattern)
-        String token = authData.get("token");
-        if (token != null) {
-            driver.navigate().refresh(); // ensure domain is set
-            ((org.openqa.selenium.JavascriptExecutor) driver)
-                    .executeScript("window.localStorage.setItem('authToken', arguments[0]);", token);
-            log.debug("Injected token into localStorage");
+            log.debug("Injected cookie: " + key);
         }
 
         log.info("Authentication injection complete");
@@ -148,20 +141,13 @@ public final class AuthHelper {
 
     /**
      * Logs in via API and injects auth into the driver in one step.
-     *
-     * @param driver   active WebDriver
-     * @param email    user email
-     * @param password user password
      */
     public static void loginAndInject(WebDriver driver, String email, String password) {
-        Map<String, String> authData = loginViaApi(email, password);
-        injectAuthIntoDriver(driver, authData);
+        injectAuthIntoDriver(driver, loginViaApi(email, password));
     }
 
     /**
      * Logs in via API using TestData.Credentials and injects auth into the driver.
-     *
-     * @param driver active WebDriver
      */
     public static void loginAndInject(WebDriver driver) {
         loginAndInject(driver, TestData.Credentials.LOGIN, TestData.Credentials.PASSWORD);
@@ -170,18 +156,21 @@ public final class AuthHelper {
     // ── Logout ────────────────────────────────────────────────────────────────
 
     /**
-     * Logs out via API, invalidating the token server-side.
-     *
-     * @param token bearer token to invalidate
+     * Logs out via GraphQL signOut mutation.
+     * Session is cookie-based — no token needed.
      */
-    public static void logoutViaApi(String token) {
-        log.step("Logging out via API");
+    public static void logoutViaApi() {
+        log.step("Logging out via GraphQL signOut");
+
+        Map<String, Object> body = Map.of("query", GraphqlQueries.SIGN_OUT);
 
         RestAssured.given()
                 .baseUri(TestConfig.API_BASE_URL)
-                .header("Authorization", "Bearer " + token)
-                .post(TestData.UrlPatterns.API_LOGOUT);
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(body)
+                .post("/api/graphql/v1/query");
 
-        log.info("API logout complete");
+        log.info("GraphQL signOut complete");
     }
 }
