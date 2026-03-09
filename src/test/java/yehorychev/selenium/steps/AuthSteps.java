@@ -8,8 +8,6 @@ import com.yehorychev.selenium.helpers.Logger;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import yehorychev.selenium.context.ApiContext;
 import yehorychev.selenium.context.DriverContext;
@@ -23,8 +21,8 @@ import static org.testng.Assert.*;
  * Step definitions for authentication flows — API-based sign-in/sign-out.
  *
  * Auth is cookie-based via GraphQL signIn mutation.
- * Stores a "signedIn=true" marker in ScenarioContext under "authToken" key.
- * Also stores the last raw Response under "lastResponse" for body assertions.
+ * All requests go through ApiContext so the session cookie (CookieFilter)
+ * is shared across subsequent GraphQL calls within the same scenario.
  *
  * PicoContainer injects DriverContext, ApiContext and ScenarioContext per-scenario.
  */
@@ -32,7 +30,6 @@ public class AuthSteps {
 
     private static final Logger log = new Logger(AuthSteps.class);
     private static final String AUTH_TOKEN_KEY = "authToken";
-    private static final String AUTH_DATA_KEY  = "authData";
     private static final String LAST_RESPONSE  = "lastResponse";
 
     private final DriverContext driverContext;
@@ -52,7 +49,7 @@ public class AuthSteps {
         log.step("Authenticating via API using configured test credentials");
 
         // Sign in through ApiContext so the session cookie is stored in the shared
-        // RestAssured RequestSpecification — subsequent api.graphql() calls in this
+        // RestAssured CookieFilter — subsequent api.graphql() calls in this
         // scenario will automatically include the session cookie.
         Map<String, Object> vars = Map.of(
                 "email", TestData.Credentials.LOGIN,
@@ -74,16 +71,13 @@ public class AuthSteps {
     @When("I sign in via API with email {string} and password {string}")
     public void iSignInViaApiWithEmailAndPassword(String email, String password) {
         log.step("Attempting sign-in via API: " + email);
-        Map<String, Object> body = Map.of(
-                "query", GraphqlQueries.SIGN_IN,
-                "variables", Map.of("email", email, "password", password, "continueFrom", "")
+        // Uses a fresh ApiContext (no cookie injection needed — testing negative path)
+        Map<String, Object> vars = Map.of(
+                "email", email,
+                "password", password,
+                "continueFrom", ""
         );
-        Response response = RestAssured.given()
-                .baseUri(api.getBaseUri())
-                .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .body(body)
-                .post("/api/graphql/v1/query");
+        Response response = api.graphql(GraphqlQueries.SIGN_IN, vars);
         scenarioContext.set(LAST_RESPONSE, response);
         log.step("Sign-in attempt → HTTP " + response.getStatusCode());
     }
@@ -94,7 +88,6 @@ public class AuthSteps {
         Map<String, String> authData = AuthHelper.loginViaApi();
         AuthHelper.injectAuthIntoDriver(driverContext.getDriver(), authData);
         scenarioContext.set(AUTH_TOKEN_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
-        scenarioContext.set(AUTH_DATA_KEY, authData);
     }
 
     // ── API logout steps ──────────────────────────────────────────────────────
@@ -138,7 +131,7 @@ public class AuthSteps {
         Response response = scenarioContext.get(LAST_RESPONSE);
         assertNotNull(response, "No sign-in response stored — did you call the sign-in step?");
         String body = response.getBody().asString();
-        boolean hasFalse = body.contains("\"signIn\":false") || body.contains("\"signIn\": false");
+        boolean hasFalse  = body.contains("\"signIn\":false") || body.contains("\"signIn\": false");
         boolean hasErrors = body.contains("\"errors\"");
         boolean httpError = response.getStatusCode() >= 400;
         assertTrue(hasFalse || hasErrors || httpError,

@@ -157,11 +157,9 @@ public final class AuthHelper {
 
     /**
      * Logs out via GraphQL signOut mutation.
-     * The token parameter is kept for API compatibility but is unused (session is cookie-based).
-     *
-     * @param token ignored — kept for backward compatibility with step definitions
+     * Session is cookie-based — no token needed.
      */
-    public static void logoutViaApi(String token) {
+    public static void logoutViaApi() {
         log.step("Logging out via GraphQL signOut");
 
         Map<String, Object> body = Map.of("query", GraphqlQueries.SIGN_OUT);
