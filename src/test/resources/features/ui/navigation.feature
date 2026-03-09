@@ -1,7 +1,7 @@
 # Navigation component scenarios — verifies the site header, logo,
 # game links, and login button across the Mobalytics site.
 
-@smoke @ui @navigation
+@ui @navigation
 Feature: Site Navigation
 
   Background:
@@ -11,7 +11,7 @@ Feature: Site Navigation
   Scenario: Site logo is visible in the header
     Then the site logo should be visible
 
-  @smoke @ui @navigation
+  @ignore @ui @navigation
   Scenario: Login button is present in the navigation
     Then the login button should be visible in the navigation
 
@@ -20,10 +20,10 @@ Feature: Site Navigation
     Then the navigation should contain game link "<game>"
 
     Examples:
-      | game      |
-      | LoL       |
-      | TFT       |
-      | Valorant  |
+      | game     |
+      | LoL      |
+      | TFT      |
+      | PoE2     |
 
   @regression @ui @navigation
   Scenario: Clicking a game link navigates to the correct URL

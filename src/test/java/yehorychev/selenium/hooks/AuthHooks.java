@@ -66,16 +66,13 @@ public class AuthHooks {
         }
 
         try {
-            // Authenticate via REST API and inject cookies/token into WebDriver
+            // Authenticate via GraphQL signIn and inject session cookies into WebDriver
             Map<String, String> authData = AuthHelper.loginViaApi();
             AuthHelper.injectAuthIntoDriver(driverContext.getDriver(), authData);
 
-            // Persist token in ScenarioContext for use in step definitions
-            String token = authData.get("token");
-            if (token != null) {
-                scenarioContext.set("authToken", token);
-                log.debug("Auth token stored in ScenarioContext");
-            }
+            // Persist the signedIn marker in ScenarioContext for use in step definitions
+            scenarioContext.set("authToken", authData.get(AuthHelper.KEY_SIGNED_IN));
+            log.debug("Auth session marker stored in ScenarioContext");
 
             log.info("Authenticated session established for: " + scenario.getName());
         } catch (Exception e) {

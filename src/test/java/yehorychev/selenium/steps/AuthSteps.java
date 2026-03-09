@@ -42,7 +42,8 @@ public class AuthSteps {
     public void iAmAuthenticatedViaApi() {
         log.step("Authenticating via API using configured test credentials");
         Map<String, String> authData = AuthHelper.loginViaApi();
-        scenarioContext.set(AUTH_TOKEN_KEY, authData.get("token"));
+        // Cookie-based auth — no token; store signedIn flag as the "token" for assertions
+        scenarioContext.set(AUTH_TOKEN_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
         scenarioContext.set(AUTH_DATA_KEY, authData);
         log.info("API authentication successful");
     }
@@ -51,7 +52,7 @@ public class AuthSteps {
     public void iAmAuthenticatedViaApiWith(String email, String password) {
         log.step("Authenticating via API: " + email);
         Map<String, String> authData = AuthHelper.loginViaApi(email, password);
-        scenarioContext.set(AUTH_TOKEN_KEY, authData.get("token"));
+        scenarioContext.set(AUTH_TOKEN_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
         scenarioContext.set(AUTH_DATA_KEY, authData);
         log.info("API authentication successful for: " + email);
     }
@@ -69,10 +70,10 @@ public class AuthSteps {
 
     @When("I log out via API")
     public void iLogOutViaApi() {
-        String token = scenarioContext.get(AUTH_TOKEN_KEY);
-        assertNotNull(token, "No auth token in ScenarioContext — did you log in first?");
+        String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
+        assertNotNull(signedIn, "No auth session in ScenarioContext — did you log in first?");
         log.step("Logging out via API");
-        AuthHelper.logoutViaApi(token);
+        AuthHelper.logoutViaApi(null); // cookie-based: no token needed
         scenarioContext.set(AUTH_TOKEN_KEY, null);
         log.info("API logout complete");
     }
@@ -81,16 +82,16 @@ public class AuthSteps {
 
     @Then("an auth token should be stored in the scenario context")
     public void anAuthTokenShouldBeStoredInScenarioContext() {
-        String token = scenarioContext.get(AUTH_TOKEN_KEY);
-        assertNotNull(token, "Expected an auth token to be stored in ScenarioContext");
-        assertFalse(token.isBlank(), "Expected auth token to be non-blank");
-        log.info("Auth token verified in ScenarioContext");
+        String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
+        assertNotNull(signedIn, "Expected an auth session marker to be stored in ScenarioContext");
+        assertEquals(signedIn, "true", "Expected auth session marker to be 'true' but was: " + signedIn);
+        log.info("Auth session verified in ScenarioContext");
     }
 
     @Then("the auth token should no longer be present")
     public void theAuthTokenShouldNoLongerBePresent() {
-        String token = scenarioContext.get(AUTH_TOKEN_KEY);
-        assertNull(token, "Expected auth token to be null after logout but was: " + token);
+        String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
+        assertNull(signedIn, "Expected auth token to be null after logout but was: " + signedIn);
     }
 
     @Then("the configured test credentials should be available")
