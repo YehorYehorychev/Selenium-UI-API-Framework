@@ -60,20 +60,18 @@ public class AuthHooks {
     public void setUpAuthentication(Scenario scenario) {
         log.step("Setting up authenticated session for scenario: " + scenario.getName());
 
+        // For pure API scenarios the step definition handles sign-in via ApiContext.
+        // This hook only needs to act when a WebDriver is running (UI scenarios).
         if (!driverContext.isReady()) {
-            throw new IllegalStateException(
-                    "DriverContext is not ready — AuthHooks requires DriverHooks to run first (order 0)");
+            log.debug("API-only scenario — auth will be handled by step definition, skipping hook");
+            return;
         }
 
         try {
-            // Authenticate via GraphQL signIn and inject session cookies into WebDriver
             Map<String, String> authData = AuthHelper.loginViaApi();
             AuthHelper.injectAuthIntoDriver(driverContext.getDriver(), authData);
-
-            // Persist the signedIn marker in ScenarioContext for use in step definitions
             scenarioContext.set("authToken", authData.get(AuthHelper.KEY_SIGNED_IN));
-            log.debug("Auth session marker stored in ScenarioContext");
-
+            log.debug("Auth cookies injected into WebDriver");
             log.info("Authenticated session established for: " + scenario.getName());
         } catch (Exception e) {
             log.warn("Authentication setup failed: " + e.getMessage());

@@ -2,6 +2,7 @@ package yehorychev.selenium.steps;
 
 import com.yehorychev.selenium.components.NavigationComponent;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.pages.LolPage;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -20,12 +21,22 @@ public class NavigationSteps {
 
     private static final Logger log = new Logger(NavigationSteps.class);
 
+    private final DriverContext driverContext;
     private final NavigationComponent nav;
     private final ScenarioContext scenarioContext;
 
     public NavigationSteps(DriverContext driverContext, ScenarioContext scenarioContext) {
+        this.driverContext = driverContext;
         this.nav = new NavigationComponent(driverContext.getDriver());
         this.scenarioContext = scenarioContext;
+    }
+
+    // ── Page navigation ───────────────────────────────────────────────────────
+
+    @When("I navigate to the LoL page")
+    public void iNavigateToTheLolPage() {
+        log.step("Navigating to LoL page");
+        new LolPage(driverContext.getDriver()).open();
     }
 
     // ── Logo ──────────────────────────────────────────────────────────────────

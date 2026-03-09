@@ -172,4 +172,29 @@ public abstract class BaseComponent {
     protected String getAttribute(By locator, String attribute) {
         return findElement(locator).getAttribute(attribute);
     }
+
+    // ── Document-level helpers (not scoped to component root) ────────────────
+
+    /**
+     * Finds a single element at document level — not scoped to this component's root.
+     * Use this when an element lives outside the component's root (e.g. a modal or
+     * a React app element alongside a WordPress header).
+     *
+     * @param locator absolute {@link By} locator
+     * @return matching {@link WebElement}
+     */
+    protected WebElement findElementGlobal(By locator) {
+        return driver.findElement(locator);
+    }
+
+    /**
+     * Waits until an element at document level is clickable.
+     * Use this when the target element lives outside the component's root.
+     *
+     * @param locator absolute {@link By} locator
+     * @return clickable {@link WebElement}
+     */
+    protected WebElement waitForClickableGlobal(By locator) {
+        return wait.until(ExpectedConditions.elementToBeClickable(locator));
+    }
 }

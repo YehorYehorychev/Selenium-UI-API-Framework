@@ -11,8 +11,9 @@ Feature: Site Navigation
   Scenario: Site logo is visible in the header
     Then the site logo should be visible
 
-  @ignore @ui @navigation
-  Scenario: Login button is present in the navigation
+  @smoke @ui @navigation @critical
+  Scenario: Sign In button is visible on a game sub-page
+    When I navigate to the LoL page
     Then the login button should be visible in the navigation
 
   @regression @ui @navigation
@@ -29,4 +30,3 @@ Feature: Site Navigation
   Scenario: Clicking a game link navigates to the correct URL
     When I click the navigation game link "LoL"
     Then the current URL should contain "lol"
-

@@ -53,7 +53,7 @@ public final class AuthHelper {
     public static Map<String, String> loginViaApi(String email, String password) {
         log.step("Authenticating via GraphQL signIn: " + email);
 
-        Map<String, Object> variables = Map.of("email", email, "password", password);
+        Map<String, Object> variables = Map.of("email", email, "password", password, "continueFrom", "");
         Map<String, Object> body = Map.of(
                 "query", GraphqlQueries.SIGN_IN,
                 "variables", variables

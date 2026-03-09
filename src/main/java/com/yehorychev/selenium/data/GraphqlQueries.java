@@ -32,14 +32,14 @@ public final class GraphqlQueries {
     // ── Authentication mutations ──────────────────────────────────────────────
 
     /**
-     * Signs in with email and password — sets a session cookie in the response.
-     * Returns Boolean (true on success, false on invalid credentials).
+     * Signs in with email, password and optional continueFrom redirect URL.
+     * Sets a session cookie in the response. Returns Boolean (true on success).
      *
-     * Variables: $email: String!, $password: String!
+     * Variables: $email: String!, $password: String!, $continueFrom: String
      */
     public static final String SIGN_IN = """
-            mutation SignIn($email: String!, $password: String!) {
-              signIn(email: $email, password: $password)
+            mutation SignIn($email: String!, $password: String!, $continueFrom: String) {
+              signIn(email: $email, password: $password, continueFrom: $continueFrom)
             }
             """;
 
@@ -53,13 +53,46 @@ public final class GraphqlQueries {
             }
             """;
 
-    // ── Legacy aliases — keep step definitions compiling ─────────────────────
+    // ── Account queries ───────────────────────────────────────────────────────
+
+    /**
+     * Fetches all fields for the currently authenticated user's account.
+     * Requires a valid session cookie obtained via SIGN_IN.
+     *
+     * Returns: uid, email, login, level, referrerCode, referralStatus
+     */
+    public static final String ACCOUNT_QUERY = """
+            query {
+              account {
+                uid
+                email
+                login
+                level
+                referrerCode
+                referralStatus
+              }
+            }
+            """;
+
+    /**
+     * Fetches only uid and email — partial field selection.
+     * Used to verify GraphQL partial query support.
+     */
+    public static final String ACCOUNT_QUERY_PARTIAL = """
+            query {
+              account {
+                uid
+                email
+              }
+            }
+            """;
+
+    // ── Legacy aliases — keep existing step definitions compiling ─────────────
 
     /** Alias of HEALTH_CHECK — used by "query the list of supported games" step. */
     public static final String GET_GAMES = HEALTH_CHECK;
 
-    /** Alias of HEALTH_CHECK — used by "query the current user" step.
-     *  Note: the account service does not expose a currentUser field. */
+    /** Alias of HEALTH_CHECK — used by "query the current user" step. */
     public static final String GET_CURRENT_USER = HEALTH_CHECK;
 
     /** Alias of HEALTH_CHECK — placeholder; summoner data is on a different service. */

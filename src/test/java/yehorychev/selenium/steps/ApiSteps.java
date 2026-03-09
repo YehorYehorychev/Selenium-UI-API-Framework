@@ -1,6 +1,7 @@
 package yehorychev.selenium.steps;
 
 import com.yehorychev.selenium.data.GraphqlQueries;
+import com.yehorychev.selenium.data.TestData;
 import com.yehorychev.selenium.helpers.Logger;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
@@ -134,6 +135,58 @@ public class ApiSteps {
         Object value = response.jsonPath().get(jsonPath);
         scenarioContext.set(key, value);
         log.debug("Saved JSON path \"" + jsonPath + "\" as \"" + key + "\": " + value);
+    }
+
+    // ── Account query steps ───────────────────────────────────────────────────
+
+    @When("I query the current account via GraphQL")
+    public void iQueryTheCurrentAccountViaGraphQL() {
+        Response response = api.graphql(GraphqlQueries.ACCOUNT_QUERY);
+        scenarioContext.set(LAST_RESPONSE, response);
+        log.step("GraphQL Account query → " + response.getStatusCode());
+    }
+
+    @When("I query the account with partial field selection")
+    public void iQueryTheAccountWithPartialFieldSelection() {
+        Response response = api.graphql(GraphqlQueries.ACCOUNT_QUERY_PARTIAL);
+        scenarioContext.set(LAST_RESPONSE, response);
+        log.step("GraphQL Account (partial) query → " + response.getStatusCode());
+    }
+
+    @And("the account uid should be a valid identifier")
+    public void theAccountUidShouldBeAValidIdentifier() {
+        Response response = scenarioContext.get(LAST_RESPONSE);
+        assertNotNull(response, "No API response stored");
+        String uid = response.jsonPath().getString("data.account.uid");
+        assertNotNull(uid, "Expected data.account.uid to be non-null");
+        assertTrue(uid.length() >= 8,
+                "Expected uid to be at least 8 chars (UUID/nanoid), but was: " + uid);
+        log.info("Account uid verified: " + uid);
+    }
+
+    @And("the account email should match the configured test email")
+    public void theAccountEmailShouldMatchTheConfiguredTestEmail() {
+        Response response = scenarioContext.get(LAST_RESPONSE);
+        assertNotNull(response, "No API response stored");
+        String returnedEmail = response.jsonPath().getString("data.account.email");
+        String expectedEmail = TestData.Credentials.LOGIN;
+        assertNotNull(expectedEmail, "TEST_USER_LOGIN env var is not configured");
+        assertEquals(returnedEmail.toLowerCase(), expectedEmail.toLowerCase(),
+                "Account email mismatch: expected " + expectedEmail + " but got " + returnedEmail);
+        log.info("Account email matches: " + returnedEmail);
+    }
+
+    @And("the unauthenticated account response should be rejected")
+    public void theUnauthenticatedAccountResponseShouldBeRejected() {
+        Response response = scenarioContext.get(LAST_RESPONSE);
+        assertNotNull(response, "No API response stored");
+        String body = response.getBody().asString();
+        boolean hasErrors = body.contains("\"errors\"");
+        boolean nullAccount = response.jsonPath().get("data.account") == null;
+        boolean httpError = response.getStatusCode() >= 400;
+        assertTrue(hasErrors || nullAccount || httpError,
+                "Expected unauthenticated request to be rejected (errors/null account/4xx) but body was:\n" + body);
+        log.info("Unauthenticated rejection verified");
     }
 }
 
