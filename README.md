@@ -3,7 +3,7 @@
 **Version**: 1.0-SNAPSHOT  
 **Last Updated**: March 2026
 
-> **Enterprise-grade test automation framework** built on Selenium 4, Cucumber 7, TestNG, and PicoContainer. Implements Page Object Model, Component Pattern, parallel execution, PicoContainer dependency injection, and Allure reporting — structured in 6 architectural layers.
+> **Enterprise-grade test automation framework** built on Selenium 4, Cucumber 7, TestNG, and PicoContainer. Implements Page Object Model, Component Pattern, parallel execution, PicoContainer dependency injection, and Allure reporting — structured in 7 architectural layers.
 
 ---
 
@@ -43,6 +43,10 @@ HEADLESS=true
 # Test Credentials — required for @api and @authenticated tests
 TEST_USER_LOGIN=your-email@example.com
 TEST_USER_PASSWORD=your-password
+
+# Admin Credentials — optional, for admin-scope tests
+ADMIN_USER_LOGIN=admin@example.com
+ADMIN_USER_PASSWORD=admin-password
 ```
 
 > ⚠️ **Never commit `.env`** — it is already in `.gitignore`.
@@ -71,14 +75,14 @@ selenium-ui-api/
 │   │   ├── TestConfig.java           # Singleton config: env → .env → props → defaults
 │   │   └── DriverConfig.java         # WebDriver factory (Chrome / Firefox / Edge)
 │   │
-│   ├── errors/                       # Layer 1 — Custom exception hierarchy
-│   │   ├── FrameworkException.java   # Base runtime exception
-│   │   ├── PageLoadException.java
-│   │   ├── ElementNotFoundException.java
-│   │   ├── NavigationException.java
-│   │   ├── AuthenticationException.java
-│   │   ├── ApiException.java
-│   │   └── TestDataException.java
+│   ├── errors/                       # Layer 1 — Typed exception hierarchy
+│   │   ├── FrameworkException.java   # Base runtime exception (catch-all)
+│   │   ├── PageLoadException.java    # Thrown by BasePage.open() on page-load timeout
+│   │   ├── ElementNotFoundException.java  # Thrown by waitForVisible/Present/Url/Title
+│   │   ├── NavigationException.java  # Thrown by assertNavigatesTo() on URL mismatch
+│   │   ├── AuthenticationException.java  # Thrown by AuthHelper on sign-in failure
+│   │   ├── ApiException.java         # Thrown on REST/GraphQL call failure
+│   │   └── TestDataException.java    # Thrown when required env var / data is missing
 │   │
 │   ├── helpers/                      # Layer 1 — Core helpers
 │   │   ├── Logger.java               # SLF4J wrapper with step() / info() / debug()
@@ -107,7 +111,7 @@ selenium-ui-api/
 │   │   └── GraphqlQueries.java       # GraphQL query / mutation strings
 │   │
 │   └── utils/
-│       ├── WaitUtils.java            # Fluent waits, retry, polling
+│       ├── WaitUtils.java            # Fluent waits, retry, polling — typed errors on timeout
 │       ├── ScreenshotUtils.java      # AShot: viewport / full-page / element + Allure attach
 │       └── TestDataUtils.java        # Faker-based random data generators
 │
@@ -115,7 +119,7 @@ selenium-ui-api/
 │   ├── config.properties             # Fallback configuration values
 │   └── simplelogger.properties       # SLF4J Simple logger settings
 │
-├── src/test/java/yehorychev/selenium/
+├── src/test/java/com/yehorychev/selenium/
 │   │
 │   ├── context/                      # Layer 5 — PicoContainer DI
 │   │   ├── DriverContext.java        # WebDriver lifecycle (setUp / tearDown / getDriver)
@@ -160,7 +164,7 @@ selenium-ui-api/
 | Java classes (test) | 14 |
 | Feature files | 6 |
 | Test scenarios | 32 |
-| Custom exceptions | 7 |
+| Custom exceptions | 7 (all wired) |
 | Parallel threads | 4 (configurable) |
 
 ---
@@ -186,68 +190,38 @@ mvn clean test && mvn allure:serve
 ### Run by Tag
 
 ```bash
-# UI tests only
-mvn test -Dcucumber.filter.tags="@ui"
-
-# API tests only (requires .env credentials)
-mvn test -Dcucumber.filter.tags="@api"
-
-# Auth-specific tests
-mvn test -Dcucumber.filter.tags="@auth"
-
-# Tests requiring a logged-in user
-mvn test -Dcucumber.filter.tags="@authenticated"
-
-# Critical tests — must pass before deploy
-mvn test -Dcucumber.filter.tags="@critical"
-
-# Regression suite
-mvn test -Dcucumber.filter.tags="@regression"
+mvn test -Dcucumber.filter.tags="@ui"           # UI tests only
+mvn test -Dcucumber.filter.tags="@api"           # API tests only (requires .env credentials)
+mvn test -Dcucumber.filter.tags="@auth"          # Auth flow tests
+mvn test -Dcucumber.filter.tags="@authenticated" # Tests requiring a signed-in session
+mvn test -Dcucumber.filter.tags="@critical"      # Must-pass before deploy
+mvn test -Dcucumber.filter.tags="@regression"    # Full regression suite
 ```
 
 ### Combine Tags
 
 ```bash
-# Smoke AND UI
 mvn test -Dcucumber.filter.tags="@smoke and @ui"
-
-# Regression but NOT flaky
 mvn test -Dcucumber.filter.tags="@regression and not @flaky"
-
-# Critical OR smoke
 mvn test -Dcucumber.filter.tags="@critical or @smoke"
 ```
 
 ### Browser & Execution Options
 
 ```bash
-# Firefox
 mvn test -DBROWSER=firefox
-
-# Edge
 mvn test -DBROWSER=edge
-
-# Non-headless (visible browser)
 mvn test -DHEADLESS=false
-
-# Single thread (for debugging)
-mvn test -DPARALLEL_THREADS=1
-
-# 8 threads (powerful CI machine)
-mvn test -DPARALLEL_THREADS=8
+mvn test -DPARALLEL_THREADS=1   # sequential, good for debugging
+mvn test -DPARALLEL_THREADS=8   # 8 threads for powerful CI machines
 ```
 
 ### Allure Reports
 
 ```bash
-# Generate and open in browser
-mvn allure:serve
-
-# Generate to target/allure-report/
-mvn allure:report
-
-# Open previously generated report
-allure open target/allure-report
+mvn allure:serve            # generate + open in browser (live)
+mvn allure:report           # generate to target/allure-report/
+allure open target/allure-report  # open a previously generated report
 ```
 
 ---
@@ -278,20 +252,17 @@ mvn test
 mvn test -DTEST_USER_LOGIN=email@example.com -DTEST_USER_PASSWORD=secret
 ```
 
-### Tags
+### Hook behaviour by tag
 
-| Tag | Behaviour |
-|-----|-----------|
-| `@api` | `ApiHooks` sets up RestAssured before the scenario |
-| `@authenticated` | `AuthHooks` signs in via API and injects cookies before the scenario |
+| Tag | Hook | What it does |
+|-----|------|-------------|
+| `@api` | `ApiHooks.setUpApi` | Configures RestAssured base URI and logging |
+| `@authenticated` | `AuthHooks.setUpAuthentication` | Signs in via GraphQL, injects session cookies |
 
 ### Using AuthHelper directly
 
 ```java
-// Sign in and inject cookies into WebDriver (for UI authenticated tests)
-AuthHelper.loginAndInject(driver);
-
-// Sign in and get auth data (for custom flows)
+// Sign in and inject session cookies into WebDriver
 Map<String, String> authData = AuthHelper.loginViaApi();
 AuthHelper.injectAuthIntoDriver(driver, authData);
 ```
@@ -310,8 +281,61 @@ AuthHelper.injectAuthIntoDriver(driver, authData);
 | `@navigation` | Navigation / routing tests |
 | `@auth` | Authentication flow tests |
 | `@authenticated` | Requires a signed-in user session |
-| `@wip` | Work in progress — excluded from CI |
+| `@wip` | Work in progress — excluded from CI runs |
 | `@flaky` | Known unstable — excluded from main runs |
+
+> **Note**: scenarios tagged `@wip` are excluded by `CucumberRunner` (`tags = "not @wip"`).  
+> To run WIP scenarios locally: `mvn test -Dcucumber.filter.tags="@wip"`.
+
+---
+
+## 🚨 Error Handling
+
+The framework uses a typed exception hierarchy rooted at `FrameworkException`. All exceptions are `RuntimeException` subclasses — no checked exceptions to declare or catch unless you need to.
+
+### Exception hierarchy
+
+```
+FrameworkException  (base — catch everything with one handler)
+├── PageLoadException          — page did not load within timeout
+├── ElementNotFoundException   — element not found / not visible within timeout
+├── NavigationException        — current URL did not match expected pattern
+├── AuthenticationException    — GraphQL signIn returned false / failed
+├── ApiException               — REST / GraphQL call failed unexpectedly
+└── TestDataException          — required env var or test data is missing
+```
+
+### What throws what
+
+| Method | Thrown exception |
+|--------|-----------------|
+| `BasePage.open(url)` | `PageLoadException(url, timeoutMs)` |
+| `BasePage.waitForVisible(by)` | `ElementNotFoundException(selector, timeoutMs)` |
+| `BasePage.waitForPresent(by)` | `ElementNotFoundException(selector, timeoutMs)` |
+| `BasePage.assertNavigatesTo(pattern)` | `PageLoadException` (null URL) · `NavigationException` (mismatch) |
+| `WaitUtils.waitForUrl(driver, fragment)` | `ElementNotFoundException` with descriptive message on timeout |
+| `WaitUtils.waitForTitle(driver, fragment)` | `ElementNotFoundException` with descriptive message on timeout |
+| `AuthHelper.loginViaApi()` | `AuthenticationException` |
+
+### Catching framework errors
+
+```java
+// Catch ALL framework errors in one handler
+try {
+    homePage.open("https://mobalytics.gg");
+    homePage.waitForVisible(By.id("hero"));
+} catch (FrameworkException e) {
+    log.error("Framework failure: " + e.getMessage());
+}
+
+// Catch a specific type — message includes selector + wait time
+try {
+    basePage.waitForVisible(By.id("submit"));
+} catch (ElementNotFoundException e) {
+    // "Element not found: "By.id: submit" (waited 15000ms)"
+    System.out.println(e.getMessage());
+}
+```
 
 ---
 
@@ -320,14 +344,12 @@ AuthHelper.injectAuthIntoDriver(driver, authData);
 ### Automatic capture
 
 Screenshots are taken **automatically on failure** by `DriverHooks`:
-- Full-page screenshot via AShot — attached to Allure report
-- Attached under the failed scenario with the scenario name
+- Full-page screenshot via AShot — attached to the Allure report
+- Named `failure-<scenario_name>` and visible directly in the failed scenario
 
 ### Manual capture
 
 ```java
-// In a Page Object or step definition
-
 // Full-page (scrolls entire page via AShot)
 takeScreenshot("before-checkout");
 
@@ -341,12 +363,6 @@ ScreenshotUtils.attachElement(driver, element, "submit-button");
 Path file = ScreenshotUtils.saveViewport(driver, "target/screenshots", "debug");
 ```
 
-### Why only on failure by default?
-
-- Full-page AShot captures take 2–5 seconds
-- Smaller Allure reports are easier to navigate
-- Failures are the only time screenshots are truly needed
-
 ---
 
 ## 📊 Test Data
@@ -356,6 +372,8 @@ Path file = ScreenshotUtils.saveViewport(driver, "target/screenshots", "debug");
 ```java
 TestData.Credentials.LOGIN           // TEST_USER_LOGIN env var
 TestData.Credentials.PASSWORD        // TEST_USER_PASSWORD env var
+TestData.Credentials.ADMIN_LOGIN     // ADMIN_USER_LOGIN env var (optional)
+TestData.Credentials.ADMIN_PASSWORD  // ADMIN_USER_PASSWORD env var (optional)
 TestData.Credentials.areConfigured() // false → skip API tests gracefully
 
 TestData.UrlPatterns.HOME            // "/"
@@ -369,18 +387,15 @@ TestData.Timeouts.FILE_UPLOAD_MS     // 30_000
 ```java
 TestDataUtils.randomEmail()     // faker-generated unique email
 TestDataUtils.randomPassword()  // secure random password
-TestDataUtils.randomUsername()  // unique username
+TestDataUtils.randomUsername()  // unique username (bug-fixed: no double-call)
 TestDataUtils.randomGamerTag()  // gaming-style tag
 ```
 
 ### Cross-step state (`ScenarioContext`)
 
 ```java
-// Store a value in one step
-scenarioContext.set("userId", "abc-123");
-
-// Read it in another step
-String id = scenarioContext.get("userId");
+scenarioContext.set("userId", "abc-123");   // store in one step
+String id = scenarioContext.get("userId");  // read in another step
 ```
 
 ---
@@ -411,59 +426,60 @@ footer.clickPrivacyLink();
 
 | Layer | Classes | Purpose |
 |-------|---------|---------|
-| **1 — Core** | `TestConfig`, `DriverConfig`, `Logger`, `errors/*` | Config, logging, exception hierarchy |
-| **2 — Pages** | `BasePage`, `HomePage`, `LolPage`, `Poe2Page` | Page Object Model |
-| **3 — Components** | `BaseComponent`, `NavigationComponent`, … | Reusable page sections |
+| **1 — Core** | `TestConfig`, `DriverConfig`, `Logger`, `errors/*` | Config, logging, typed exception hierarchy |
+| **2 — Pages** | `BasePage`, `HomePage`, `LolPage`, `Poe2Page` | Page Object Model with typed error propagation |
+| **3 — Components** | `BaseComponent`, `NavigationComponent`, … | Reusable page sections scoped to root element |
 | **4 — Data & Helpers** | `TestData`, `Tags`, `GraphqlQueries`, `AuthHelper` | Static data, query constants, auth |
 | **5 — DI Context** | `DriverContext`, `ApiContext`, `ScenarioContext` | PicoContainer per-scenario injection |
 | **6 — Hooks** | `DriverHooks`, `ApiHooks`, `AuthHooks` | Cucumber lifecycle management |
 | **7 — Steps** | `CommonSteps`, `HomePageSteps`, `ApiSteps`, … | Gherkin step implementations |
 
-### Key patterns
+### Key design decisions
 
-- **ThreadLocal WebDriver** — `DriverManager` ensures each parallel thread has its own isolated driver instance
-- **CookieFilter in ApiContext** — session cookies from `signIn` are automatically sent on all subsequent requests within the same scenario
-- **PicoContainer DI** — all context objects are injected per-scenario, no static state in tests
-- **Explicit waits everywhere** — zero `Thread.sleep()` calls in the codebase
+| Decision | Rationale |
+|----------|-----------|
+| **No implicit waits** | `DriverConfig` omits `implicitlyWait()` — mixing implicit + explicit waits doubles effective timeouts |
+| **Typed exceptions on every timeout** | `waitForVisible`, `waitForPresent`, `waitForUrl`, `open()` all throw typed exceptions with selector + duration context |
+| **ThreadLocal WebDriver** | Each parallel thread owns its own driver; `getDriver()` throws `IllegalStateException` with a clear message if called before `setUp()` |
+| **CookieFilter in ApiContext** | Session cookies from `signIn` are automatically forwarded on all subsequent requests in the same scenario |
+| **PicoContainer DI** | All context objects are injected per-scenario — zero static state in tests |
+| **No `@wip` in CI** | `CucumberRunner` uses `tags = "not @wip"` consistent with `Tags.WIP` constant |
 
 ---
 
 ## 🔧 Troubleshooting
 
 ### `TestDataException: Required test data is missing: TEST_USER_LOGIN`
-
-API tests need credentials. Create `.env`:
 ```bash
-cp .env.example .env
-# add TEST_USER_LOGIN and TEST_USER_PASSWORD
+cp .env.example .env   # then add TEST_USER_LOGIN and TEST_USER_PASSWORD
 ```
 
----
+### `ElementNotFoundException: Element not found: "By.id: submit" (waited 15000ms)`
+```bash
+export DEFAULT_TIMEOUT=30000        # increase timeout
+mvn test -DHEADLESS=false           # run with visible browser to inspect
+```
+
+### `PageLoadException: Page "https://..." did not finish loading within 30000ms`
+```bash
+export NAVIGATION_TIMEOUT=60000
+mvn test
+```
 
 ### `Cannot find symbol: Dotenv` / `package io.github.cdimascio does not exist`
-
 ```bash
 mvn dependency:resolve
 mvn clean compile
-# If still failing, clear Maven cache:
+# If still failing, clear the Maven cache entry:
 rm -rf ~/.m2/repository/io/github/cdimascio/dotenv-java
 mvn clean install -DskipTests
 ```
 
----
-
 ### WebDriver version mismatch / `session not created`
-
 ```bash
-# Force WebDriverManager to re-download
-mvn test -Dwdm.forceCache=false
-
-# Or clear cache manually
-rm -rf ~/.cache/selenium/
-mvn test
+mvn test -Dwdm.forceCache=false     # force WebDriverManager to re-download
+rm -rf ~/.cache/selenium/ && mvn test  # or clear the cache entirely
 ```
-
----
 
 ### Tests pass locally but fail in CI
 
@@ -474,38 +490,13 @@ mvn test
 | Timeouts too short | `export DEFAULT_TIMEOUT=30000` |
 | Resource contention | `export PARALLEL_THREADS=2` |
 
----
-
-### `NoSuchElementException` / element not found
-
-```bash
-# Increase timeout
-export DEFAULT_TIMEOUT=30000
-
-# Run with visible browser to inspect
-mvn test -DHEADLESS=false -Dcucumber.filter.tags="@smoke"
-
-# Enable debug logging
-export LOG_LEVEL=DEBUG
-mvn test
-```
-
----
-
 ### Allure report not generating
-
 ```bash
-# macOS
-brew install allure
-
-# Then serve the report
+brew install allure      # macOS
 mvn allure:serve
 ```
 
----
-
-### Java version compatibility issues
-
+### Java version compatibility
 The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 ```xml
 <maven.compiler.source>21</maven.compiler.source>
@@ -520,21 +511,22 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 ### Adding a new page
 
 1. Create `src/main/java/.../pages/MyPage.java` extending `BasePage`
-2. Add private `By` locator constants
-3. Create `src/test/java/.../steps/MyPageSteps.java`
+2. Add `private static final By` locator constants
+3. Create `src/test/java/com/yehorychev/selenium/steps/MyPageSteps.java`
 4. Add `src/test/resources/features/ui/mypage.feature`
 
 ### Adding a new component
 
 1. Create `src/main/java/.../components/MyComponent.java` extending `BaseComponent`
 2. Pass the root locator to `super(driver, rootLocator)`
-3. Use `findElement(By)` / `findElements(By)` — they are already scoped to the root
+3. Use `findElement(By)` / `findElements(By)` — scoped to the root automatically
 
 ### Coding standards
 
 - ✅ JavaDoc on all `public` methods
 - ✅ `private static final By` for all locators
-- ✅ Explicit waits — no `Thread.sleep()`
+- ✅ Explicit waits only — no `Thread.sleep()` in page logic
+- ✅ Catch `TimeoutException` and re-throw as a typed `FrameworkException` subclass
 - ✅ Methods under 20 lines
 - ✅ Tag every Cucumber scenario (`@smoke`, `@ui`, `@api`, etc.)
 - ✅ Update `.env.example` when adding new env variables
@@ -545,6 +537,39 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 - [ ] New scenarios tagged appropriately
 - [ ] `.env.example` updated if new env vars added
 - [ ] README updated if new features added
+
+---
+
+## 📋 Improvement History
+
+### Phase 1 — Code Quality & Bug Fixes
+- `DriverConfig`: removed implicit wait anti-pattern
+- `DriverContext`: added missing source file (existed only as compiled `.class`)
+- `BasePage`: fixed `assertNavigatesTo()` null guard; fixed `isPresent()` always-true condition
+- `WaitUtils`: fixed `waitForAjax()` `ClassCastException` + null safety on `executeScript` result
+- `ScreenshotUtils`: fixed `Files.walk()` resource leak with try-with-resources
+- `AuthHelper`: added connection/socket timeouts to prevent indefinite hangs
+- `TestDataUtils`: fixed `randomUsername()` double-call bug + `StringBuilder` in loop
+- `simplelogger.properties`: fixed garbled encoding in comment header
+- `testng.xml`: added `parallel="methods"` to properly enable parallel execution
+
+### Phase 2 — Architecture & Design Patterns
+- **Package consistency**: renamed `yehorychev.selenium.*` → `com.yehorychev.selenium.*` across all 14 test sources
+- `testng.xml`: updated `CucumberRunner` class reference to correct package
+- `CucumberRunner`: fixed tag `"not @ignore"` → `"not @wip"` to align with `Tags.WIP`
+- `TestConfig`: added `ADMIN_USER_LOGIN` / `ADMIN_USER_PASSWORD` via standard `resolveOptional()` chain
+- `TestData.Credentials`: replaced raw `System.getenv()` calls with `TestConfig` constants
+- `NavigationComponent`: removed duplicate `NAV_LINKS` constant (identical to `GAME_LINKS`)
+- `HomePage`: fixed `getSocialLinkCount()` to use `findElements()` instead of `waitForAll()`
+
+### Phase 3 — Error Handling & Type Safety
+- `BasePage.open()`: throws `PageLoadException` on navigation timeout
+- `BasePage.waitForVisible()`: throws `ElementNotFoundException(selector, timeoutMs)` on timeout
+- `BasePage.waitForPresent()`: throws `ElementNotFoundException(selector, timeoutMs)` on timeout
+- `BasePage.assertNavigatesTo()`: throws `PageLoadException` (null URL) or `NavigationException` (mismatch)
+- `WaitUtils.waitForUrl()`: throws `ElementNotFoundException` with descriptive message on timeout
+- `WaitUtils.waitForTitle()`: throws `ElementNotFoundException` with descriptive message on timeout
+- All 7 custom exception classes now **fully wired** — zero dead code in `errors/`
 
 ---
 
