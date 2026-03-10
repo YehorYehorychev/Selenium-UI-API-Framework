@@ -119,6 +119,18 @@ public final class TestConfig {
      */
     public static final String USER_PASSWORD;
 
+    /**
+     * Admin user login — sourced from ADMIN_USER_LOGIN env var or .env file.
+     * May be null if not configured — optional credential.
+     */
+    public static final String ADMIN_USER_LOGIN;
+
+    /**
+     * Admin user password — sourced from ADMIN_USER_PASSWORD env var or .env file.
+     * May be null if not configured — optional credential.
+     */
+    public static final String ADMIN_USER_PASSWORD;
+
     // ── Dotenv instance — shared across all resolve() calls ─────────────────
     private static final Dotenv DOTENV = loadDotenv();
 
@@ -142,8 +154,10 @@ public final class TestConfig {
         ALLURE_REPORT_DIR = resolve("ALLURE_REPORT_DIR", "allure.report.dir", DEFAULT_ALLURE_REPORT_DIR, props);
 
         // Credentials — no fallback defaults, may be null if not set
-        USER_LOGIN = resolveOptional("TEST_USER_LOGIN");
-        USER_PASSWORD = resolveOptional("TEST_USER_PASSWORD");
+        USER_LOGIN         = resolveOptional("TEST_USER_LOGIN");
+        USER_PASSWORD      = resolveOptional("TEST_USER_PASSWORD");
+        ADMIN_USER_LOGIN   = resolveOptional("ADMIN_USER_LOGIN");
+        ADMIN_USER_PASSWORD = resolveOptional("ADMIN_USER_PASSWORD");
     }
 
     // ── Private utilities ───────────────────────────────────────────────────

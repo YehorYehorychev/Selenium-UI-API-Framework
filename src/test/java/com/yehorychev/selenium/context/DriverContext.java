@@ -1,4 +1,4 @@
-package yehorychev.selenium.context;
+package com.yehorychev.selenium.context;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.driver.DriverManager;
@@ -103,3 +103,4 @@ public class DriverContext {
         return DriverManager.isDriverInitialised();
     }
 }
+

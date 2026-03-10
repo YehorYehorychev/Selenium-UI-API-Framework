@@ -37,11 +37,11 @@ public final class TestData {
         /** Primary test user password. Required for AuthHelper. */
         public static final String PASSWORD = TestConfig.USER_PASSWORD;
 
-        /** Admin user login (optional). */
-        public static final String ADMIN_LOGIN = System.getenv("ADMIN_USER_LOGIN");
+        /** Admin user login (optional) — sourced via TestConfig resolution chain. */
+        public static final String ADMIN_LOGIN = TestConfig.ADMIN_USER_LOGIN;
 
-        /** Admin user password (optional). */
-        public static final String ADMIN_PASSWORD = System.getenv("ADMIN_USER_PASSWORD");
+        /** Admin user password (optional) — sourced via TestConfig resolution chain. */
+        public static final String ADMIN_PASSWORD = TestConfig.ADMIN_USER_PASSWORD;
 
         private Credentials() {
         }

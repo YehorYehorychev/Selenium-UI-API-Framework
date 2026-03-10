@@ -15,7 +15,7 @@
 
     <test name="Cucumber Scenarios">
         <classes>
-            <class name="yehorychev.selenium.runner.CucumberRunner"/>
+            <class name="com.yehorychev.selenium.runner.CucumberRunner"/>
         </classes>
     </test>
 
