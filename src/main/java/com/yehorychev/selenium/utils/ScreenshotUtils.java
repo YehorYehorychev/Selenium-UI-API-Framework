@@ -314,26 +314,27 @@ public final class ScreenshotUtils {
             long cutoffTime = System.currentTimeMillis() - (daysOld * 24L * 60 * 60 * 1000);
             final long[] deletedCount = {0};
 
-            Files.walk(directory)
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(FILE_EXTENSION))
-                    .filter(path -> {
-                        try {
-                            return Files.getLastModifiedTime(path).toMillis() < cutoffTime;
-                        } catch (IOException e) {
-                            log.warn("Could not check file time: " + path, e);
-                            return false;
-                        }
-                    })
-                    .forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                            deletedCount[0]++;
-                            log.debug("Deleted old screenshot: " + path);
-                        } catch (IOException e) {
-                            log.warn("Could not delete file: " + path, e);
-                        }
-                    });
+            try (var stream = Files.walk(directory)) {
+                stream.filter(Files::isRegularFile)
+                        .filter(path -> path.toString().endsWith(FILE_EXTENSION))
+                        .filter(path -> {
+                            try {
+                                return Files.getLastModifiedTime(path).toMillis() < cutoffTime;
+                            } catch (IOException e) {
+                                log.warn("Could not check file time: " + path, e);
+                                return false;
+                            }
+                        })
+                        .forEach(path -> {
+                            try {
+                                Files.deleteIfExists(path);
+                                deletedCount[0]++;
+                                log.debug("Deleted old screenshot: " + path);
+                            } catch (IOException e) {
+                                log.warn("Could not delete file: " + path, e);
+                            }
+                        });
+            }
 
             log.info("Cleanup complete. Deleted " + deletedCount[0] + " old screenshot(s)");
         } catch (IOException e) {

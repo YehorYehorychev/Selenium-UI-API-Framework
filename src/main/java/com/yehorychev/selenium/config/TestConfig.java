@@ -8,16 +8,16 @@ import java.util.Properties;
 
 /**
  * Centralised test configuration — reads from env vars, config.properties, then hard-coded defaults.
- *
+ * <p>
  * Resolution order (highest priority wins):
- *   1. Environment variable  (e.g. BASE_URL)
- *   2. config.properties on the classpath  (e.g. base.url)
- *   3. Hard-coded fallback constant in this class
- *
+ * 1. Environment variable  (e.g. BASE_URL)
+ * 2. config.properties on the classpath  (e.g. base.url)
+ * 3. Hard-coded fallback constant in this class
+ * <p>
  * Usage:
- *   String  url      = TestConfig.BASE_URL;
- *   long    timeout  = TestConfig.DEFAULT_TIMEOUT_MS;
- *   boolean headless = TestConfig.HEADLESS;
+ * String  url      = TestConfig.BASE_URL;
+ * long    timeout  = TestConfig.DEFAULT_TIMEOUT_MS;
+ * boolean headless = TestConfig.HEADLESS;
  */
 public final class TestConfig {
 
@@ -39,52 +39,84 @@ public final class TestConfig {
 
     // ── Resolved public constants ───────────────────────────────────────────
 
-    /** Application base URL — starting point for page navigation. */
+    /**
+     * Application base URL — starting point for page navigation.
+     */
     public static final String BASE_URL;
 
-    /** API base URL — used for REST and GraphQL requests. */
+    /**
+     * API base URL — used for REST and GraphQL requests.
+     */
     public static final String API_BASE_URL;
 
-    /** Target browser: chrome | firefox | edge. */
+    /**
+     * Target browser: chrome | firefox | edge.
+     */
     public static final String BROWSER;
 
-    /** Run browser without a UI window when true. */
+    /**
+     * Run browser without a UI window when true.
+     */
     public static final boolean HEADLESS;
 
-    /** Default element-wait timeout in milliseconds. */
+    /**
+     * Default element-wait timeout in milliseconds.
+     */
     public static final long DEFAULT_TIMEOUT_MS;
 
-    /** Page navigation timeout in milliseconds. */
+    /**
+     * Page navigation timeout in milliseconds.
+     */
     public static final long NAVIGATION_TIMEOUT_MS;
 
-    /** API call timeout in milliseconds. */
+    /**
+     * API call timeout in milliseconds.
+     */
     public static final long API_TIMEOUT_MS;
 
-    /** Number of test retries on failure (0 = no retry). */
+    /**
+     * Number of test retries on failure (0 = no retry).
+     */
     public static final int RETRY_COUNT;
 
-    /** Number of parallel test threads. */
+    /**
+     * Number of parallel test threads.
+     */
     public static final int PARALLEL_THREADS;
 
-    /** Browser viewport width in pixels. */
+    /**
+     * Browser viewport width in pixels.
+     */
     public static final int VIEWPORT_WIDTH;
 
-    /** Browser viewport height in pixels. */
+    /**
+     * Browser viewport height in pixels.
+     */
     public static final int VIEWPORT_HEIGHT;
 
-    /** Attach a screenshot to the Allure report when a test fails. */
+    /**
+     * Attach a screenshot to the Allure report when a test fails.
+     */
     public static final boolean SCREENSHOT_ON_FAILURE;
 
-    /** Directory where Allure raw results are written. */
+    /**
+     * Directory where Allure raw results are written.
+     */
     public static final String ALLURE_RESULTS_DIR;
 
-    /** Directory where the generated Allure HTML report is placed. */
+    /**
+     * Directory where the generated Allure HTML report is placed.
+     */
     public static final String ALLURE_REPORT_DIR;
 
-    /** Test user login — sourced from TEST_USER_LOGIN env var or .env file. */
+    /**
+     * Test user login — sourced from TEST_USER_LOGIN env var or .env file.
+     */
     public static final String USER_LOGIN;
 
-    /** Test user password — sourced from TEST_USER_PASSWORD env var or .env file. */
+    /**
+     * Test user password — sourced from TEST_USER_PASSWORD env var or .env file.
+     */
     public static final String USER_PASSWORD;
 
     // ── Dotenv instance — shared across all resolve() calls ─────────────────
@@ -94,37 +126,40 @@ public final class TestConfig {
     static {
         Properties props = loadProperties();
 
-        BASE_URL             = resolve("BASE_URL",              "base.url",              DEFAULT_BASE_URL,         props);
-        API_BASE_URL         = resolve("API_BASE_URL",          "api.base.url",          DEFAULT_API_BASE_URL,     props);
-        BROWSER              = resolve("BROWSER",               "browser",               DEFAULT_BROWSER,          props).toLowerCase();
-        HEADLESS             = Boolean.parseBoolean(resolve("HEADLESS", "headless", DEFAULT_HEADLESS, props));
-        DEFAULT_TIMEOUT_MS   = Long.parseLong(resolve("DEFAULT_TIMEOUT",     "timeout.default",   DEFAULT_TIMEOUT,            props));
+        BASE_URL = resolve("BASE_URL", "base.url", DEFAULT_BASE_URL, props);
+        API_BASE_URL = resolve("API_BASE_URL", "api.base.url", DEFAULT_API_BASE_URL, props);
+        BROWSER = resolve("BROWSER", "browser", DEFAULT_BROWSER, props).toLowerCase();
+        HEADLESS = Boolean.parseBoolean(resolve("HEADLESS", "headless", DEFAULT_HEADLESS, props));
+        DEFAULT_TIMEOUT_MS = Long.parseLong(resolve("DEFAULT_TIMEOUT", "timeout.default", DEFAULT_TIMEOUT, props));
         NAVIGATION_TIMEOUT_MS = Long.parseLong(resolve("NAVIGATION_TIMEOUT", "timeout.navigation", DEFAULT_NAVIGATION_TIMEOUT, props));
-        API_TIMEOUT_MS       = Long.parseLong(resolve("API_TIMEOUT",         "timeout.api",       DEFAULT_API_TIMEOUT,        props));
-        RETRY_COUNT          = Integer.parseInt(resolve("RETRY_COUNT",       "retry.count",       DEFAULT_RETRY_COUNT,        props));
-        PARALLEL_THREADS     = Integer.parseInt(resolve("PARALLEL_THREADS",  "parallel.threads",  DEFAULT_PARALLEL_THREADS,   props));
-        VIEWPORT_WIDTH       = Integer.parseInt(resolve("VIEWPORT_WIDTH",    "viewport.width",    DEFAULT_VIEWPORT_WIDTH,     props));
-        VIEWPORT_HEIGHT      = Integer.parseInt(resolve("VIEWPORT_HEIGHT",   "viewport.height",   DEFAULT_VIEWPORT_HEIGHT,    props));
+        API_TIMEOUT_MS = Long.parseLong(resolve("API_TIMEOUT", "timeout.api", DEFAULT_API_TIMEOUT, props));
+        RETRY_COUNT = Integer.parseInt(resolve("RETRY_COUNT", "retry.count", DEFAULT_RETRY_COUNT, props));
+        PARALLEL_THREADS = Integer.parseInt(resolve("PARALLEL_THREADS", "parallel.threads", DEFAULT_PARALLEL_THREADS, props));
+        VIEWPORT_WIDTH = Integer.parseInt(resolve("VIEWPORT_WIDTH", "viewport.width", DEFAULT_VIEWPORT_WIDTH, props));
+        VIEWPORT_HEIGHT = Integer.parseInt(resolve("VIEWPORT_HEIGHT", "viewport.height", DEFAULT_VIEWPORT_HEIGHT, props));
         SCREENSHOT_ON_FAILURE = Boolean.parseBoolean(resolve("SCREENSHOT_ON_FAILURE", "screenshot.on.failure", DEFAULT_SCREENSHOT_FAILURE, props));
-        ALLURE_RESULTS_DIR   = resolve("ALLURE_RESULTS_DIR",   "allure.results.dir",   DEFAULT_ALLURE_RESULTS_DIR, props);
-        ALLURE_REPORT_DIR    = resolve("ALLURE_REPORT_DIR",    "allure.report.dir",    DEFAULT_ALLURE_REPORT_DIR,  props);
+        ALLURE_RESULTS_DIR = resolve("ALLURE_RESULTS_DIR", "allure.results.dir", DEFAULT_ALLURE_RESULTS_DIR, props);
+        ALLURE_REPORT_DIR = resolve("ALLURE_REPORT_DIR", "allure.report.dir", DEFAULT_ALLURE_REPORT_DIR, props);
 
         // Credentials — no fallback defaults, may be null if not set
-        USER_LOGIN    = resolveOptional("TEST_USER_LOGIN");
+        USER_LOGIN = resolveOptional("TEST_USER_LOGIN");
         USER_PASSWORD = resolveOptional("TEST_USER_PASSWORD");
     }
 
     // ── Private utilities ───────────────────────────────────────────────────
 
-    /** Not instantiable — all members are static. */
-    private TestConfig() {}
+    /**
+     * Not instantiable — all members are static.
+     */
+    private TestConfig() {
+    }
 
     /**
      * Resolves a config value from (in priority order):
-     *   1. Real OS environment variable
-     *   2. .env file (via Dotenv)
-     *   3. config.properties on the classpath
-     *   4. Hard-coded fallback
+     * 1. Real OS environment variable
+     * 2. .env file (via Dotenv)
+     * 3. config.properties on the classpath
+     * 4. Hard-coded fallback
      *
      * @param envKey   environment variable / .env key  (e.g. "BASE_URL")
      * @param propKey  key in config.properties          (e.g. "base.url")

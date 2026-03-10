@@ -9,6 +9,7 @@
 -->
 <suite name="Selenium UI + API Test Suite"
        verbose="1"
+       parallel="methods"
        thread-count="4"
        data-provider-thread-count="4">
 

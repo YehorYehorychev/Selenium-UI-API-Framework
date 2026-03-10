@@ -132,12 +132,12 @@ public final class DriverConfig {
 
     /**
      * Applies page-load and script timeouts.
-     * Note: a small implicit wait (500ms) is set here as a safety net for slow pages.
-     * Prefer explicit WebDriverWait for individual element interactions.
+     * Implicit wait is intentionally NOT set here — the framework uses explicit
+     * WebDriverWait throughout, and mixing implicit + explicit waits causes
+     * unpredictable behaviour (e.g. doubled effective timeouts).
      */
     private static void applyTimeouts(WebDriver driver) {
         driver.manage().timeouts()
-                .implicitlyWait(Duration.ofMillis(500))
                 .pageLoadTimeout(Duration.ofMillis(TestConfig.NAVIGATION_TIMEOUT_MS))
                 .scriptTimeout(Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
     }

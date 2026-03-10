@@ -109,7 +109,9 @@ public final class WaitUtils {
             waitFor(driver, d -> {
                 Object active = ((JavascriptExecutor) d)
                         .executeScript("return (typeof jQuery !== 'undefined') ? jQuery.active : 0");
-                return Long.parseLong(active.toString()) == 0;
+                // executeScript may return Integer or Long depending on the browser; null means jQuery absent
+                if (active == null) return true;
+                return ((Number) active).longValue() == 0;
             });
         } catch (Exception e) {
             log.warn("waitForAjax skipped: " + e.getMessage());

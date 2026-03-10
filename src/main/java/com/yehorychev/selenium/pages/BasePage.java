@@ -278,7 +278,8 @@ public abstract class BasePage {
      */
     public boolean isPresent(By locator) {
         try {
-            return shortWait.until(ExpectedConditions.presenceOfElementLocated(locator)) != null;
+            shortWait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            return true;
         } catch (TimeoutException | NoSuchElementException e) {
             log.debug("Element not present: " + locator + " - " + e.getMessage());
             return false;
@@ -370,16 +371,18 @@ public abstract class BasePage {
     }
 
     /**
-     * Asserts that the current URL matches the given pattern (substring or regex).
-     * Throws NavigationException if the URL doesn't match.
+     * Asserts that the current URL contains or matches the given pattern.
+     * The pattern is treated as a regex; plain substrings also work because
+     * the check wraps the pattern in {@code .*pattern.*}.
      *
-     * @param urlPattern expected URL pattern (substring or regex)
+     * @param urlPattern expected URL substring or regex fragment
      * @throws com.yehorychev.selenium.errors.NavigationException if URL doesn't match
      */
     public void assertNavigatesTo(String urlPattern) {
         String currentUrl = getCurrentUrl();
-        if (!currentUrl.matches(".*" + urlPattern + ".*")) {
-            throw new com.yehorychev.selenium.errors.NavigationException(currentUrl, urlPattern);
+        if (currentUrl == null || !currentUrl.matches(".*" + urlPattern + ".*")) {
+            throw new com.yehorychev.selenium.errors.NavigationException(
+                    currentUrl != null ? currentUrl : "(null)", urlPattern);
         }
         log.debug("Navigation assertion passed: URL matches \"" + urlPattern + "\"");
     }
