@@ -27,7 +27,6 @@ public class NavigationComponent extends BaseComponent {
     // ── Selectors (relative to root) ─────────────────────────────────────────
 
     private static final By LOGO = By.cssSelector("a.base-logo");
-    private static final By NAV_LINKS = By.cssSelector("nav a");
     // All anchor tags inside the nav — includes LoL, TFT, PoE2, Diablo 4, etc.
     private static final By GAME_LINKS = By.cssSelector("nav a");
     private static final By SOCIAL_LINKS = By.cssSelector("a[href*='twitter'], a[href*='discord'], a[href*='youtube']");

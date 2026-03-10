@@ -63,6 +63,10 @@ public final class AuthHelper {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
+                .config(io.restassured.RestAssured.config()
+                        .httpClient(io.restassured.config.HttpClientConfig.httpClientConfig()
+                                .setParam("http.connection.timeout", (int) TestConfig.API_TIMEOUT_MS)
+                                .setParam("http.socket.timeout", (int) TestConfig.API_TIMEOUT_MS)))
                 .body(body)
                 .post("/api/graphql/v1/query");
 

@@ -1,4 +1,4 @@
-package yehorychev.selenium.hooks;
+package com.yehorychev.selenium.hooks;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
@@ -70,3 +70,4 @@ public class ApiHooks {
         RestAssured.reset();
     }
 }
+

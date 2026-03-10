@@ -46,10 +46,13 @@ public final class TestDataUtils {
      * @return username string
      */
     public static String randomUsername() {
-        return FAKER.internet().username()
-                .replaceAll("[^a-zA-Z0-9]", "")
-                .substring(0, Math.min(12, FAKER.internet().username()
-                        .replaceAll("[^a-zA-Z0-9]", "").length()));
+        StringBuilder cleaned = new StringBuilder(
+                FAKER.internet().username().replaceAll("[^a-zA-Z0-9]", ""));
+        // Ensure minimum length of 6 by appending random digits if needed
+        while (cleaned.length() < 6) {
+            cleaned.append(FAKER.number().digits(3));
+        }
+        return cleaned.substring(0, Math.min(12, cleaned.length()));
     }
 
     /**

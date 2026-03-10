@@ -1,9 +1,9 @@
-package yehorychev.selenium.steps;
+package com.yehorychev.selenium.steps;
 
 import com.yehorychev.selenium.pages.HomePage;
+import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import yehorychev.selenium.context.DriverContext;
 
 import static org.testng.Assert.assertTrue;
 
@@ -14,7 +14,6 @@ import static org.testng.Assert.assertTrue;
  * PicoContainer injects DriverContext per-scenario.
  */
 public class HomePageSteps {
-
 
     private final HomePage homePage;
 
@@ -87,5 +86,4 @@ public class HomePageSteps {
         );
     }
 }
-
 

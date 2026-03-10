@@ -1,14 +1,14 @@
-package yehorychev.selenium.steps;
+package com.yehorychev.selenium.steps;
 
 import com.yehorychev.selenium.data.GraphqlQueries;
 import com.yehorychev.selenium.data.TestData;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.context.ApiContext;
+import com.yehorychev.selenium.context.ScenarioContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
-import yehorychev.selenium.context.ApiContext;
-import yehorychev.selenium.context.ScenarioContext;
 
 import java.util.Map;
 

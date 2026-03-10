@@ -1,13 +1,13 @@
-package yehorychev.selenium.steps;
+package com.yehorychev.selenium.steps;
 
 import com.yehorychev.selenium.components.NavigationComponent;
 import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.pages.LolPage;
+import com.yehorychev.selenium.context.DriverContext;
+import com.yehorychev.selenium.context.ScenarioContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import yehorychev.selenium.context.DriverContext;
-import yehorychev.selenium.context.ScenarioContext;
 
 import static org.testng.Assert.assertTrue;
 
@@ -80,5 +80,4 @@ public class NavigationSteps {
         assertTrue(nav.isLoginButtonVisible(), "Expected login button to be visible in navigation");
     }
 }
-
 

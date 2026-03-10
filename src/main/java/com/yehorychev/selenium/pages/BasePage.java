@@ -1,6 +1,8 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.errors.ElementNotFoundException;
+import com.yehorychev.selenium.errors.PageLoadException;
 import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.utils.WaitUtils;
 import org.openqa.selenium.*;
@@ -61,12 +63,17 @@ public abstract class BasePage {
 
     /**
      * Opens the given URL in the browser.
+     * Throws {@link PageLoadException} if the page does not finish loading within the configured timeout.
      *
      * @param url full URL to navigate to
      */
     public void open(String url) {
         log.step("Navigating to: " + url);
-        driver.get(url);
+        try {
+            driver.get(url);
+        } catch (TimeoutException e) {
+            throw new PageLoadException(url, TestConfig.NAVIGATION_TIMEOUT_MS, e);
+        }
     }
 
     /**
@@ -216,22 +223,32 @@ public abstract class BasePage {
 
     /**
      * Waits until the element is visible in the DOM.
+     * Throws {@link ElementNotFoundException} if the element does not become visible within the timeout.
      *
      * @param locator element locator
      * @return visible WebElement
      */
     public WebElement waitForVisible(By locator) {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        try {
+            return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
     }
 
     /**
      * Waits until the element is present in the DOM (not necessarily visible).
+     * Throws {@link ElementNotFoundException} if the element does not appear within the timeout.
      *
      * @param locator element locator
      * @return present WebElement
      */
     public WebElement waitForPresent(By locator) {
-        return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        try {
+            return wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
     }
 
     /**
@@ -278,7 +295,8 @@ public abstract class BasePage {
      */
     public boolean isPresent(By locator) {
         try {
-            return shortWait.until(ExpectedConditions.presenceOfElementLocated(locator)) != null;
+            shortWait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            return true;
         } catch (TimeoutException | NoSuchElementException e) {
             log.debug("Element not present: " + locator + " - " + e.getMessage());
             return false;
@@ -370,14 +388,19 @@ public abstract class BasePage {
     }
 
     /**
-     * Asserts that the current URL matches the given pattern (substring or regex).
-     * Throws NavigationException if the URL doesn't match.
+     * Asserts that the current URL contains or matches the given pattern.
+     * The pattern is treated as a regex; plain substrings also work because
+     * the check wraps the pattern in {@code .*pattern.*}.
      *
-     * @param urlPattern expected URL pattern (substring or regex)
+     * @param urlPattern expected URL substring or regex fragment
      * @throws com.yehorychev.selenium.errors.NavigationException if URL doesn't match
+     * @throws PageLoadException if getCurrentUrl() returns null (page failed to load)
      */
     public void assertNavigatesTo(String urlPattern) {
         String currentUrl = getCurrentUrl();
+        if (currentUrl == null) {
+            throw new PageLoadException("(url unavailable)", TestConfig.NAVIGATION_TIMEOUT_MS);
+        }
         if (!currentUrl.matches(".*" + urlPattern + ".*")) {
             throw new com.yehorychev.selenium.errors.NavigationException(currentUrl, urlPattern);
         }

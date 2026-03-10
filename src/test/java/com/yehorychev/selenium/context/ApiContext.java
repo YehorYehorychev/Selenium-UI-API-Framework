@@ -1,4 +1,4 @@
-package yehorychev.selenium.context;
+package com.yehorychev.selenium.context;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
@@ -171,3 +171,4 @@ public class ApiContext {
         return graphql(query, null);
     }
 }
+

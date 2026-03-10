@@ -1,9 +1,11 @@
-package yehorychev.selenium.context;
+package com.yehorychev.selenium.context;
 
 import com.yehorychev.selenium.helpers.Logger;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Cross-step scenario state storage — shares data between steps in the same scenario.
@@ -110,7 +112,8 @@ public class ScenarioContext {
      *
      * @return unmodifiable set of keys
      */
-    public java.util.Set<String> keys() {
-        return java.util.Collections.unmodifiableSet(context.keySet());
+    public Set<String> keys() {
+        return Collections.unmodifiableSet(context.keySet());
     }
 }
+

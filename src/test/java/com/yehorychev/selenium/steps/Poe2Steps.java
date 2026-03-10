@@ -1,10 +1,10 @@
-package yehorychev.selenium.steps;
+package com.yehorychev.selenium.steps;
 
 import com.yehorychev.selenium.pages.Poe2Page;
+import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import yehorychev.selenium.context.DriverContext;
 
 import static org.testng.Assert.assertTrue;
 
@@ -15,7 +15,6 @@ import static org.testng.Assert.assertTrue;
  * PicoContainer injects DriverContext per-scenario.
  */
 public class Poe2Steps {
-
 
     private final Poe2Page poe2Page;
 

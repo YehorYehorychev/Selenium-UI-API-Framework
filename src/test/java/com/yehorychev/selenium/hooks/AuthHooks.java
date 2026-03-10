@@ -1,12 +1,12 @@
-package yehorychev.selenium.hooks;
+package com.yehorychev.selenium.hooks;
 
 import com.yehorychev.selenium.helpers.AuthHelper;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.context.DriverContext;
+import com.yehorychev.selenium.context.ScenarioContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
-import yehorychev.selenium.context.DriverContext;
-import yehorychev.selenium.context.ScenarioContext;
 
 import java.util.Map;
 
@@ -18,13 +18,13 @@ import java.util.Map;
  *   - @After("@authenticated",  order=3) — clear browser cookies, remove authToken from ScenarioContext
  *
  * Hook order:
- *   Before "not @api"      order=0 — DriverHooks.setUp        (driver starts)
- *   Before "@api"          order=1 — ApiHooks.setUpApi         (if also @api)
+ *   Before "not @api"       order=0 — DriverHooks.setUp        (driver starts)
+ *   Before "@api"           order=1 — ApiHooks.setUpApi         (if also @api)
  *   Before "@authenticated" order=2 — AuthHooks.setUpAuthentication (this class)
  *   After  "@authenticated" order=3 — AuthHooks.tearDownAuthentication (this class)
- *   After  "@api"          order=5 — ApiHooks.tearDownApi
- *   After  "not @api"      order=10 — DriverHooks.captureFailure
- *   After  "not @api"      order=0  — DriverHooks.tearDown
+ *   After  "@api"           order=5 — ApiHooks.tearDownApi
+ *   After  "not @api"       order=10 — DriverHooks.captureFailure
+ *   After  "not @api"       order=0  — DriverHooks.tearDown
  *
  * PicoContainer injects DriverContext and ScenarioContext per-scenario — no static state.
  */
@@ -103,3 +103,4 @@ public class AuthHooks {
         }
     }
 }
+

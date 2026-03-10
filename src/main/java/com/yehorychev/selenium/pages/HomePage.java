@@ -156,11 +156,12 @@ public class HomePage extends BasePage {
 
     /**
      * Returns the number of social links visible in the header.
+     * Uses findElements() (no wait) to avoid TimeoutException when zero links are present.
      *
-     * @return count of social link elements
+     * @return count of social link elements (0 if none found)
      */
     public int getSocialLinkCount() {
-        return waitForAll(SOCIAL_LINKS).size();
+        return driver.findElements(SOCIAL_LINKS).size();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

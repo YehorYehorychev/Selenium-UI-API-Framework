@@ -1,12 +1,12 @@
-package yehorychev.selenium.hooks;
+package com.yehorychev.selenium.hooks;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.utils.ScreenshotUtils;
+import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
-import yehorychev.selenium.context.DriverContext;
 
 /**
  * WebDriver lifecycle hooks — sets up and tears down a browser for every scenario.
