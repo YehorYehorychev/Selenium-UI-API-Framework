@@ -29,7 +29,7 @@ public final class TestConfig {
     private static final String DEFAULT_TIMEOUT = "15000";
     private static final String DEFAULT_NAVIGATION_TIMEOUT = "30000";
     private static final String DEFAULT_API_TIMEOUT = "10000";
-    private static final String DEFAULT_RETRY_COUNT = "1";
+    private static final String DEFAULT_RETRY_COUNT = "2";
     private static final String DEFAULT_PARALLEL_THREADS = "4";
     private static final String DEFAULT_VIEWPORT_WIDTH = "1920";
     private static final String DEFAULT_VIEWPORT_HEIGHT = "1080";

@@ -571,6 +571,23 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 - `WaitUtils.waitForTitle()`: throws `ElementNotFoundException` with descriptive message on timeout
 - All 7 custom exception classes now **fully wired** — zero dead code in `errors/`
 
+### Phase 5 — Retry Mechanism & Flakiness Management
+- `RetryAnalyzer.java`: TestNG `IRetryAnalyzer` — re-runs failed scenarios up to `TestConfig.RETRY_COUNT` times; one fresh instance per scenario (thread-safe)
+- `RetryHook.java`: Cucumber `@Before(order=-10)` / `@After(order=20)` — tracks attempt count in `ScenarioContext`, logs each retry with attempt/max info
+- Retried-but-passed scenarios automatically receive Allure labels `flaky=true` and `testType=flaky` so instability is visible in reports
+- `CucumberRunner`: overrides `runScenario()` with `@Test(retryAnalyzer = RetryAnalyzer.class)` to wire TestNG retries into the Cucumber execution
+- `config.properties` / `TestConfig`: default `retry.count` raised from `1` → `2`; set `RETRY_COUNT=0` env var to disable retries entirely
+- Hook execution order documented across all hooks:
+  - `@Before order=-10` — `RetryHook.trackAttempt` (always first)
+  - `@Before order=0`  — `DriverHooks.setUp`
+  - `@Before order=1`  — `ApiHooks.setUpApi`
+  - `@Before order=2`  — `AuthHooks.setUpAuthentication`
+  - `@After  order=20` — `RetryHook.recordOutcome` (always last)
+  - `@After  order=10` — `DriverHooks.captureFailure`
+  - `@After  order=5`  — `ApiHooks.tearDownApi`
+  - `@After  order=3`  — `AuthHooks.tearDown`
+  - `@After  order=0`  — `DriverHooks.tearDown`
+
 ---
 
 **Framework Version**: 1.0-SNAPSHOT  

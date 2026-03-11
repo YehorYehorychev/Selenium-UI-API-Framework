@@ -16,6 +16,17 @@ import io.cucumber.java.Scenario;
  *   - @After("not @api",  order=10) — capture AShot screenshot on failure
  *   - @After("not @api",  order=0)  — quit WebDriver and release resources
  *
+ * Hook execution order across all hooks:
+ *   Before order=-10 — RetryHook.trackAttempt      (retry counter — always first)
+ *   Before order=0   — DriverHooks.setUp            (this class, UI only)
+ *   Before order=1   — ApiHooks.setUpApi
+ *   Before order=2   — AuthHooks.setUpAuthentication
+ *   After  order=20  — RetryHook.recordOutcome      (retry outcome — always last)
+ *   After  order=10  — DriverHooks.captureFailure   (this class, UI only)
+ *   After  order=5   — ApiHooks.tearDownApi
+ *   After  order=3   — AuthHooks.tearDown
+ *   After  order=0   — DriverHooks.tearDown         (this class, UI only)
+ *
  * Pure @api scenarios skip all three hooks — no browser is launched.
  * PicoContainer injects DriverContext per-scenario — no static state.
  */
