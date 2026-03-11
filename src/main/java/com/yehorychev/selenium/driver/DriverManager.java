@@ -6,10 +6,8 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * Thread-safe WebDriver registry.
- * <p>
  * Each test thread owns its own WebDriver instance stored in a ThreadLocal.
  * This makes the class safe for parallel execution with no synchronization overhead.
- * <p>
  * Lifecycle:
  * DriverManager.initDriver();          // before test
  * WebDriver driver = DriverManager.getDriver(); // inside test / page object

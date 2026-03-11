@@ -13,16 +13,12 @@ import java.util.Properties;
 
 /**
  * Writes Allure environment.properties once before the full test suite runs.
- * <p>
  * Allure reads this file from the allure-results directory and displays the
  * key-value pairs in the "Environment" widget on the report overview page.
- * <p>
  * This gives the team instant visibility into which config was used
  * (browser, base URL, headless mode, thread count) for any given report.
- * <p>
  * The file is written to the directory configured by allure.results.directory
  * in the Surefire plugin (defaults to target/allure-results).
- * <p>
  * No PicoContainer injection needed — BeforeAll is a static hook.
  */
 public class AllureEnvironmentHook {

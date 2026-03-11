@@ -7,10 +7,8 @@ import java.util.Locale;
 
 /**
  * Faker-based test data generators.
- * <p>
  * All methods are static — no instantiation needed.
  * Each call returns a freshly generated value so parallel tests never share the same data.
- * <p>
  * Usage:
  * String email    = TestDataUtils.randomEmail();
  * String username = TestDataUtils.randomUsername();

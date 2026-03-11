@@ -25,14 +25,11 @@ import java.util.Objects;
 /**
  * Screenshot helpers — full-page, viewport, and element-level captures via AShot,
  * with automatic Allure report attachment.
- * <p>
  * All methods are static — no instantiation needed.
- * <p>
  * Naming convention:
  * capture* — returns raw byte[] without side effects
  * attach*  — captures and attaches to the Allure report
  * save*    — captures and saves to the file system (no Allure attachment)
- * <p>
  * Usage:
  * ScreenshotUtils.attachViewport(driver, "Login page");
  * ScreenshotUtils.attachFullPage(driver, "Full home page");

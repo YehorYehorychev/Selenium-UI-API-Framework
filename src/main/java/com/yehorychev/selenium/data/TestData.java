@@ -5,13 +5,11 @@ import com.yehorychev.selenium.errors.TestDataException;
 
 /**
  * Central repository for test data constants and environment-backed credentials.
- * <p>
  * Contains nested static classes:
  * - Credentials  — login/password from env vars; use areConfigured() before accessing
  * - UrlPatterns  — page paths and API endpoint constants
  * - UiStrings    — expected text labels and page titles for assertions
  * - Timeouts     — scenario-specific timeouts supplementing TestConfig
- * <p>
  * Usage:
  * String login   = TestData.Credentials.LOGIN;
  * String title   = TestData.UiStrings.HOME_PAGE_TITLE;

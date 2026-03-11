@@ -8,12 +8,10 @@ import java.util.Properties;
 
 /**
  * Centralised test configuration — reads from env vars, config.properties, then hard-coded defaults.
- * <p>
  * Resolution order (highest priority wins):
  * 1. Environment variable  (e.g. BASE_URL)
  * 2. config.properties on the classpath  (e.g. base.url)
  * 3. Hard-coded fallback constant in this class
- * <p>
  * Usage:
  * String  url      = TestConfig.BASE_URL;
  * long    timeout  = TestConfig.DEFAULT_TIMEOUT_MS;

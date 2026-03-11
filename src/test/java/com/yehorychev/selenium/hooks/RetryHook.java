@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Retry tracking hook — records how many times a scenario has been attempted,
  * enriches the Allure report with retry metadata, and marks retried-but-passed
  * scenarios as flaky so they are visible in the report.
- * <p>
  * Hook order relative to other hooks:
  *
  * @Before order = -10  — RetryHook.trackAttempt   (runs before everything else)
@@ -27,15 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @After order =  5   — ApiHooks.tearDownApi
  * @After order =  3   — AuthHooks.tearDown
  * @After order =  0   — DriverHooks.tearDown
- * <p>
  * Context keys written to ScenarioContext:
  * retry.attemptNumber — 1-based attempt index for the current run
  * retry.totalAttempts — total allowed attempts (RETRY_COUNT + 1)
  * retry.wasRetried    — true if at least one previous attempt failed
- * <p>
  * Requires RETRY_COUNT > 0 in TestConfig to have any effect.
  * When retries are disabled the hook is still registered but simply logs attempt 1/1.
- * <p>
  * PicoContainer injects ScenarioContext per-scenario — no static mutable state
  * is shared between scenarios.
  */
@@ -127,7 +123,6 @@ public class RetryHook {
 
     /**
      * Fires after every scenario (order = 20, so after all teardown hooks).
-     * <p>
      * Outcomes handled:
      * - Passed after retry  — adds Allure labels flaky=true, testType=flaky
      * - Failed, retries remaining — logs how many attempts are left
