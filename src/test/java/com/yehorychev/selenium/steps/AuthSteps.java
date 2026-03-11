@@ -11,6 +11,8 @@ import com.yehorychev.selenium.context.ScenarioContext;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import io.restassured.response.Response;
 
 import java.util.Map;
@@ -26,6 +28,8 @@ import static org.testng.Assert.*;
  *
  * PicoContainer injects DriverContext, ApiContext and ScenarioContext per-scenario.
  */
+@Feature("API — Authentication")
+@Story("Sign-in & Sign-out")
 public class AuthSteps {
 
     private static final Logger log = new Logger(AuthSteps.class);

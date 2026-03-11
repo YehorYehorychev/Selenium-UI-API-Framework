@@ -7,6 +7,7 @@ import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
+import org.slf4j.MDC;
 
 /**
  * WebDriver lifecycle hooks — sets up and tears down a browser for every scenario.
@@ -15,6 +16,17 @@ import io.cucumber.java.Scenario;
  *   - @Before("not @api", order=0)  — start WebDriver via DriverContext
  *   - @After("not @api",  order=10) — capture AShot screenshot on failure
  *   - @After("not @api",  order=0)  — quit WebDriver and release resources
+ *
+ * Hook execution order across all hooks:
+ *   Before order=-10 — RetryHook.trackAttempt      (retry counter — always first)
+ *   Before order=0   — DriverHooks.setUp            (this class, UI only)
+ *   Before order=1   — ApiHooks.setUpApi
+ *   Before order=2   — AuthHooks.setUpAuthentication
+ *   After  order=20  — RetryHook.recordOutcome      (retry outcome — always last)
+ *   After  order=10  — DriverHooks.captureFailure   (this class, UI only)
+ *   After  order=5   — ApiHooks.tearDownApi
+ *   After  order=3   — AuthHooks.tearDown
+ *   After  order=0   — DriverHooks.tearDown         (this class, UI only)
  *
  * Pure @api scenarios skip all three hooks — no browser is launched.
  * PicoContainer injects DriverContext per-scenario — no static state.
@@ -44,6 +56,7 @@ public class DriverHooks {
      */
     @Before(value = "not @api", order = 0)
     public void setUp(Scenario scenario) {
+        MDC.put("scenario", scenario.getName());
         log.step("▶ Starting scenario: [" + scenario.getId() + "] " + scenario.getName());
         driverContext.setUp();
     }
@@ -95,6 +108,7 @@ public class DriverHooks {
         } finally {
             log.step("■ Finished scenario: [" + scenario.getId() + "] "
                     + scenario.getName() + " — " + scenario.getStatus());
+            MDC.clear();
         }
     }
 

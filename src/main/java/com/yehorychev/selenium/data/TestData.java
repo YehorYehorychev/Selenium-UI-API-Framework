@@ -5,18 +5,16 @@ import com.yehorychev.selenium.errors.TestDataException;
 
 /**
  * Central repository for test data constants and environment-backed credentials.
- *
  * Contains nested static classes:
- *   - Credentials  — login/password from env vars; use areConfigured() before accessing
- *   - UrlPatterns  — page paths and API endpoint constants
- *   - UiStrings    — expected text labels and page titles for assertions
- *   - Timeouts     — scenario-specific timeouts supplementing TestConfig
- *
+ * - Credentials  — login/password from env vars; use areConfigured() before accessing
+ * - UrlPatterns  — page paths and API endpoint constants
+ * - UiStrings    — expected text labels and page titles for assertions
+ * - Timeouts     — scenario-specific timeouts supplementing TestConfig
  * Usage:
- *   String login   = TestData.Credentials.LOGIN;
- *   String title   = TestData.UiStrings.HOME_PAGE_TITLE;
- *   String apiUrl  = TestData.UrlPatterns.API_LOGIN;
- *   String envVal  = TestData.requireEnv("MY_VAR");
+ * String login   = TestData.Credentials.LOGIN;
+ * String title   = TestData.UiStrings.HOME_PAGE_TITLE;
+ * String apiUrl  = TestData.UrlPatterns.API_LOGIN;
+ * String envVal  = TestData.requireEnv("MY_VAR");
  */
 public final class TestData {
 
@@ -31,16 +29,24 @@ public final class TestData {
      */
     public static final class Credentials {
 
-        /** Primary test user login / email. Required for AuthHelper. */
+        /**
+         * Primary test user login / email. Required for AuthHelper.
+         */
         public static final String LOGIN = TestConfig.USER_LOGIN;
 
-        /** Primary test user password. Required for AuthHelper. */
+        /**
+         * Primary test user password. Required for AuthHelper.
+         */
         public static final String PASSWORD = TestConfig.USER_PASSWORD;
 
-        /** Admin user login (optional) — sourced via TestConfig resolution chain. */
+        /**
+         * Admin user login (optional) — sourced via TestConfig resolution chain.
+         */
         public static final String ADMIN_LOGIN = TestConfig.ADMIN_USER_LOGIN;
 
-        /** Admin user password (optional) — sourced via TestConfig resolution chain. */
+        /**
+         * Admin user password (optional) — sourced via TestConfig resolution chain.
+         */
         public static final String ADMIN_PASSWORD = TestConfig.ADMIN_USER_PASSWORD;
 
         private Credentials() {

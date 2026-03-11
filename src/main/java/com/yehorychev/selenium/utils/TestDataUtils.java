@@ -7,16 +7,14 @@ import java.util.Locale;
 
 /**
  * Faker-based test data generators.
- *
  * All methods are static — no instantiation needed.
  * Each call returns a freshly generated value so parallel tests never share the same data.
- *
  * Usage:
- *   String email    = TestDataUtils.randomEmail();
- *   String username = TestDataUtils.randomUsername();
- *   String password = TestDataUtils.randomPassword();
- *   String name     = TestDataUtils.randomFullName();
- *   String phone    = TestDataUtils.randomPhone();
+ * String email    = TestDataUtils.randomEmail();
+ * String username = TestDataUtils.randomUsername();
+ * String password = TestDataUtils.randomPassword();
+ * String name     = TestDataUtils.randomFullName();
+ * String phone    = TestDataUtils.randomPhone();
  */
 public final class TestDataUtils {
 
@@ -57,9 +55,9 @@ public final class TestDataUtils {
 
     /**
      * Generates a strong password satisfying most registration requirements:
-     *   - At least 12 characters
-     *   - Upper and lower case letters
-     *   - Digits and special characters
+     * - At least 12 characters
+     * - Upper and lower case letters
+     * - Digits and special characters
      *
      * @return password string
      */

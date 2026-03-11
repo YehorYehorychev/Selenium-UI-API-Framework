@@ -8,6 +8,8 @@ import com.yehorychev.selenium.context.ScenarioContext;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
@@ -17,6 +19,8 @@ import static org.testng.Assert.assertTrue;
  * Exercises: logo, game nav links, social links, login button visibility.
  * PicoContainer injects DriverContext and ScenarioContext per-scenario.
  */
+@Feature("UI — Navigation")
+@Story("Header Navigation")
 public class NavigationSteps {
 
     private static final Logger log = new Logger(NavigationSteps.class);

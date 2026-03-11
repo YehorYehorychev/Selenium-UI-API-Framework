@@ -8,6 +8,8 @@ import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
@@ -19,6 +21,8 @@ import static org.testng.Assert.assertTrue;
  *
  * PicoContainer injects DriverContext and ScenarioContext per-scenario.
  */
+@Feature("UI — Common Navigation")
+@Story("Page Navigation & URL Assertions")
 public class CommonSteps {
 
     private static final Logger log = new Logger(CommonSteps.class);

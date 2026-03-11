@@ -5,6 +5,8 @@ import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
@@ -14,6 +16,8 @@ import static org.testng.Assert.assertTrue;
  * Covers: page load, champion search, tier list, builds sections.
  * PicoContainer injects DriverContext per-scenario.
  */
+@Feature("UI — League of Legends")
+@Story("LoL Page")
 public class LolSteps {
 
     private final LolPage lolPage;
