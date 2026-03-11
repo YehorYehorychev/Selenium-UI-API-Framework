@@ -25,20 +25,20 @@ import java.util.Objects;
 /**
  * Screenshot helpers — full-page, viewport, and element-level captures via AShot,
  * with automatic Allure report attachment.
- *
+ * <p>
  * All methods are static — no instantiation needed.
- *
+ * <p>
  * Naming convention:
- *   capture* — returns raw byte[] without side effects
- *   attach*  — captures and attaches to the Allure report
- *   save*    — captures and saves to the file system (no Allure attachment)
- *
+ * capture* — returns raw byte[] without side effects
+ * attach*  — captures and attaches to the Allure report
+ * save*    — captures and saves to the file system (no Allure attachment)
+ * <p>
  * Usage:
- *   ScreenshotUtils.attachViewport(driver, "Login page");
- *   ScreenshotUtils.attachFullPage(driver, "Full home page");
- *   ScreenshotUtils.attachElement(driver, element, "Submit button");
- *   Path file = ScreenshotUtils.saveViewport(driver, "target/screenshots", "checkout");
- *   byte[] bytes = ScreenshotUtils.captureFullPage(driver);
+ * ScreenshotUtils.attachViewport(driver, "Login page");
+ * ScreenshotUtils.attachFullPage(driver, "Full home page");
+ * ScreenshotUtils.attachElement(driver, element, "Submit button");
+ * Path file = ScreenshotUtils.saveViewport(driver, "target/screenshots", "checkout");
+ * byte[] bytes = ScreenshotUtils.captureFullPage(driver);
  */
 public final class ScreenshotUtils {
 
@@ -51,7 +51,8 @@ public final class ScreenshotUtils {
     private static final String FILE_EXTENSION = ".png";
     private static final String ALLURE_MIME_TYPE = "image/png";
 
-    private ScreenshotUtils() {}
+    private ScreenshotUtils() {
+    }
 
     // ── Private Helpers ───────────────────────────────────────────────────────
 

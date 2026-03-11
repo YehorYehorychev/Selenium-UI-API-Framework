@@ -8,6 +8,7 @@ import io.cucumber.java.Scenario;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import org.slf4j.MDC;
 
 /**
  * API lifecycle hooks — manages global RestAssured state for @api-tagged scenarios.
@@ -41,6 +42,7 @@ public class ApiHooks {
      */
     @Before(value = "@api", order = 1)
     public void setUpApi(Scenario scenario) {
+        MDC.put("scenario", scenario.getName());
         log.step("▶ [API] Setting up RestAssured for scenario: " + scenario.getName());
 
         RestAssured.baseURI = TestConfig.API_BASE_URL;
@@ -68,6 +70,7 @@ public class ApiHooks {
         log.step("■ [API] Resetting RestAssured after scenario: "
                 + scenario.getName() + " — " + scenario.getStatus());
         RestAssured.reset();
+        MDC.clear();
     }
 }
 

@@ -14,20 +14,23 @@ import java.time.Duration;
 
 /**
  * WebDriver factory — creates browser instances for Chrome, Firefox, and Edge.
- *
+ * <p>
  * Reads browser type, headless flag, and viewport from TestConfig.
  * Delegates driver binary management to WebDriverManager — no manual downloads needed.
- *
+ * <p>
  * Usage:
- *   WebDriver driver = DriverConfig.createDriver();           // uses TestConfig.BROWSER
- *   WebDriver driver = DriverConfig.createDriver("firefox");  // explicit override
- *
+ * WebDriver driver = DriverConfig.createDriver();           // uses TestConfig.BROWSER
+ * WebDriver driver = DriverConfig.createDriver("firefox");  // explicit override
+ * <p>
  * Supported browsers (case-insensitive): chrome | firefox | edge
  */
 public final class DriverConfig {
 
-    /** Not instantiable — all members are static. */
-    private DriverConfig() {}
+    /**
+     * Not instantiable — all members are static.
+     */
+    private DriverConfig() {
+    }
 
     // ── Public factory methods ──────────────────────────────────────────────
 

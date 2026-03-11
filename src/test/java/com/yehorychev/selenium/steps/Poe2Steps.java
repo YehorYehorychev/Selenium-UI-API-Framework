@@ -5,6 +5,8 @@ import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
@@ -14,6 +16,8 @@ import static org.testng.Assert.assertTrue;
  * Covers: page load, class selection, build search, guides section.
  * PicoContainer injects DriverContext per-scenario.
  */
+@Feature("UI — Path of Exile 2")
+@Story("PoE2 Page")
 public class Poe2Steps {
 
     private final Poe2Page poe2Page;

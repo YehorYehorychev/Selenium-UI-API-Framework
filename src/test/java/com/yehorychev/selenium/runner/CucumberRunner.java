@@ -21,9 +21,9 @@ import org.testng.annotations.Test;
  * Parallel execution is controlled by TestNG's @DataProvider(parallel = true)
  * together with Maven Surefire's thread count configuration.
  *
- * Retry behaviour is governed by {@link RetryAnalyzer} and {@code TestConfig.RETRY_COUNT}.
- * The default is 2 retries (configurable via {@code retry.count} in config.properties
- * or the {@code RETRY_COUNT} environment variable). Set to 0 to disable retries.
+ * Retry behaviour is governed by RetryAnalyzer and TestConfig.RETRY_COUNT.
+ * The default is 2 retries (configurable via retry.count in config.properties
+ * or the RETRY_COUNT environment variable). Set to 0 to disable retries.
  */
 @CucumberOptions(
         features = "src/test/resources/features",
@@ -43,15 +43,14 @@ import org.testng.annotations.Test;
 public class CucumberRunner extends AbstractTestNGCucumberTests {
 
     /**
-     * Enables parallel scenario execution and wires the {@link RetryAnalyzer}.
+     * Enables parallel scenario execution and wires the RetryAnalyzer.
      *
-     * <p>{@code retryAnalyzerClass} is honoured by TestNG for every method that
-     * consumes this {@code @DataProvider}, which maps to every Cucumber scenario.
-     * When a scenario fails, TestNG calls {@link RetryAnalyzer#retry(org.testng.ITestResult)}
-     * and re-runs the scenario up to {@code TestConfig.RETRY_COUNT} times.
+     * retryAnalyzer is honoured by TestNG for every method that consumes this DataProvider,
+     * which maps to every Cucumber scenario. When a scenario fails, TestNG calls
+     * RetryAnalyzer.retry() and re-runs the scenario up to TestConfig.RETRY_COUNT times.
      *
-     * <p>The thread count is governed by the TestNG suite XML or Surefire config.
-     * Set {@code parallel = false} to run scenarios sequentially (useful for debugging).
+     * The thread count is governed by the TestNG suite XML or Surefire config.
+     * Set parallel = false to run scenarios sequentially (useful for debugging).
      *
      * @return scenario data provider for TestNG
      */
@@ -63,10 +62,10 @@ public class CucumberRunner extends AbstractTestNGCucumberTests {
 
     /**
      * Overrides the TestNG test method that executes each Cucumber scenario,
-     * attaching {@link RetryAnalyzer} so failed scenarios are automatically retried.
+     * attaching RetryAnalyzer so failed scenarios are automatically retried.
      *
-     * <p>This override is required because {@code AbstractTestNGCucumberTests} declares
-     * the {@code runScenario()} method without a retry analyzer — we add it here.
+     * This override is required because AbstractTestNGCucumberTests declares
+     * runScenario() without a retry analyzer — we add it here.
      */
     @Test(description = "Runs Cucumber Scenarios",
             dataProvider = "scenarios",

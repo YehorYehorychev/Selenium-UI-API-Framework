@@ -17,14 +17,14 @@ import java.util.function.Supplier;
 
 /**
  * Fluent wait, retry, and polling helpers.
- *
+ * <p>
  * All methods are static — no instantiation needed.
- *
+ * <p>
  * Usage:
- *   WaitUtils.waitFor(driver, d -> d.getTitle().contains("Dashboard"));
- *   String token = WaitUtils.pollUntilNotEmpty(() -> getAuthToken(), 10_000, 500);
- *   WaitUtils.retry(3, () -> driver.findElement(By.id("btn")).click());
- *   WaitUtils.waitForPageLoad(driver);
+ * WaitUtils.waitFor(driver, d -> d.getTitle().contains("Dashboard"));
+ * String token = WaitUtils.pollUntilNotEmpty(() -> getAuthToken(), 10_000, 500);
+ * WaitUtils.retry(3, () -> driver.findElement(By.id("btn")).click());
+ * WaitUtils.waitForPageLoad(driver);
  */
 public final class WaitUtils {
 
@@ -171,7 +171,7 @@ public final class WaitUtils {
     /**
      * Polls the given Supplier every pollIntervalMs until it returns a non-null,
      * non-empty string, or until timeoutMs elapses.
-     *
+     * <p>
      * Useful for waiting on async state not directly reflected in the DOM
      * (e.g. a value stored in localStorage, a network response flag, etc.).
      *

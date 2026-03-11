@@ -154,9 +154,9 @@ public final class TestConfig {
         ALLURE_REPORT_DIR = resolve("ALLURE_REPORT_DIR", "allure.report.dir", DEFAULT_ALLURE_REPORT_DIR, props);
 
         // Credentials — no fallback defaults, may be null if not set
-        USER_LOGIN         = resolveOptional("TEST_USER_LOGIN");
-        USER_PASSWORD      = resolveOptional("TEST_USER_PASSWORD");
-        ADMIN_USER_LOGIN   = resolveOptional("ADMIN_USER_LOGIN");
+        USER_LOGIN = resolveOptional("TEST_USER_LOGIN");
+        USER_PASSWORD = resolveOptional("TEST_USER_PASSWORD");
+        ADMIN_USER_LOGIN = resolveOptional("ADMIN_USER_LOGIN");
         ADMIN_USER_PASSWORD = resolveOptional("ADMIN_USER_PASSWORD");
     }
 

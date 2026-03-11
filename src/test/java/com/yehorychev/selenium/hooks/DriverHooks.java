@@ -7,6 +7,7 @@ import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
+import org.slf4j.MDC;
 
 /**
  * WebDriver lifecycle hooks — sets up and tears down a browser for every scenario.
@@ -55,6 +56,7 @@ public class DriverHooks {
      */
     @Before(value = "not @api", order = 0)
     public void setUp(Scenario scenario) {
+        MDC.put("scenario", scenario.getName());
         log.step("▶ Starting scenario: [" + scenario.getId() + "] " + scenario.getName());
         driverContext.setUp();
     }
@@ -106,6 +108,7 @@ public class DriverHooks {
         } finally {
             log.step("■ Finished scenario: [" + scenario.getId() + "] "
                     + scenario.getName() + " — " + scenario.getStatus());
+            MDC.clear();
         }
     }
 

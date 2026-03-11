@@ -588,6 +588,21 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
   - `@After  order=3`  — `AuthHooks.tearDown`
   - `@After  order=0`  — `DriverHooks.tearDown`
 
+### Phase 6 — Advanced Reporting & Observability
+- **Logback replaces slf4j-simple**: `logback-classic 1.5.18` added to `pom.xml`; `slf4j-simple` removed; `logback-test.xml` configured with format `HH:mm:ss.SSS [thread] [LEVEL] ClassName - message`
+- **Per-class log suppression**: third-party loggers (Selenium, RestAssured, WebDriverManager) suppressed to `WARN`; framework logger `com.yehorychev.selenium` stays at `INFO`
+- **MDC scenario injection**: `DriverHooks` and `ApiHooks` call `MDC.put("scenario", scenario.getName())` in `@Before` and `MDC.clear()` in `@After` — scenario name available to any appender that uses `%X{scenario}`
+- **`AllureEnvironmentHook.java`**: new `@BeforeAll` Cucumber hook — writes `environment.properties` to `target/allure-results/` once before the suite; populates Browser, Headless, Base URL, API URL, Threads, Retry Count, Timeout visible in Allure's Environment widget
+- **`allure.properties`**: added to `src/test/resources/` — sets `allure.results.directory` so Allure always writes to the correct location
+- **`@Feature` / `@Story` annotations** added to all 7 step definition classes:
+  - `CommonSteps` → `UI — Common Navigation` / `Page Navigation & URL Assertions`
+  - `HomePageSteps` → `UI — Home Page` / `Home Page Components`
+  - `LolSteps` → `UI — League of Legends` / `LoL Page`
+  - `Poe2Steps` → `UI — Path of Exile 2` / `PoE2 Page`
+  - `NavigationSteps` → `UI — Navigation` / `Header Navigation`
+  - `ApiSteps` → `API — GraphQL & REST` / `API Requests & Assertions`
+  - `AuthSteps` → `API — Authentication` / `Sign-in & Sign-out`
+
 ---
 
 **Framework Version**: 1.0-SNAPSHOT  

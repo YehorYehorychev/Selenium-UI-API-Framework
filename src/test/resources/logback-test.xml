@@ -1,0 +1,44 @@
+<configuration>
+
+    <!--
+        Logback configuration for test execution.
+
+        Pattern fields:
+          %d{HH:mm:ss.SSS}  — wall-clock time
+          [%thread]         — TestNG thread pool name (e.g. TestNG-PoolService-2)
+          %-5level          — log level, left-padded to 5 chars
+          %logger{0}        — short class name (no package prefix)
+          %X{scenario}      — MDC: current scenario name (injected by DriverHooks / ApiHooks)
+          %msg              — the actual log message
+
+        MDC keys set by hooks:
+          scenario  — human-readable scenario name
+          scenarioId — Cucumber scenario ID (UUID fragment)
+    -->
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %-30c{1} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- Suppress noisy third-party loggers -->
+    <logger name="io.github.bonigarcia"        level="WARN"/>
+    <logger name="org.openqa.selenium"         level="WARN"/>
+    <logger name="io.restassured"              level="WARN"/>
+    <logger name="com.github.automatedowl"     level="WARN"/>
+    <logger name="org.apache.http"             level="WARN"/>
+
+    <!-- Framework loggers — INFO by default, switchable to DEBUG via env var -->
+    <logger name="com.yehorychev.selenium"     level="INFO"/>
+
+    <root level="WARN">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>
+
+
+
+
