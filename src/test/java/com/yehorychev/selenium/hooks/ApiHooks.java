@@ -48,9 +48,11 @@ public class ApiHooks {
         RestAssured.baseURI = TestConfig.API_BASE_URL;
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
-        // Verbose request/response logging when running non-headless (local debug)
+        // Verbose request/response logging when running non-headless (local debug).
+        // replaceFiltersWith() guarantees exactly one logging pair even when @Before of
+        // scenario N+1 runs before @After of scenario N in a parallel suite.
         if (!TestConfig.HEADLESS) {
-            RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+            RestAssured.replaceFiltersWith(new RequestLoggingFilter(), new ResponseLoggingFilter());
         }
 
         log.info("RestAssured ready — baseURI: " + TestConfig.API_BASE_URL);

@@ -3,6 +3,7 @@ package com.yehorychev.selenium.components;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,10 +98,11 @@ public class GameCardsComponent extends BaseComponent {
         log.step("Hovering over game card: " + gameTitle);
         By locator = By.xpath(String.format(CARD_BY_TITLE_XPATH, gameTitle));
         WebElement card = findElement(locator);
-        driver.findElement(By.tagName("body")); // Move mouse away first
-        // Use Actions to hover
-        new org.openqa.selenium.interactions.Actions(driver)
-                .moveToElement(card)
-                .perform();
+        WebElement body = driver.findElement(By.tagName("body"));
+        Actions actions = new Actions(driver);
+        // Move mouse to a neutral position first so the hover-off state is reliably triggered
+        actions.moveToElement(body).perform();
+        // Then hover the actual card
+        actions.moveToElement(card).perform();
     }
 }

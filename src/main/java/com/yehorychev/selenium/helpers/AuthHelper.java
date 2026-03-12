@@ -5,8 +5,12 @@ import com.yehorychev.selenium.data.GraphqlQueries;
 import com.yehorychev.selenium.data.TestData;
 import com.yehorychev.selenium.errors.AuthenticationException;
 import io.restassured.RestAssured;
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 
@@ -36,6 +40,26 @@ public final class AuthHelper {
     private AuthHelper() {
     }
 
+    /**
+     * Builds a RestAssuredConfig with explicit connect / socket timeouts applied
+     * via the Apache HttpClient 4 public API (RequestConfig).
+     * Replaces the deprecated {@code HttpClientConfig.setParam()} string-key approach
+     * which has no effect in RestAssured 5.x.
+     */
+    private static RestAssuredConfig buildTimeoutConfig() {
+        int timeoutMs = (int) TestConfig.API_TIMEOUT_MS;
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(timeoutMs)
+                .setSocketTimeout(timeoutMs)
+                .setConnectionRequestTimeout(timeoutMs)
+                .build();
+        return RestAssuredConfig.config()
+                .httpClient(HttpClientConfig.httpClientConfig()
+                        .httpClientFactory(() -> HttpClientBuilder.create()
+                                .setDefaultRequestConfig(requestConfig)
+                                .build()));
+    }
+
     // ── GraphQL login ─────────────────────────────────────────────────────────
 
     /**
@@ -63,10 +87,7 @@ public final class AuthHelper {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .config(io.restassured.RestAssured.config()
-                        .httpClient(io.restassured.config.HttpClientConfig.httpClientConfig()
-                                .setParam("http.connection.timeout", (int) TestConfig.API_TIMEOUT_MS)
-                                .setParam("http.socket.timeout", (int) TestConfig.API_TIMEOUT_MS)))
+                .config(buildTimeoutConfig())
                 .body(body)
                 .post("/api/graphql/v1/query");
 
