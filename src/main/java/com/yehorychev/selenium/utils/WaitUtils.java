@@ -1,7 +1,7 @@
 package com.yehorychev.selenium.utils;
 
 import com.yehorychev.selenium.config.TestConfig;
-import com.yehorychev.selenium.errors.ElementNotFoundException;
+import com.yehorychev.selenium.errors.NavigationException;
 import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
@@ -60,39 +60,39 @@ public final class WaitUtils {
 
     /**
      * Waits until the given URL fragment appears in the browser address bar.
-     * Throws {@link ElementNotFoundException} (reused as a "condition not met" signal)
-     * with a clear message if the URL does not contain the fragment within the timeout.
+     * Throws {@link NavigationException} with a clear message if the URL does not
+     * contain the fragment within the timeout.
      *
      * @param driver      active WebDriver
      * @param urlFragment substring expected to be present in the URL
-     * @throws ElementNotFoundException if the URL does not contain the fragment within the default timeout
+     * @throws NavigationException if the URL does not contain the fragment within the default timeout
      */
     public static void waitForUrl(WebDriver driver, String urlFragment) {
         log.step("Waiting for URL to contain: " + urlFragment);
         try {
             waitFor(driver, ExpectedConditions.urlContains(urlFragment));
         } catch (TimeoutException e) {
-            throw new ElementNotFoundException(
-                    "URL containing \"" + urlFragment + "\"", TestConfig.DEFAULT_TIMEOUT_MS, e);
+            throw new NavigationException(
+                    driver.getCurrentUrl(), urlFragment, e);
         }
     }
 
     /**
      * Waits until the page title contains the expected fragment.
-     * Throws {@link ElementNotFoundException} with a clear message if the title
+     * Throws {@link NavigationException} with a clear message if the title
      * does not match within the timeout.
      *
      * @param driver        active WebDriver
      * @param titleFragment substring expected in the title
-     * @throws ElementNotFoundException if the title does not contain the fragment within the default timeout
+     * @throws NavigationException if the title does not contain the fragment within the default timeout
      */
     public static void waitForTitle(WebDriver driver, String titleFragment) {
         log.step("Waiting for title to contain: " + titleFragment);
         try {
             waitFor(driver, ExpectedConditions.titleContains(titleFragment));
         } catch (TimeoutException e) {
-            throw new ElementNotFoundException(
-                    "Page title containing \"" + titleFragment + "\"", TestConfig.DEFAULT_TIMEOUT_MS, e);
+            throw new NavigationException(
+                    driver.getTitle(), titleFragment, e);
         }
     }
 

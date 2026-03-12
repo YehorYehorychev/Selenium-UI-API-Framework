@@ -15,17 +15,17 @@ import java.util.Map;
 
 /**
  * API-based authentication helper — bypasses the UI login form.
- *
+ * <p>
  * Authenticates via the GraphQL signIn mutation, which sets an HTTP-only
  * session cookie on the account.mobalytics.gg domain.
  * The session cookie can then be injected into a WebDriver.
- *
+ * <p>
  * Usage:
- *   Map<String, String> auth = AuthHelper.loginViaApi(email, password);
- *   AuthHelper.injectAuthIntoDriver(driver, auth);
- *
+ * Map<String, String> auth = AuthHelper.loginViaApi(email, password);
+ * AuthHelper.injectAuthIntoDriver(driver, auth);
+ * <p>
  * Or in one call:
- *   AuthHelper.loginAndInject(driver);  // uses TestData.Credentials
+ * AuthHelper.loginAndInject(driver);  // uses TestData.Credentials
  */
 public final class AuthHelper {
 
@@ -40,7 +40,7 @@ public final class AuthHelper {
 
     /**
      * Authenticates via the GraphQL signIn mutation and returns auth data.
-     *
+     * <p>
      * The mobalytics account service uses cookie-based sessions; no token is
      * returned in the response body. Session cookies set by the server are
      * captured in the RestAssured response and stored in the returned map.
@@ -124,14 +124,16 @@ public final class AuthHelper {
     public static void injectAuthIntoDriver(WebDriver driver, Map<String, String> authData) {
         log.step("Injecting authentication cookies into WebDriver");
 
-        // Navigate to the account domain so cookies can be set
+        // Cookies returned by signIn are scoped to account.mobalytics.gg.
+        // The browser must be on that domain before cookies can be set; otherwise
+        // they would be silently attached to the wrong domain and auth would not propagate.
         String currentUrl = driver.getCurrentUrl();
-        if (currentUrl == null || (!currentUrl.startsWith(TestConfig.BASE_URL)
-                && !currentUrl.startsWith(TestConfig.API_BASE_URL))) {
-            driver.get(TestConfig.BASE_URL);
+        if (currentUrl == null || !currentUrl.startsWith(TestConfig.API_BASE_URL)) {
+            log.debug("Navigating to account domain for cookie injection: " + TestConfig.API_BASE_URL);
+            driver.get(TestConfig.API_BASE_URL);
         }
 
-        // Inject all cookies except the metadata keys
+        // Inject all session cookies onto the correct domain
         for (Map.Entry<String, String> entry : authData.entrySet()) {
             String key = entry.getKey();
             if (KEY_SIGNED_IN.equals(key) || "email".equals(key)) continue;
@@ -140,7 +142,10 @@ public final class AuthHelper {
             log.debug("Injected cookie: " + key);
         }
 
-        log.info("Authentication injection complete");
+        // Navigate to the main application now that auth cookies are in place
+        log.debug("Navigating to main application: " + TestConfig.BASE_URL);
+        driver.get(TestConfig.BASE_URL);
+        log.info("Authentication injection complete — navigated to " + TestConfig.BASE_URL);
     }
 
     /**
@@ -168,12 +173,27 @@ public final class AuthHelper {
 
         Map<String, Object> body = Map.of("query", GraphqlQueries.SIGN_OUT);
 
-        RestAssured.given()
+        Response response = RestAssured.given()
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .body(body)
                 .post("/api/graphql/v1/query");
+
+        int status = response.getStatusCode();
+        if (status < 200 || status >= 300) {
+            throw new AuthenticationException(
+                    "signOut mutation returned HTTP " + status + ": " + response.getBody().asString()
+            );
+        }
+
+        Boolean signedOut = response.jsonPath().getBoolean("data.signOut");
+        if (!Boolean.TRUE.equals(signedOut)) {
+            throw new AuthenticationException(
+                    "signOut returned false — logout may have failed. Response: "
+                            + response.getBody().asString()
+            );
+        }
 
         log.info("GraphQL signOut complete");
     }

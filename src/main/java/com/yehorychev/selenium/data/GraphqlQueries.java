@@ -3,7 +3,7 @@ package com.yehorychev.selenium.data;
 /**
  * GraphQL query and mutation constants for API tests.
  *
- * All queries target https://account.mobalytics.gg/api/graphql/v1/query.
+ * All queries target <a href="https://account.mobalytics.gg/api/graphql/v1/query">...</a>.
  * This is the accounts service — it handles auth and user account operations.
  *
  * Usage:
@@ -87,17 +87,35 @@ public final class GraphqlQueries {
             }
             """;
 
-    // ── Legacy aliases — keep existing step definitions compiling ─────────────
+    /*
+     The game data queries (games list, summoner stats, user profile by ID) live on
+     a separate game-data service, NOT on the accounts GraphQL endpoint tested here.
 
-    /** Alias of HEALTH_CHECK — used by "query the list of supported games" step. */
+     GET_CURRENT_USER is the one exception: it IS available on this service and now
+     points to the real account query.
+     */
+
+    /**
+     * Fetches the current authenticated user's full account — real query on the accounts service.
+     * Requires a valid session cookie obtained via SIGN_IN.
+     */
+    public static final String GET_CURRENT_USER = ACCOUNT_QUERY;
+
+    /**
+     * Placeholder: the games catalogue lives on a separate game-data service.
+     * Falls back to a health check until game-data API testing is added (Phase 4).
+     */
     public static final String GET_GAMES = HEALTH_CHECK;
 
-    /** Alias of HEALTH_CHECK — used by "query the current user" step. */
-    public static final String GET_CURRENT_USER = HEALTH_CHECK;
-
-    /** Alias of HEALTH_CHECK — placeholder; summoner data is on a different service. */
+    /**
+     * Placeholder: summoner stats live on a separate game-data service.
+     * Falls back to a health check until game-data API testing is added (Phase 4).
+     */
     public static final String GET_SUMMONER_STATS = HEALTH_CHECK;
 
-    /** Alias of HEALTH_CHECK — placeholder; user-by-ID is on a different service. */
+    /**
+     * Placeholder: user-profile-by-ID lives on a separate game-data service.
+     * Falls back to a health check until game-data API testing is added (Phase 4).
+     */
     public static final String GET_USER_PROFILE = HEALTH_CHECK;
 }
