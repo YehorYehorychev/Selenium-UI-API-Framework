@@ -90,9 +90,9 @@ selenium-ui-api/
 │   ├── errors/                       # Layer 1 — Typed exception hierarchy
 │   │   ├── FrameworkException.java   # Base runtime exception (catch-all)
 │   │   ├── PageLoadException.java    # Thrown by BasePage.open() on page-load timeout
-│   │   ├── ElementNotFoundException.java  # Thrown by waitForVisible/Present/Url/Title
-│   │   ├── NavigationException.java  # Thrown by assertNavigatesTo() on URL mismatch
-│   │   ├── AuthenticationException.java  # Thrown by AuthHelper on sign-in failure
+│   │   ├── ElementNotFoundException.java  # Thrown by waitForVisible/waitForPresent on timeout
+│   │   ├── NavigationException.java  # Thrown by assertNavigatesTo(), waitForUrl(), waitForTitle()
+│   │   ├── AuthenticationException.java  # Thrown by AuthHelper on sign-in / sign-out failure
 │   │   ├── ApiException.java         # Thrown on REST/GraphQL call failure
 │   │   └── TestDataException.java    # Thrown when required env var / data is missing
 │   │
@@ -110,8 +110,8 @@ selenium-ui-api/
 │   │   └── Poe2Page.java
 │   │
 │   ├── components/                   # Layer 3 — Component Pattern
-│   │   ├── BaseComponent.java        # Abstract base: scoped element lookups
-│   │   ├── NavigationComponent.java  # Header navigation
+│   │   ├── BaseComponent.java        # Abstract base: scoped element lookups, short/long waits
+│   │   ├── NavigationComponent.java  # Header navigation — game links, logo, sign-in button
 │   │   ├── HeroComponent.java        # Hero section
 │   │   ├── GameCardsComponent.java   # Game cards grid
 │   │   ├── FeaturesComponent.java    # Features section
@@ -128,8 +128,7 @@ selenium-ui-api/
 │       └── TestDataUtils.java        # Faker-based random data generators
 │
 ├── src/main/resources/
-│   ├── config.properties             # Fallback configuration values
-│   └── simplelogger.properties       # SLF4J Simple logger settings
+│   └── config.properties             # Fallback configuration values
 │
 ├── src/test/java/yehorychev/selenium/
 │   ├── context/                      
@@ -140,7 +139,9 @@ selenium-ui-api/
 │   ├── hooks/                        
 │   │   ├── DriverHooks.java          # @Before/@After — driver start/quit + failure screenshot
 │   │   ├── ApiHooks.java             # @Before/@After("@api") — RestAssured init/reset
-│   │   └── AuthHooks.java            # @Before("@authenticated") — sign-in + cookie inject
+│   │   ├── AuthHooks.java            # @Before("@authenticated") — sign-in + cookie inject
+│   │   ├── RetryHook.java            # @Before/@After — retry attempt tracking + Allure flaky labels
+│   │   └── AllureEnvironmentHook.java  # @BeforeAll — writes environment.properties to allure-results
 │   │
 │   ├── steps/                        # Layer 7 — Step Definitions
 │   │   ├── CommonSteps.java          # Shared: open homepage, URL/title assertions
@@ -152,10 +153,13 @@ selenium-ui-api/
 │   │   └── AuthSteps.java            # Sign-in / sign-out steps
 │   │
 │   └── runner/
-│       └── CucumberRunner.java       # TestNG + Cucumber runner (parallel)
+│       ├── CucumberRunner.java       # TestNG + Cucumber runner (parallel, retry wired)
+│       └── RetryAnalyzer.java        # TestNG IRetryAnalyzer — re-runs failures up to RETRY_COUNT
 │
 └── src/test/resources/
     ├── testng.xml                    # TestNG suite — parallel="methods" thread-count="4"
+    ├── allure.properties             # Allure results directory configuration
+    ├── logback-test.xml              # Logback: per-class log suppression + MDC scenario name
     └── features/
         ├── ui/
         │   ├── homepage.feature      # Home page UI scenarios
@@ -172,7 +176,7 @@ selenium-ui-api/
 | Metric | Value |
 |--------|-------|
 | Java classes (main) | 28 |
-| Java classes (test) | 14 |
+| Java classes (test) | 17 |
 | Feature files | 6 |
 | Test scenarios | 32 |
 | Custom exceptions | 7 (all wired) |
@@ -243,6 +247,8 @@ allure open target/allure-report  # open a previously generated report
 
 Authentication uses the GraphQL `signIn` mutation on `account.mobalytics.gg`. The server sets an HTTP-only session cookie — there is no token in the response body. The `CookieFilter` in `ApiContext` automatically propagates the session cookie to all subsequent GraphQL calls within the same scenario.
 
+Session cookies are domain-scoped to `account.mobalytics.gg`. `AuthHelper.injectAuthIntoDriver()` navigates to that domain before injecting cookies, then redirects the browser to `BASE_URL` — ensuring the session is correctly established in the WebDriver.
+
 ### Provide credentials
 
 **Option 1 — `.env` file (recommended for local)**:
@@ -267,8 +273,8 @@ mvn test -DTEST_USER_LOGIN=email@example.com -DTEST_USER_PASSWORD=secret
 
 | Tag | Hook | What it does |
 |-----|------|-------------|
-| `@api` | `ApiHooks.setUpApi` | Configures RestAssured base URI and logging |
-| `@authenticated` | `AuthHooks.setUpAuthentication` | Signs in via GraphQL, injects session cookies |
+| `@api` | `ApiHooks.setUpApi` | Configures RestAssured base URI and logging filters |
+| `@authenticated` | `AuthHooks.setUpAuthentication` | Signs in via GraphQL, injects session cookies into WebDriver |
 
 ### Using AuthHelper directly
 
@@ -276,7 +282,26 @@ mvn test -DTEST_USER_LOGIN=email@example.com -DTEST_USER_PASSWORD=secret
 // Sign in and inject session cookies into WebDriver
 Map<String, String> authData = AuthHelper.loginViaApi();
 AuthHelper.injectAuthIntoDriver(driver, authData);
+
+// Or in one call using credentials from TestData
+AuthHelper.loginAndInject(driver);
 ```
+
+---
+
+## 🔁 Retry Mechanism
+
+Failed scenarios are automatically retried up to `RETRY_COUNT` times (default: `1`). Two components cooperate:
+
+- **`RetryAnalyzer`** — `IRetryAnalyzer` wired into `CucumberRunner`; re-executes failed TestNG methods up to the configured limit
+- **`RetryHook`** — Cucumber `@Before`/`@After` hook; tracks attempt count in `ScenarioContext` and labels retried-but-passed scenarios as `flaky` in Allure
+
+```bash
+mvn test -DRETRY_COUNT=0   # disable retries
+mvn test -DRETRY_COUNT=3   # allow up to 3 retries
+```
+
+Flaky scenarios (passed on retry) are automatically tagged in the Allure report with `flaky=true` so instability is visible without digging into logs.
 
 ---
 
@@ -310,8 +335,8 @@ The framework uses a typed exception hierarchy rooted at `FrameworkException`. A
 FrameworkException  (base — catch everything with one handler)
 ├── PageLoadException          — page did not load within timeout
 ├── ElementNotFoundException   — element not found / not visible within timeout
-├── NavigationException        — current URL did not match expected pattern
-├── AuthenticationException    — GraphQL signIn returned false / failed
+├── NavigationException        — URL or page title did not match expected pattern / timeout
+├── AuthenticationException    — GraphQL signIn / signOut returned false or failed
 ├── ApiException               — REST / GraphQL call failed unexpectedly
 └── TestDataException          — required env var or test data is missing
 ```
@@ -324,9 +349,10 @@ FrameworkException  (base — catch everything with one handler)
 | `BasePage.waitForVisible(by)` | `ElementNotFoundException(selector, timeoutMs)` |
 | `BasePage.waitForPresent(by)` | `ElementNotFoundException(selector, timeoutMs)` |
 | `BasePage.assertNavigatesTo(pattern)` | `PageLoadException` (null URL) · `NavigationException` (mismatch) |
-| `WaitUtils.waitForUrl(driver, fragment)` | `ElementNotFoundException` with descriptive message on timeout |
-| `WaitUtils.waitForTitle(driver, fragment)` | `ElementNotFoundException` with descriptive message on timeout |
+| `WaitUtils.waitForUrl(driver, fragment)` | `NavigationException(actualUrl, fragment)` on timeout |
+| `WaitUtils.waitForTitle(driver, fragment)` | `NavigationException(actualTitle, fragment)` on timeout |
 | `AuthHelper.loginViaApi()` | `AuthenticationException` |
+| `AuthHelper.logoutViaApi()` | `AuthenticationException` if signOut returns false or HTTP error |
 
 ### Catching framework errors
 
@@ -339,11 +365,20 @@ try {
     log.error("Framework failure: " + e.getMessage());
 }
 
-// Catch a specific type — message includes selector + wait time
+// Element not found — message includes selector + wait duration
 try {
     basePage.waitForVisible(By.id("submit"));
 } catch (ElementNotFoundException e) {
     // "Element not found: "By.id: submit" (waited 15000ms)"
+    System.out.println(e.getMessage());
+}
+
+// Navigation failure — message includes actual URL + expected pattern
+try {
+    WaitUtils.waitForUrl(driver, "/dashboard");
+} catch (NavigationException e) {
+    // "Navigation failed — actual URL: "https://mobalytics.gg/login",
+    //  expected to match: "/dashboard""
     System.out.println(e.getMessage());
 }
 ```
@@ -398,7 +433,7 @@ TestData.Timeouts.FILE_UPLOAD_MS     // 30_000
 ```java
 TestDataUtils.randomEmail()     // faker-generated unique email
 TestDataUtils.randomPassword()  // secure random password
-TestDataUtils.randomUsername()  // unique username (bug-fixed: no double-call)
+TestDataUtils.randomUsername()  // unique username
 TestDataUtils.randomGamerTag()  // gaming-style tag
 ```
 
@@ -415,6 +450,10 @@ String id = scenarioContext.get("userId");  // read in another step
 
 Components represent reusable page sections (header, footer, modals). Each component is **scoped to its root element** — all `findElement()` calls search within that root, improving stability and encapsulation.
 
+Both `BasePage` and `BaseComponent` provide:
+- `wait` — 15s `WebDriverWait` for explicit element interactions
+- `shortWait` — 3s `WebDriverWait` used by `isVisible()` so absence checks don't stall the suite
+
 ### When to use
 
 ✅ **Components** — header, footer, navigation, modals, sidebars (shared across pages)  
@@ -426,9 +465,26 @@ Components represent reusable page sections (header, footer, modals). Each compo
 NavigationComponent nav = new NavigationComponent(driver);
 nav.clickGameLink("LoL");
 assertTrue(nav.isLogoVisible());
+List<String> games = nav.getAvailableGames(); // returns only game nav links (not logos/social)
 
 FooterComponent footer = new FooterComponent(driver);
 footer.clickPrivacyLink();
+```
+
+---
+
+## 📈 Allure Reporting
+
+Allure reports include:
+
+- **Environment widget** — browser, headless mode, base URL, thread count, retry count (written by `AllureEnvironmentHook` before the suite starts)
+- **Feature / Story grouping** — all step classes are annotated with `@Feature` / `@Story`
+- **Flaky labels** — scenarios that pass on retry are automatically tagged `flaky=true` by `RetryHook`
+- **Failure screenshots** — full-page AShot screenshot attached to every failed scenario by `DriverHooks`
+- **Step timeline** — every `log.step()` call creates a named Allure step
+
+```bash
+mvn clean test && mvn allure:serve
 ```
 
 ---
@@ -442,7 +498,7 @@ footer.clickPrivacyLink();
 | **3 — Components** | `BaseComponent`, `NavigationComponent`, … | Reusable page sections scoped to root element |
 | **4 — Data & Helpers** | `TestData`, `Tags`, `GraphqlQueries`, `AuthHelper` | Static data, query constants, auth |
 | **5 — DI Context** | `DriverContext`, `ApiContext`, `ScenarioContext` | PicoContainer per-scenario injection |
-| **6 — Hooks** | `DriverHooks`, `ApiHooks`, `AuthHooks` | Cucumber lifecycle management |
+| **6 — Hooks** | `DriverHooks`, `ApiHooks`, `AuthHooks`, `RetryHook`, `AllureEnvironmentHook` | Cucumber lifecycle management |
 | **7 — Steps** | `CommonSteps`, `HomePageSteps`, `ApiSteps`, … | Gherkin step implementations |
 
 ### Key design decisions
@@ -450,11 +506,28 @@ footer.clickPrivacyLink();
 | Decision | Rationale |
 |----------|-----------|
 | **No implicit waits** | `DriverConfig` omits `implicitlyWait()` — mixing implicit + explicit waits doubles effective timeouts |
-| **Typed exceptions on every timeout** | `waitForVisible`, `waitForPresent`, `waitForUrl`, `open()` all throw typed exceptions with selector + duration context |
+| **Typed exceptions on every timeout** | `waitForVisible`/`waitForPresent` → `ElementNotFoundException`; `waitForUrl`/`waitForTitle`/`assertNavigatesTo` → `NavigationException` — every failure carries selector + duration context |
+| **Short + long wait in pages and components** | `shortWait` (3s) for `isVisible()` checks; `wait` (15s) for interactions — absence checks never stall the suite |
 | **ThreadLocal WebDriver** | Each parallel thread owns its own driver; `getDriver()` throws `IllegalStateException` with a clear message if called before `setUp()` |
 | **CookieFilter in ApiContext** | Session cookies from `signIn` are automatically forwarded on all subsequent requests in the same scenario |
 | **PicoContainer DI** | All context objects are injected per-scenario — zero static state in tests |
+| **`replaceFiltersWith()` in ApiHooks** | Prevents duplicate logging filters accumulating when `@Before` of scenario N+1 runs before `@After` of scenario N in a parallel suite |
+| **Cookie domain correctness in AuthHelper** | `injectAuthIntoDriver()` navigates to `account.mobalytics.gg` before injecting cookies — session cookies are domain-scoped and must be set on the correct domain |
 | **No `@wip` in CI** | `CucumberRunner` uses `tags = "not @wip"` consistent with `Tags.WIP` constant |
+
+### Hook execution order
+
+| Order | Hook | Fires |
+|-------|------|-------|
+| `@Before -10` | `RetryHook.trackAttempt` | Always first — records attempt number in ScenarioContext |
+| `@Before 0` | `DriverHooks.setUp` | UI scenarios — starts WebDriver, sets MDC |
+| `@Before 1` | `ApiHooks.setUpApi` | `@api` scenarios — configures RestAssured |
+| `@Before 2` | `AuthHooks.setUpAuthentication` | `@authenticated` — signs in, injects cookies |
+| `@After 10` | `DriverHooks.captureFailure` | UI scenarios — takes failure screenshot |
+| `@After 5` | `ApiHooks.tearDownApi` | `@api` — resets RestAssured, clears MDC |
+| `@After 3` | `AuthHooks.tearDown` | `@authenticated` — signs out |
+| `@After 0` | `DriverHooks.tearDown` | UI scenarios — quits WebDriver |
+| `@After 20` | `RetryHook.recordOutcome` | Always last — labels flaky scenarios in Allure |
 
 ---
 
@@ -469,6 +542,13 @@ cp .env.example .env   # then add TEST_USER_LOGIN and TEST_USER_PASSWORD
 ```bash
 export DEFAULT_TIMEOUT=30000        # increase timeout
 mvn test -DHEADLESS=false           # run with visible browser to inspect
+```
+
+### `NavigationException: Navigation failed — actual URL: "..." expected to match: "..."`
+```bash
+# Verify BASE_URL and API_BASE_URL are correct in .env
+# Run with visible browser to see where navigation actually lands
+mvn test -DHEADLESS=false
 ```
 
 ### `PageLoadException: Page "https://..." did not finish loading within 30000ms`
@@ -500,6 +580,7 @@ rm -rf ~/.cache/selenium/ && mvn test  # or clear the cache entirely
 | Headless not enabled | `export HEADLESS=true` |
 | Timeouts too short | `export DEFAULT_TIMEOUT=30000` |
 | Resource contention | `export PARALLEL_THREADS=2` |
+| Credentials missing | Set `TEST_USER_LOGIN` and `TEST_USER_PASSWORD` as CI secrets |
 
 ### Allure report not generating
 ```bash
@@ -531,6 +612,7 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 1. Create `src/main/java/.../components/MyComponent.java` extending `BaseComponent`
 2. Pass the root locator to `super(driver, rootLocator)`
 3. Use `findElement(By)` / `findElements(By)` — scoped to the root automatically
+4. Use `shortWait` for `isVisible()` checks, `wait` for full interactions
 
 ### Coding standards
 
@@ -551,70 +633,6 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 
 ---
 
-## 📋 Improvement History
-
-### Phase 1 — Code Quality & Bug Fixes
-- `DriverConfig`: removed implicit wait anti-pattern
-- `DriverContext`: added missing source file (existed only as compiled `.class`)
-- `BasePage`: fixed `assertNavigatesTo()` null guard; fixed `isPresent()` always-true condition
-- `WaitUtils`: fixed `waitForAjax()` `ClassCastException` + null safety on `executeScript` result
-- `ScreenshotUtils`: fixed `Files.walk()` resource leak with try-with-resources
-- `AuthHelper`: added connection/socket timeouts to prevent indefinite hangs
-- `TestDataUtils`: fixed `randomUsername()` double-call bug + `StringBuilder` in loop
-- `simplelogger.properties`: fixed garbled encoding in comment header
-- `testng.xml`: added `parallel="methods"` to properly enable parallel execution
-
-### Phase 2 — Architecture & Design Patterns
-- **Package consistency**: renamed `yehorychev.selenium.*` → `com.yehorychev.selenium.*` across all 14 test sources
-- `testng.xml`: updated `CucumberRunner` class reference to correct package
-- `CucumberRunner`: fixed tag `"not @ignore"` → `"not @wip"` to align with `Tags.WIP`
-- `TestConfig`: added `ADMIN_USER_LOGIN` / `ADMIN_USER_PASSWORD` via standard `resolveOptional()` chain
-- `TestData.Credentials`: replaced raw `System.getenv()` calls with `TestConfig` constants
-- `NavigationComponent`: removed duplicate `NAV_LINKS` constant (identical to `GAME_LINKS`)
-- `HomePage`: fixed `getSocialLinkCount()` to use `findElements()` instead of `waitForAll()`
-
-### Phase 3 — Error Handling & Type Safety
-- `BasePage.open()`: throws `PageLoadException` on navigation timeout
-- `BasePage.waitForVisible()`: throws `ElementNotFoundException(selector, timeoutMs)` on timeout
-- `BasePage.waitForPresent()`: throws `ElementNotFoundException(selector, timeoutMs)` on timeout
-- `BasePage.assertNavigatesTo()`: throws `PageLoadException` (null URL) or `NavigationException` (mismatch)
-- `WaitUtils.waitForUrl()`: throws `ElementNotFoundException` with descriptive message on timeout
-- `WaitUtils.waitForTitle()`: throws `ElementNotFoundException` with descriptive message on timeout
-- All 7 custom exception classes now **fully wired** — zero dead code in `errors/`
-
-### Phase 5 — Retry Mechanism & Flakiness Management
-- `RetryAnalyzer.java`: TestNG `IRetryAnalyzer` — re-runs failed scenarios up to `TestConfig.RETRY_COUNT` times; one fresh instance per scenario (thread-safe)
-- `RetryHook.java`: Cucumber `@Before(order=-10)` / `@After(order=20)` — tracks attempt count in `ScenarioContext`, logs each retry with attempt/max info
-- Retried-but-passed scenarios automatically receive Allure labels `flaky=true` and `testType=flaky` so instability is visible in reports
-- `CucumberRunner`: overrides `runScenario()` with `@Test(retryAnalyzer = RetryAnalyzer.class)` to wire TestNG retries into the Cucumber execution
-- `config.properties` / `TestConfig`: default `retry.count` raised from `1` → `2`; set `RETRY_COUNT=0` env var to disable retries entirely
-- Hook execution order documented across all hooks:
-  - `@Before order=-10` — `RetryHook.trackAttempt` (always first)
-  - `@Before order=0`  — `DriverHooks.setUp`
-  - `@Before order=1`  — `ApiHooks.setUpApi`
-  - `@Before order=2`  — `AuthHooks.setUpAuthentication`
-  - `@After  order=20` — `RetryHook.recordOutcome` (always last)
-  - `@After  order=10` — `DriverHooks.captureFailure`
-  - `@After  order=5`  — `ApiHooks.tearDownApi`
-  - `@After  order=3`  — `AuthHooks.tearDown`
-  - `@After  order=0`  — `DriverHooks.tearDown`
-
-### Phase 6 — Advanced Reporting & Observability
-- **Logback replaces slf4j-simple**: `logback-classic 1.5.18` added to `pom.xml`; `slf4j-simple` removed; `logback-test.xml` configured with format `HH:mm:ss.SSS [thread] [LEVEL] ClassName - message`
-- **Per-class log suppression**: third-party loggers (Selenium, RestAssured, WebDriverManager) suppressed to `WARN`; framework logger `com.yehorychev.selenium` stays at `INFO`
-- **MDC scenario injection**: `DriverHooks` and `ApiHooks` call `MDC.put("scenario", scenario.getName())` in `@Before` and `MDC.clear()` in `@After` — scenario name available to any appender that uses `%X{scenario}`
-- **`AllureEnvironmentHook.java`**: new `@BeforeAll` Cucumber hook — writes `environment.properties` to `target/allure-results/` once before the suite; populates Browser, Headless, Base URL, API URL, Threads, Retry Count, Timeout visible in Allure's Environment widget
-- **`allure.properties`**: added to `src/test/resources/` — sets `allure.results.directory` so Allure always writes to the correct location
-- **`@Feature` / `@Story` annotations** added to all 7 step definition classes:
-  - `CommonSteps` → `UI — Common Navigation` / `Page Navigation & URL Assertions`
-  - `HomePageSteps` → `UI — Home Page` / `Home Page Components`
-  - `LolSteps` → `UI — League of Legends` / `LoL Page`
-  - `Poe2Steps` → `UI — Path of Exile 2` / `PoE2 Page`
-  - `NavigationSteps` → `UI — Navigation` / `Header Navigation`
-  - `ApiSteps` → `API — GraphQL & REST` / `API Requests & Assertions`
-  - `AuthSteps` → `API — Authentication` / `Sign-in & Sign-out`
-
----
 
 **Framework Version**: 1.0-SNAPSHOT  
 **Last Updated**: March 2026  

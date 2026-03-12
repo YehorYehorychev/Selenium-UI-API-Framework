@@ -27,8 +27,9 @@ public class NavigationComponent extends BaseComponent {
     // ── Selectors (relative to root) ─────────────────────────────────────────
 
     private static final By LOGO = By.cssSelector("a.base-logo");
-    // All anchor tags inside the nav — includes LoL, TFT, PoE2, Diablo 4, etc.
-    private static final By GAME_LINKS = By.cssSelector("nav a");
+    // Only WordPress menu items that are game links — excludes logos (div.site-title)
+    // and social links (div.header_soc). Confirmed via live DOM inspection on mobalytics.gg.
+    private static final By GAME_LINKS = By.cssSelector("nav li.menu-item-type-custom > a");
     private static final By SOCIAL_LINKS = By.cssSelector("a[href*='twitter'], a[href*='discord'], a[href*='youtube']");
 
     // Sign In button — lives in the React app header on sub-pages (LoL, PoE2, etc.),

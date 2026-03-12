@@ -101,3 +101,10 @@ logs/
 # WebDriverManager cache
 # ──────────────────────────────────────────────
 .wdm/
+
+# ──────────────────────────────────────────────
+# Local dev docs — progress tracking only,
+# not meant to be committed to the repo
+# ──────────────────────────────────────────────
+FRAMEWORK_IMPROVEMENT_PLAN.md
+

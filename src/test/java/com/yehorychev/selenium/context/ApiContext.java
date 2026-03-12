@@ -153,7 +153,7 @@ public class ApiContext {
      * @return Response for assertions
      */
     public Response graphql(String query, Map<String, Object> variables) {
-        log.step("GraphQL query");
+        log.debug("GraphQL query body prepared");
         Map<String, Object> body = variables != null
                 ? Map.of("query", query, "variables", variables)
                 : Map.of("query", query);

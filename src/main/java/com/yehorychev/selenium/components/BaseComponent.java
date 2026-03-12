@@ -37,6 +37,7 @@ public abstract class BaseComponent {
     protected final WebDriver driver;
     protected final By rootLocator;
     protected final WebDriverWait wait;
+    protected final WebDriverWait shortWait;
     protected final Logger log;
 
     // ── Constructor ──────────────────────────────────────────────────────────
@@ -51,6 +52,7 @@ public abstract class BaseComponent {
         this.driver = driver;
         this.rootLocator = rootLocator;
         this.wait = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
+        this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
         this.log = new Logger(this.getClass());
     }
 
@@ -68,12 +70,13 @@ public abstract class BaseComponent {
 
     /**
      * Returns {@code true} if the component's root element is currently visible.
+     * Uses a short 3-second timeout — this is a presence check, not a full wait.
      *
      * @return visibility status
      */
     public boolean isVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(rootLocator)) != null;
+            return shortWait.until(ExpectedConditions.visibilityOfElementLocated(rootLocator)) != null;
         } catch (TimeoutException | NoSuchElementException e) {
             log.debug("Component not visible: " + rootLocator + " - " + e.getMessage());
             return false;

@@ -10,6 +10,7 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Assert;
 
 import java.time.Duration;
 import java.util.List;
@@ -382,7 +383,7 @@ public abstract class BasePage {
                     locator, expected, actual
             );
             log.error(message);
-            throw new AssertionError(message);
+            Assert.fail(message);
         }
         log.debug("Text verification passed: element contains \"" + expected + "\"");
     }
