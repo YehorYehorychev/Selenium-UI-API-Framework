@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.runner;
 
+import com.yehorychev.selenium.data.Tags;
 import io.cucumber.testng.AbstractTestNGCucumberTests;
 import io.cucumber.testng.CucumberOptions;
 import org.testng.annotations.DataProvider;
@@ -38,7 +39,7 @@ import org.testng.annotations.Test;
                 "html:target/cucumber-reports/cucumber.html"
         },
         monochrome = true,
-        tags = "not @wip"
+        tags = Tags.NOT_WIP
 )
 public class CucumberRunner extends AbstractTestNGCucumberTests {
 

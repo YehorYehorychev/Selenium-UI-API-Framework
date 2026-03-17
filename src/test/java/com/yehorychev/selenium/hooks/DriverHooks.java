@@ -57,6 +57,7 @@ public class DriverHooks {
     @Before(value = "not @api", order = 0)
     public void setUp(Scenario scenario) {
         MDC.put("scenario", scenario.getName());
+        MDC.put("scenarioId", scenario.getId());
         log.step("▶ Starting scenario: [" + scenario.getId() + "] " + scenario.getName());
         driverContext.setUp();
     }

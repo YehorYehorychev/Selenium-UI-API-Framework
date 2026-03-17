@@ -2,12 +2,12 @@ package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.errors.ElementNotFoundException;
+import com.yehorychev.selenium.errors.NavigationException;
 import com.yehorychev.selenium.errors.PageLoadException;
 import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.utils.WaitUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
@@ -57,7 +57,6 @@ public abstract class BasePage {
         this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
         this.actions = new Actions(driver);
         this.log = new Logger(this.getClass());
-        PageFactory.initElements(driver, this);
     }
 
     // ── Navigation ────────────────────────────────────────────────────────────
@@ -403,7 +402,7 @@ public abstract class BasePage {
             throw new PageLoadException("(url unavailable)", TestConfig.NAVIGATION_TIMEOUT_MS);
         }
         if (!currentUrl.matches(".*" + urlPattern + ".*")) {
-            throw new com.yehorychev.selenium.errors.NavigationException(currentUrl, urlPattern);
+            throw new NavigationException(currentUrl, urlPattern);
         }
         log.debug("Navigation assertion passed: URL matches \"" + urlPattern + "\"");
     }

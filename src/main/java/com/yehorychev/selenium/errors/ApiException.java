@@ -1,14 +1,11 @@
 package com.yehorychev.selenium.errors;
 
-import lombok.Getter;
-
 /**
  * Thrown when an API call returns an unexpected HTTP status code or error payload.
  *
  * Example:
  *   throw new ApiException(401, "Unauthorized", "/api/graphql/v1/query");
  */
-@Getter
 public class ApiException extends FrameworkException {
 
     /** The HTTP status code returned by the API. */
@@ -49,5 +46,14 @@ public class ApiException extends FrameworkException {
         this.statusCode = statusCode;
         this.endpoint   = endpoint;
     }
-}
 
+    /** @return the HTTP status code returned by the API. */
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    /** @return the API endpoint path, or {@code null} if not provided. */
+    public String getEndpoint() {
+        return endpoint;
+    }
+}

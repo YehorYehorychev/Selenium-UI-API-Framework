@@ -43,6 +43,7 @@ public class ApiHooks {
     @Before(value = "@api", order = 1)
     public void setUpApi(Scenario scenario) {
         MDC.put("scenario", scenario.getName());
+        MDC.put("scenarioId", scenario.getId());
         log.step("▶ [API] Setting up RestAssured for scenario: " + scenario.getName());
 
         RestAssured.baseURI = TestConfig.API_BASE_URL;

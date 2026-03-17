@@ -83,6 +83,13 @@ public final class Tags {
     public static final String WIP = "@wip";
 
     /**
+     * Filter expression for @CucumberOptions — excludes all @wip scenarios.
+     * Compile-time constant so it can be used directly in annotation parameters.
+     * Example: @CucumberOptions(tags = Tags.NOT_WIP)
+     */
+    public static final String NOT_WIP = "not " + WIP;
+
+    /**
      * Known bug — tracked but not blocking.
      */
     public static final String KNOWN_BUG = "@known-bug";

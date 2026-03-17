@@ -8,17 +8,17 @@
           [%thread]         — TestNG thread pool name (e.g. TestNG-PoolService-2)
           %-5level          — log level, left-padded to 5 chars
           %logger{0}        — short class name (no package prefix)
-          %X{scenario}      — MDC: current scenario name (injected by DriverHooks / ApiHooks)
+          %X{scenario}      — MDC: current scenario name (set by DriverHooks / ApiHooks)
+          %X{scenarioId}    — MDC: Cucumber scenario ID (set by DriverHooks / ApiHooks)
           %msg              — the actual log message
 
-        MDC keys set by hooks:
-          scenario  — human-readable scenario name
-          scenarioId — Cucumber scenario ID (UUID fragment)
+        Both MDC keys are set in DriverHooks.setUp() and ApiHooks.setUpApi(),
+        and cleared in the respective teardown hooks.
     -->
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %-30c{1} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] %-30c{1} [%X{scenario}] - %msg%n</pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
@@ -38,7 +38,3 @@
     </root>
 
 </configuration>
-
-
-
-
