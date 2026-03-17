@@ -4,7 +4,7 @@
 @regression @ui
 Feature: League of Legends Page
 
-  @regression @ui @critical
+  @smoke @regression @ui @critical
   Scenario: LoL page loads successfully
     Given I open the LoL page
     Then the LoL page is loaded
@@ -18,4 +18,19 @@ Feature: League of Legends Page
   Scenario: LoL page URL is correct
     Given I open the LoL page
     Then the current URL should contain "/lol"
+
+  @regression @ui @search
+  Scenario: Champion build links are present on the LoL page
+    Given I open the LoL page
+    Then there should be at least 5 champion cards displayed
+
+  @regression @ui
+  Scenario: Tier list section is visible on the LoL page
+    Given I open the LoL page
+    Then the tier list section should be visible
+
+  @regression @ui
+  Scenario: Builds section is visible on the LoL page
+    Given I open the LoL page
+    Then the builds section should be visible
 

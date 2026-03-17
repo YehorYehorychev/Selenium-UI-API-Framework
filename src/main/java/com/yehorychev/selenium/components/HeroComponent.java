@@ -22,21 +22,24 @@ public class HeroComponent extends BaseComponent {
 
     // ── Selectors (relative to root) ─────────────────────────────────────────
 
-    private static final By HEADING = By.cssSelector("h1");
-    private static final By SUBHEADING = By.cssSelector("h2, p.hero-description");
-    private static final By DOWNLOAD_BUTTON = By.cssSelector("a[href*='download'], button[data-testid='download']");
-    private static final By SIGNUP_BUTTON = By.cssSelector("a[href*='signup'], button[data-testid='signup']");
-    private static final By CTA_BUTTONS = By.cssSelector("a.cta-button, button.cta");
+    private static final By HEADING         = By.cssSelector("h1");
+    private static final By SUBHEADING      = By.cssSelector("h2, p.hero-description");
+    /** Download CTA — class confirmed via live DOM: a.btn.download-btn */
+    private static final By DOWNLOAD_BUTTON = By.cssSelector("a.download-btn, a[href*='download.overwolf']");
+    private static final By SIGNUP_BUTTON   = By.cssSelector("a[href*='signup'], button[data-testid='signup']");
+    /** Any <a> with class btn* present in hero section */
+    private static final By CTA_BUTTONS     = By.cssSelector("a[class*='btn']");
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
      * Creates a HeroComponent bound to the hero section.
+     * Root: section.hl-hero — confirmed via live DOM inspection on mobalytics.gg.
      *
      * @param driver active WebDriver instance
      */
     public HeroComponent(WebDriver driver) {
-        super(driver, By.cssSelector("section.hero, [data-testid='hero-section']"));
+        super(driver, By.cssSelector("section.hl-hero"));
     }
 
     // ── Content accessors ────────────────────────────────────────────────────

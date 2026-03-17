@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 /**
  * Footer component — represents the site footer with links, social icons, and legal info.
  *
- * Encapsulates:
- *   - Footer navigation links (About, Careers, Support, etc.)
- *   - Social media icons
- *   - Copyright notice
- *   - Legal links (Privacy Policy, Terms of Service)
+ * Actual DOM (confirmed via mobalytics.gg live inspection):
+ *   Root      : div.footer-outer  (no <footer> tag on the marketing site)
+ *   Copyright : div.footer-copyright
+ *   Social    : <a> links by href (youtube, discord, facebook, twitter/x.com)
+ *   Legal     : <a> links whose href contains "privacy" or "terms"
  *
  * Usage:
  *   FooterComponent footer = new FooterComponent(driver);
@@ -26,23 +26,30 @@ public class FooterComponent extends BaseComponent {
 
     // ── Selectors (relative to root) ─────────────────────────────────────────
 
-    private static final By FOOTER_LINKS = By.cssSelector("a");
-    private static final By SOCIAL_ICONS = By.cssSelector("a[href*='twitter'], a[href*='discord'], a[href*='facebook'], a[href*='youtube']");
-    private static final By COPYRIGHT = By.cssSelector("p[class*='copyright'], small");
-    private static final By LEGAL_LINKS = By.cssSelector("a[href*='privacy'], a[href*='terms'], a[href*='legal']");
+    private static final By FOOTER_LINKS  = By.cssSelector("a");
+    private static final By SOCIAL_ICONS  = By.cssSelector(
+            "a[href*='twitter'], a[href*='x.com'], a[href*='discord'], " +
+            "a[href*='facebook'], a[href*='youtube']"
+    );
+    /** div.footer-copyright confirmed via DOM — contains "Copyright © 2016-20xx" text. */
+    private static final By COPYRIGHT     = By.cssSelector(".footer-copyright");
+    private static final By LEGAL_LINKS   = By.cssSelector(
+            "a[href*='privacy'], a[href*='terms'], a[href*='legal']"
+    );
 
-    // XPath template for finding links by text
+    // XPath template for finding links by visible text
     private static final String LINK_BY_TEXT_XPATH = ".//a[contains(text(),'%s')]";
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
      * Creates a FooterComponent bound to the site footer.
+     * Root: div.footer-outer — the marketing site has no semantic <footer> tag.
      *
      * @param driver active WebDriver instance
      */
     public FooterComponent(WebDriver driver) {
-        super(driver, By.cssSelector("footer, [role='contentinfo']"));
+        super(driver, By.cssSelector("div.footer-outer"));
     }
 
     // ── Link interactions ────────────────────────────────────────────────────
@@ -54,8 +61,7 @@ public class FooterComponent extends BaseComponent {
      */
     public void clickLink(String linkText) {
         log.step("Clicking footer link: " + linkText);
-        By locator = By.xpath(String.format(LINK_BY_TEXT_XPATH, linkText));
-        click(locator);
+        click(By.xpath(String.format(LINK_BY_TEXT_XPATH, linkText)));
     }
 
     /**
@@ -108,8 +114,7 @@ public class FooterComponent extends BaseComponent {
      */
     public void clickSocialIcon(String platform) {
         log.step("Clicking social icon: " + platform);
-        By locator = By.cssSelector("a[href*='" + platform.toLowerCase() + "']");
-        click(locator);
+        click(By.cssSelector("a[href*='" + platform.toLowerCase() + "']"));
     }
 
     // ── Copyright & legal ────────────────────────────────────────────────────
@@ -163,7 +168,6 @@ public class FooterComponent extends BaseComponent {
      */
     public void clickLegalLink(String linkText) {
         log.step("Clicking legal link: " + linkText);
-        By locator = By.xpath(String.format(LINK_BY_TEXT_XPATH, linkText));
-        click(locator);
+        click(By.xpath(String.format(LINK_BY_TEXT_XPATH, linkText)));
     }
 }

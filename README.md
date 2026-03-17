@@ -10,7 +10,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Java 17+** (JDK 21 LTS or 25 recommended)
+- **Java 25** (required — `pom.xml` targets Java 25)
 - **Maven 3.8+**
 - **Chrome / Firefox / Edge** browser installed
 - **Allure CLI** (optional, for local report viewing)
@@ -56,7 +56,7 @@ ADMIN_USER_PASSWORD=admin-password
 Values are resolved in this order (highest wins):
 1. **System environment variables** (`export BASE_URL=...`)
 2. **`.env` file** in project root
-3. **`src/main/resources/config.properties`**
+3. **`src/test/resources/config.properties`**
 4. **Hard-coded defaults** in `TestConfig.java`
 
 ---
@@ -67,6 +67,7 @@ Values are resolved in this order (highest wins):
 selenium-ui-api/
 ├── .env                              # Local credentials (gitignored)
 ├── .env.example                      # Template — copy and fill in
+├── .github/workflows/ci.yml          # GitHub Actions: smoke + regression + Allure upload
 ├── pom.xml
 │
 ├── src/main/java/com/yehorychev/selenium/
@@ -106,8 +107,12 @@ selenium-ui-api/
 │   ├── pages/                        # Layer 2 — Page Object Model
 │   │   ├── BasePage.java             # Abstract base: waits, clicks, assertions, screenshots
 │   │   ├── HomePage.java
+│   │   ├── LoginPage.java
 │   │   ├── LolPage.java
-│   │   └── Poe2Page.java
+│   │   ├── Poe2Page.java
+│   │   ├── TftPage.java
+│   │   ├── ValorantPage.java
+│   │   └── Diablo4Page.java
 │   │
 │   ├── components/                   # Layer 3 — Component Pattern
 │   │   ├── BaseComponent.java        # Abstract base: scoped element lookups, short/long waits
@@ -146,8 +151,12 @@ selenium-ui-api/
 │   ├── steps/                        # Layer 7 — Step Definitions
 │   │   ├── CommonSteps.java          # Shared: open homepage, URL/title assertions
 │   │   ├── HomePageSteps.java        # Homepage-specific steps
+│   │   ├── LoginSteps.java           # Login page steps
 │   │   ├── LolSteps.java             # LoL page steps
 │   │   ├── Poe2Steps.java            # PoE2 page steps
+│   │   ├── TftSteps.java             # TFT page steps
+│   │   ├── ValorantSteps.java        # Valorant page steps
+│   │   ├── Diablo4Steps.java         # Diablo 4 page steps
 │   │   ├── NavigationSteps.java      # Navigation component steps
 │   │   ├── ApiSteps.java             # REST/GraphQL assertion steps
 │   │   └── AuthSteps.java            # Sign-in / sign-out steps
@@ -158,29 +167,36 @@ selenium-ui-api/
 │
 └── src/test/resources/
     ├── testng.xml                    # TestNG suite — parallel="methods" thread-count="4"
+    ├── config.properties             # Fallback configuration values
     ├── allure.properties             # Allure results directory configuration
     ├── logback-test.xml              # Logback: per-class log suppression + MDC scenario name
     └── features/
         ├── ui/
         │   ├── homepage.feature      # Home page UI scenarios
         │   ├── navigation.feature    # Navigation component scenarios
+        │   ├── login.feature         # Login page and auth UI scenarios
         │   ├── lol.feature           # LoL page scenarios
-        │   └── poe2.feature          # PoE2 page scenarios
-        └── api/
-            ├── auth-api.feature      # Authentication API scenarios
-            └── graphql.feature       # GraphQL query scenarios
+        │   ├── poe2.feature          # PoE2 page scenarios
+        │   ├── tft.feature           # TFT page scenarios
+        │   ├── valorant.feature      # Valorant page scenarios
+        │   └── diablo4.feature       # Diablo 4 page scenarios
+        ├── api/
+        │   ├── auth-api.feature      # Authentication API scenarios
+        │   └── graphql.feature       # GraphQL query scenarios
+        └── e2e/
+            └── user-journeys.feature # End-to-end multi-page user flows
 ```
 
 ### Framework Stats
 
 | Metric | Value |
 |--------|-------|
-| Java classes (main) | 28 |
-| Java classes (test) | 17 |
-| Feature files | 6 |
-| Test scenarios | 32 |
+| Java classes (main) | 32 |
+| Java classes (test) | 21 |
+| Feature files | 11 |
+| Test scenarios | ~78 (76 active, 2 `@wip`) |
 | Custom exceptions | 7 (all wired) |
-| Parallel threads | 4 (configurable) |
+| Parallel threads | 4 (configurable via `-Dparallel.threads=N`) |
 
 ---
 
@@ -209,6 +225,7 @@ mvn test -Dcucumber.filter.tags="@ui"           # UI tests only
 mvn test -Dcucumber.filter.tags="@api"           # API tests only (requires .env credentials)
 mvn test -Dcucumber.filter.tags="@auth"          # Auth flow tests
 mvn test -Dcucumber.filter.tags="@authenticated" # Tests requiring a signed-in session
+mvn test -Dcucumber.filter.tags="@e2e"           # End-to-end user journey tests
 mvn test -Dcucumber.filter.tags="@critical"      # Must-pass before deploy
 mvn test -Dcucumber.filter.tags="@regression"    # Full regression suite
 ```
@@ -311,12 +328,14 @@ Flaky scenarios (passed on retry) are automatically tagged in the Allure report 
 |-----|-------------|
 | `@smoke` | Critical path — run on every commit |
 | `@regression` | Full regression suite |
+| `@e2e` | End-to-end multi-page user journeys |
 | `@ui` | Browser-based tests |
 | `@api` | REST / GraphQL API tests |
 | `@critical` | Must pass before deployment |
 | `@navigation` | Navigation / routing tests |
 | `@auth` | Authentication flow tests |
 | `@authenticated` | Requires a signed-in user session |
+| `@search` | Champion / build search interactions |
 | `@wip` | Work in progress — excluded from CI runs |
 | `@flaky` | Known unstable — excluded from main runs |
 
@@ -489,17 +508,59 @@ mvn clean test && mvn allure:serve
 
 ---
 
+## 🔄 CI/CD — GitHub Actions
+
+The pipeline is defined in `.github/workflows/ci.yml` and has two jobs:
+
+### Smoke job
+Triggers on **every push** to any branch. Runs only `@smoke` scenarios for fast feedback (~2–3 min).
+
+```yaml
+trigger: push (all branches)
+tag filter: @smoke
+browser: Chrome headless
+java: 25 (Temurin)
+```
+
+### Regression job
+Triggers on **pull requests** to `main` / `dev`. Runs the full `@regression` suite in parallel — acts as the quality gate for merges.
+
+```yaml
+trigger: pull_request → main, dev
+tag filter: @regression
+parallelism: -Dparallel.threads=4
+browser: Chrome headless
+```
+
+### Artifacts
+Both jobs upload:
+- `allure-results-*` (raw JSON, 7–14 days retention)
+- `allure-report-*` (generated HTML report, 7–14 days retention)
+
+The regression job also posts a ✅/❌ summary comment on the pull request with passed/failed/skipped counts.
+
+### Required GitHub Secrets
+
+| Secret | Purpose |
+|--------|---------|
+| `TEST_USER_LOGIN` | Test account email for `@authenticated` scenarios |
+| `TEST_USER_PASSWORD` | Test account password |
+
+> Add these in **Settings → Secrets and variables → Actions** in your GitHub repository.
+
+---
+
 ## ⚡ Architecture Highlights
 
 | Layer | Classes | Purpose |
 |-------|---------|---------|
 | **1 — Core** | `TestConfig`, `DriverConfig`, `Logger`, `errors/*` | Config, logging, typed exception hierarchy |
-| **2 — Pages** | `BasePage`, `HomePage`, `LolPage`, `Poe2Page` | Page Object Model with typed error propagation |
-| **3 — Components** | `BaseComponent`, `NavigationComponent`, … | Reusable page sections scoped to root element |
+| **2 — Pages** | `BasePage`, `HomePage`, `LoginPage`, `LolPage`, `Poe2Page`, `TftPage`, `ValorantPage`, `Diablo4Page` | Page Object Model with typed error propagation |
+| **3 — Components** | `BaseComponent`, `NavigationComponent`, `HeroComponent`, `GameCardsComponent`, `FeaturesComponent`, `FooterComponent` | Reusable page sections scoped to root element |
 | **4 — Data & Helpers** | `TestData`, `Tags`, `GraphqlQueries`, `AuthHelper` | Static data, query constants, auth |
 | **5 — DI Context** | `DriverContext`, `ApiContext`, `ScenarioContext` | PicoContainer per-scenario injection |
 | **6 — Hooks** | `DriverHooks`, `ApiHooks`, `AuthHooks`, `RetryHook`, `AllureEnvironmentHook` | Cucumber lifecycle management |
-| **7 — Steps** | `CommonSteps`, `HomePageSteps`, `ApiSteps`, … | Gherkin step implementations |
+| **7 — Steps** | `CommonSteps`, `HomePageSteps`, `LoginSteps`, `LolSteps`, `Poe2Steps`, `TftSteps`, `ValorantSteps`, `Diablo4Steps`, `NavigationSteps`, `ApiSteps`, `AuthSteps` | Gherkin step implementations |
 
 ### Key design decisions
 
@@ -566,11 +627,8 @@ rm -rf ~/.m2/repository/io/github/cdimascio/dotenv-java
 mvn clean install -DskipTests
 ```
 
-### WebDriver version mismatch / `session not created`
-```bash
-mvn test -Dwdm.forceCache=false     # force WebDriverManager to re-download
-rm -rf ~/.cache/selenium/ && mvn test  # or clear the cache entirely
-```
+### Java version compatibility
+The framework targets Java 25. `pom.xml` sets `<release>25</release>` in the compiler plugin.
 
 ### Tests pass locally but fail in CI
 
@@ -588,13 +646,6 @@ brew install allure      # macOS
 mvn allure:serve
 ```
 
-### Java version compatibility
-The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
-```xml
-<maven.compiler.source>21</maven.compiler.source>
-<maven.compiler.target>21</maven.compiler.target>
-<release>21</release>
-```
 
 ---
 
@@ -626,7 +677,7 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 
 ### Pull request checklist
 
-- [ ] `mvn clean test` passes locally (32 scenarios, 0 failures)
+- [ ] `mvn clean test` passes locally (~76 active scenarios, 0 failures)
 - [ ] New scenarios tagged appropriately
 - [ ] `.env.example` updated if new env vars added
 - [ ] README updated if new features added
@@ -636,4 +687,4 @@ The framework targets Java 25. To downgrade to Java 21 LTS, update `pom.xml`:
 
 **Framework Version**: 1.0-SNAPSHOT  
 **Last Updated**: March 2026  
-**Test result**: ✅ 32 / 32 scenarios pass
+**Test result**: ✅ ~76 / 76 active scenarios pass (`@wip` excluded)

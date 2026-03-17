@@ -21,12 +21,18 @@ Feature: Site Navigation
     Then the navigation should contain game link "<game>"
 
     Examples:
-      | game     |
-      | LoL      |
-      | TFT      |
-      | PoE2     |
+      | game |
+      | LoL  |
+      | TFT  |
+      | PoE2 |
 
   @regression @ui @navigation
-  Scenario: Clicking a game link navigates to the correct URL
-    When I click the navigation game link "LoL"
-    Then the current URL should contain "lol"
+  Scenario Outline: Clicking a game link navigates to the correct URL
+    When I click the navigation game link "<game>"
+    Then the current URL should contain "<urlFragment>"
+
+    Examples:
+      | game | urlFragment |
+      | LoL  | /lol        |
+      | TFT  | /tft        |
+      | PoE2 | poe         |

@@ -1,6 +1,5 @@
 package com.yehorychev.selenium.config;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -15,7 +14,8 @@ import java.time.Duration;
 /**
  * WebDriver factory — creates browser instances for Chrome, Firefox, and Edge.
  * Reads browser type, headless flag, and viewport from TestConfig.
- * Delegates driver binary management to WebDriverManager — no manual downloads needed.
+ * Driver binary management is handled automatically by Selenium Manager
+ * (bundled with Selenium 4.6+) — no manual downloads or WebDriverManager needed.
  * Usage:
  * WebDriver driver = DriverConfig.createDriver();           // uses TestConfig.BROWSER
  * WebDriver driver = DriverConfig.createDriver("firefox");  // explicit override
@@ -66,8 +66,6 @@ public final class DriverConfig {
     // ── Browser-specific builders ───────────────────────────────────────────
 
     private static WebDriver createChromeDriver() {
-        WebDriverManager.chromedriver().setup();
-
         ChromeOptions options = new ChromeOptions();
         if (TestConfig.HEADLESS) {
             // --headless=new is the modern headless mode (Chrome 112+)
@@ -87,8 +85,6 @@ public final class DriverConfig {
     }
 
     private static WebDriver createFirefoxDriver() {
-        WebDriverManager.firefoxdriver().setup();
-
         FirefoxOptions options = new FirefoxOptions();
         if (TestConfig.HEADLESS) {
             options.addArguments("-headless");
@@ -102,8 +98,6 @@ public final class DriverConfig {
     }
 
     private static WebDriver createEdgeDriver() {
-        WebDriverManager.edgedriver().setup();
-
         EdgeOptions options = new EdgeOptions();
         if (TestConfig.HEADLESS) {
             options.addArguments("--headless=new");

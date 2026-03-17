@@ -6,15 +6,15 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * Page Object for the Mobalytics home page.
- *
+ * <p>
  * All selectors are encapsulated here — steps interact only through public methods,
  * so selector changes require edits in a single place.
- *
+ * <p>
  * Usage:
- *   HomePage homePage = new HomePage(driverContext.getDriver());
- *   homePage.open();
- *   assertTrue(homePage.isLoaded());
- *   homePage.clickNavGame("LoL");
+ * HomePage homePage = new HomePage(driverContext.getDriver());
+ * homePage.open();
+ * assertTrue(homePage.isLoaded());
+ * homePage.clickNavGame("LoL");
  */
 public class HomePage extends BasePage {
 

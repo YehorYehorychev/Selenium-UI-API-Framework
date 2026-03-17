@@ -8,38 +8,37 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Features component — represents the features/benefits section on the landing page.
+ * Features component — represents the "How Mobalytics helps you win more" section.
  *
- * Encapsulates:
- *   - Feature cards with icons and descriptions
- *   - Section heading and subheading
- *   - Feature highlights
+ * Actual DOM (confirmed via mobalytics.gg live inspection):
+ *   Root  : section.hl-win-more
+ *   Items : div.hl-win-more-item  (3 items visible in current layout)
  *
  * Usage:
  *   FeaturesComponent features = new FeaturesComponent(driver);
  *   int count = features.getFeatureCount();
- *   List<String> titles = features.getFeatureTitles();
- *   assertTrue(features.hasFeature("Real-time Analytics"));
+ *   assertTrue(features.isVisible());
  */
 public class FeaturesComponent extends BaseComponent {
 
     // ── Selectors (relative to root) ─────────────────────────────────────────
 
-    private static final By SECTION_HEADING = By.cssSelector("h2");
-    private static final By FEATURE_CARDS = By.cssSelector(".feature-card, [data-testid='feature-card']");
-    private static final By FEATURE_TITLES = By.cssSelector(".feature-card__title, h3");
-    private static final By FEATURE_DESCRIPTIONS = By.cssSelector(".feature-card__description, p");
-    private static final By FEATURE_ICONS = By.cssSelector(".feature-card__icon, img, svg");
+    private static final By SECTION_HEADING      = By.cssSelector("h2, .heading");
+    /** div.hl-win-more-item — confirmed 3 items via live DOM inspection. */
+    private static final By FEATURE_CARDS        = By.cssSelector(".hl-win-more-item");
+    private static final By FEATURE_TITLES       = By.cssSelector(".hl-win-more-item h3, .hl-win-more-item .title");
+    private static final By FEATURE_DESCRIPTIONS = By.cssSelector(".hl-win-more-item p, .hl-win-more-item .description");
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a FeaturesComponent bound to the features section.
+     * Creates a FeaturesComponent bound to the "win more" section.
+     * Root: section.hl-win-more — confirmed via live DOM inspection.
      *
      * @param driver active WebDriver instance
      */
     public FeaturesComponent(WebDriver driver) {
-        super(driver, By.cssSelector(".features, [data-testid='features-section']"));
+        super(driver, By.cssSelector("section.hl-win-more"));
     }
 
     // ── Content accessors ────────────────────────────────────────────────────
@@ -95,14 +94,5 @@ public class FeaturesComponent extends BaseComponent {
     public boolean hasFeature(String featureTitle) {
         return getFeatureTitles().stream()
                 .anyMatch(title -> title.equalsIgnoreCase(featureTitle));
-    }
-
-    /**
-     * Returns true if feature icons are visible.
-     *
-     * @return icon visibility status
-     */
-    public boolean areIconsVisible() {
-        return !findElements(FEATURE_ICONS).isEmpty();
     }
 }

@@ -4,8 +4,10 @@
 <!--
   TestNG suite configuration for Cucumber BDD tests.
 
-  - thread-count: maps to TestConfig.PARALLEL_THREADS (default 4)
-  - parallel="methods": allows @DataProvider(parallel=true) in CucumberRunner
+  thread-count / data-provider-thread-count: default 4.
+  To change parallelism — edit the values here, or override via Maven property:
+    mvn test -Dparallel.threads=8
+  parallel="methods": allows @DataProvider(parallel=true) in CucumberRunner
 -->
 <suite name="Selenium UI + API Test Suite"
        verbose="1"
@@ -20,4 +22,3 @@
     </test>
 
 </suite>
-

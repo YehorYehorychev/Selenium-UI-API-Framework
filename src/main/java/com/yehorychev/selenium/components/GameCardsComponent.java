@@ -9,100 +9,99 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Game Cards component — represents the grid of game cards on the home page.
+ * Game Cards component — represents the game tiles grid on the home page.
  *
- * Encapsulates:
- *   - Individual game cards (LoL, TFT, Valorant, etc.)
- *   - Card images and titles
- *   - Hover effects and CTAs
+ * Actual DOM (confirmed via mobalytics.gg live inspection):
+ *   Root  : section.hl-games-list  (id="game-list")
+ *   Tiles : direct <a> children of .games-tiles-grid-wrap — no CSS class on the tile itself.
+ *   Each tile href follows the pattern: /lol, /tft, /poe-2, /diablo-4, etc.
  *
  * Usage:
  *   GameCardsComponent gameCards = new GameCardsComponent(driver);
- *   gameCards.clickGameCard("League of Legends");
+ *   gameCards.clickGameTileByHref("lol");
  *   int count = gameCards.getCardCount();
- *   assertTrue(gameCards.hasCard("TFT"));
+ *   assertTrue(gameCards.hasTileForHref("tft"));
  */
 public class GameCardsComponent extends BaseComponent {
 
     // ── Selectors (relative to root) ─────────────────────────────────────────
 
-    private static final By GAME_CARDS = By.cssSelector(".game-card, [data-testid='game-card']");
-    private static final By CARD_TITLES = By.cssSelector(".game-card__title, h3");
-    private static final By CARD_IMAGES = By.cssSelector(".game-card__image, img");
+    /** All game tile <a> links inside the grid wrapper. */
+    private static final By GAME_TILES  = By.cssSelector(".games-tiles-grid-wrap > a, a[href*='/lol'], a");
+    /** Simplified: any direct-child <a> inside the section root. */
+    private static final By TILE_LINKS  = By.cssSelector("a");
 
-    // XPath template for finding cards by title
-    private static final String CARD_BY_TITLE_XPATH = ".//div[contains(@class,'game-card') and .//text()[contains(.,'%s')]]";
+    // XPath: find tile <a> whose href contains the given game slug (e.g. "lol", "tft")
+    private static final String TILE_BY_HREF_XPATH = ".//a[contains(@href,'/%s')]";
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
     /**
-     * Creates a GameCardsComponent bound to the game cards section.
+     * Creates a GameCardsComponent bound to the game tiles section.
+     * Root: section.hl-games-list — confirmed via live DOM inspection.
      *
      * @param driver active WebDriver instance
      */
     public GameCardsComponent(WebDriver driver) {
-        super(driver, By.cssSelector(".game-cards, [data-testid='game-cards-section']"));
+        super(driver, By.cssSelector("section.hl-games-list, section#game-list"));
     }
 
     // ── Card interactions ────────────────────────────────────────────────────
 
     /**
-     * Clicks a game card by its title.
+     * Clicks a game tile by its URL slug (e.g. "lol", "tft", "diablo-4").
+     * The tile <a> href matches /{slug}?int_source=...
      *
-     * @param gameTitle game title (e.g. "League of Legends", "TFT")
+     * @param gameSlug URL slug for the game (e.g. "lol", "tft", "diablo-4", "poe-2")
      */
-    public void clickGameCard(String gameTitle) {
-        log.step("Clicking game card: " + gameTitle);
-        By locator = By.xpath(String.format(CARD_BY_TITLE_XPATH, gameTitle));
+    public void clickGameTileByHref(String gameSlug) {
+        log.step("Clicking game tile for slug: " + gameSlug);
+        By locator = By.xpath(String.format(TILE_BY_HREF_XPATH, gameSlug));
         click(locator);
     }
 
     /**
-     * Returns the number of game cards displayed.
+     * Returns the total number of game tiles displayed.
      *
-     * @return game card count
+     * @return game tile count
      */
     public int getCardCount() {
-        return findElements(GAME_CARDS).size();
+        return findElements(TILE_LINKS).size();
     }
 
     /**
-     * Returns a list of all game titles from the cards.
+     * Returns a list of href paths from all game tile links (e.g. ["/lol", "/tft", ...]).
      *
-     * @return list of game titles
+     * @return list of href path fragments
      */
-    public List<String> getGameTitles() {
-        return findElements(CARD_TITLES).stream()
-                .map(WebElement::getText)
-                .filter(text -> !text.isBlank())
+    public List<String> getGameHrefs() {
+        return findElements(TILE_LINKS).stream()
+                .map(a -> a.getAttribute("href"))
+                .filter(href -> href != null && !href.isBlank())
+                .map(href -> href.replaceAll("\\?.*", "")  // strip query params
+                                 .replace("https://mobalytics.gg", ""))
                 .collect(Collectors.toList());
     }
 
     /**
-     * Returns true if a card with the given title is present.
+     * Returns true if a tile with the given URL slug is present.
      *
-     * @param gameTitle game title to check
+     * @param gameSlug URL slug to check (e.g. "lol", "tft", "diablo-4")
      * @return presence status
      */
-    public boolean hasCard(String gameTitle) {
-        return getGameTitles().stream()
-                .anyMatch(title -> title.equalsIgnoreCase(gameTitle));
+    public boolean hasTileForHref(String gameSlug) {
+        return !findElements(By.xpath(String.format(TILE_BY_HREF_XPATH, gameSlug))).isEmpty();
     }
 
     /**
-     * Hovers over a game card by its title.
+     * Hovers over the game tile with the given URL slug.
      *
-     * @param gameTitle game title
+     * @param gameSlug URL slug for the game
      */
-    public void hoverOverCard(String gameTitle) {
-        log.step("Hovering over game card: " + gameTitle);
-        By locator = By.xpath(String.format(CARD_BY_TITLE_XPATH, gameTitle));
-        WebElement card = findElement(locator);
-        WebElement body = driver.findElement(By.tagName("body"));
-        Actions actions = new Actions(driver);
-        // Move mouse to a neutral position first so the hover-off state is reliably triggered
-        actions.moveToElement(body).perform();
-        // Then hover the actual card
-        actions.moveToElement(card).perform();
+    public void hoverOverTile(String gameSlug) {
+        log.step("Hovering over game tile: " + gameSlug);
+        By locator = By.xpath(String.format(TILE_BY_HREF_XPATH, gameSlug));
+        WebElement tile = findElement(locator);
+        new Actions(driver).moveToElement(tile).perform();
     }
 }

@@ -140,7 +140,7 @@ public class RetryHook {
         int maxAttempts = scenarioContext.getOrDefault(KEY_TOTAL_ATTEMPTS, 1);
 
         if (passed && wasRetried) {
-            // Retried-but-passed → mark as flaky
+            // Retried-but-passed → mark as flaky, then clean up counter
             log.warn(String.format(
                     "⚠ FLAKY scenario passed on attempt %d / %d: [%s] %s",
                     attemptNumber, maxAttempts, id, scenario.getName()
@@ -149,7 +149,8 @@ public class RetryHook {
             Allure.label("testType", "flaky");
             Allure.description("Flaky scenario — passed on retry attempt "
                     + attemptNumber + " of " + maxAttempts + ".");
-            // Keep counter so subsequent runs can detect continued flakiness
+            // Clean up counter — scenario is terminal (passed); no further retries expected
+            ATTEMPT_COUNTERS.remove(id);
         } else if (!passed) {
             // Still failing
             int retriesLeft = maxAttempts - attemptNumber;
