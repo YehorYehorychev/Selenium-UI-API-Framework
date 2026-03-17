@@ -1,0 +1,162 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main, dev ]
+
+# Cancel any in-progress run for the same branch so pushes don't queue up.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # ── Smoke Tests ─────────────────────────────────────────────────────────────
+  # Runs on every push to any branch.
+  # Executes only @smoke scenarios — fast feedback (~2–3 min).
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Set up Chrome (stable)
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Run smoke tests
+        env:
+          BASE_URL: https://mobalytics.gg
+          API_BASE_URL: https://account.mobalytics.gg
+          BROWSER: chrome
+          HEADLESS: true
+          TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          mvn clean test \
+            -Dcucumber.filter.tags="@smoke" \
+            -B -q
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-smoke-${{ github.run_number }}
+          path: target/allure-results
+          retention-days: 7
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: mvn allure:report -B -q
+
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-smoke-${{ github.run_number }}
+          path: target/site/allure-maven-plugin
+          retention-days: 7
+
+  # ── Regression Tests ─────────────────────────────────────────────────────────
+  # Runs on pull requests to main / master / dev.
+  # Executes the full @regression suite in parallel — quality gate for PRs.
+  regression:
+    name: Regression Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Set up Chrome (stable)
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Run regression tests (parallel)
+        env:
+          BASE_URL: https://mobalytics.gg
+          API_BASE_URL: https://account.mobalytics.gg
+          BROWSER: chrome
+          HEADLESS: true
+          TEST_USER_LOGIN: ${{ secrets.TEST_USER_LOGIN }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+        run: |
+          mvn clean test \
+            -Dcucumber.filter.tags="@regression" \
+            -Dparallel.threads=4 \
+            -B -q
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-regression-${{ github.run_number }}
+          path: target/allure-results
+          retention-days: 14
+
+      - name: Generate Allure HTML report
+        if: always()
+        run: mvn allure:report -B -q
+
+      - name: Upload Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-regression-${{ github.run_number }}
+          path: target/site/allure-maven-plugin
+          retention-days: 14
+
+      - name: Comment PR with test summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const resultsDir = 'target/allure-results';
+            let passed = 0, failed = 0, skipped = 0;
+            if (fs.existsSync(resultsDir)) {
+              const files = fs.readdirSync(resultsDir)
+                .filter(f => f.endsWith('-result.json'));
+              for (const file of files) {
+                const result = JSON.parse(fs.readFileSync(path.join(resultsDir, file), 'utf8'));
+                if (result.status === 'passed')  passed++;
+                else if (result.status === 'failed') failed++;
+                else skipped++;
+              }
+            }
+            const status = failed > 0 ? '❌' : '✅';
+            const body = `## ${status} Regression Test Results\n\n` +
+              `| ✅ Passed | ❌ Failed | ⏭️ Skipped | Total |\n` +
+              `|----------|----------|-----------|-------|\n` +
+              `| ${passed} | ${failed} | ${skipped} | ${passed + failed + skipped} |\n\n` +
+              `📊 Allure report uploaded as artifact \`allure-report-regression-${{ github.run_number }}\``;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+

@@ -21,6 +21,10 @@ Feature: Mobalytics Home Page
   Scenario: Hero heading contains expected text
     Then the hero heading should contain "gamers"
 
+  @regression @ui
+  Scenario: Hero CTA buttons are visible
+    Then the hero CTA should be visible
+
   @regression @ui @navigation
   Scenario Outline: Game navigation links are present in the header
     Then the nav game "<game>" should be present
@@ -34,4 +38,24 @@ Feature: Mobalytics Home Page
   @regression @ui
   Scenario: Download CTA button has a valid href
     Then the download CTA href should not be empty
+
+  @regression @ui
+  Scenario: Game cards section displays multiple game options
+    Then there should be at least 3 game cards on the home page
+
+  @regression @ui
+  Scenario: Footer is visible on the home page
+    Then the footer should be visible
+
+  @regression @ui
+  Scenario: Footer copyright text is present
+    Then the footer copyright text should be present
+
+  @regression @ui
+  Scenario: Footer has social media icons
+    Then the footer should have social media icons
+
+  @regression @ui
+  Scenario: Features section is visible on the home page
+    Then the features section should be visible
 

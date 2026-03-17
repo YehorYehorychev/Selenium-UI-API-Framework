@@ -12,11 +12,10 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Single source of truth for parallel thread count.
-             Override at runtime: mvn test -Dparallel.threads=8
-             Injected into testng.xml via Maven test-resource filtering. -->
+        <!-- parallel.threads: single source of truth for thread count.
+             Update thread-count in testng.xml to match when changing this. -->
         <parallel.threads>4</parallel.threads>
-        <suiteXmlFile>${project.build.testOutputDirectory}/testng.xml</suiteXmlFile>
+        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
     </properties>
 
     <dependencies>
@@ -96,13 +95,6 @@
     </dependencies>
 
     <build>
-        <!-- Enable Maven property substitution in src/test/resources (e.g. testng.xml) -->
-        <testResources>
-            <testResource>
-                <directory>src/test/resources</directory>
-                <filtering>true</filtering>
-            </testResource>
-        </testResources>
 
         <plugins>
             <plugin>

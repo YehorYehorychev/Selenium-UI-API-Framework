@@ -75,6 +75,13 @@ public final class TestData {
         public static final String DASHBOARD = "/dashboard";
         public static final String PROFILE = "/profile";
 
+        // Game page paths
+        public static final String LOL = "/lol";
+        public static final String TFT = "/tft";
+        public static final String VALORANT = "/valorant";
+        public static final String DIABLO4  = "/diablo-4";
+        public static final String POE2 = "/poe-2";
+
         // API endpoints
         public static final String API_LOGIN = "/api/auth/login";
         public static final String API_GRAPHQL = "/api/graphql/v1/query";
@@ -93,6 +100,13 @@ public final class TestData {
         public static final String HOME_PAGE_TITLE = "Mobalytics";
         public static final String LOGIN_PAGE_TITLE = "Sign In";
         public static final String DASHBOARD_PAGE_TITLE = "Dashboard";
+
+        // Game page heading fragments
+        public static final String LOL_HEADING = "League";
+        public static final String TFT_HEADING = "Teamfight";
+        public static final String VALORANT_HEADING = "Valorant";
+        public static final String DIABLO4_HEADING = "Diablo";
+        public static final String POE2_HEADING = "Exile";
 
         public static final String WELCOME_MESSAGE = "Welcome";
         public static final String ERROR_INVALID_LOGIN = "Invalid username or password";

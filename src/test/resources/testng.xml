@@ -4,16 +4,16 @@
 <!--
   TestNG suite configuration for Cucumber BDD tests.
 
-  thread-count / data-provider-thread-count are set via Maven resource filtering:
-    - default: parallel.threads=4 (see pom.xml <properties>)
-    - override at runtime: mvn test -Dparallel.threads=8
+  thread-count / data-provider-thread-count: default 4.
+  To change parallelism — edit the values here, or override via Maven property:
+    mvn test -Dparallel.threads=8
   parallel="methods": allows @DataProvider(parallel=true) in CucumberRunner
 -->
 <suite name="Selenium UI + API Test Suite"
        verbose="1"
        parallel="methods"
-       thread-count="${parallel.threads}"
-       data-provider-thread-count="${parallel.threads}">
+       thread-count="4"
+       data-provider-thread-count="4">
 
     <test name="Cucumber Scenarios">
         <classes>
@@ -22,4 +22,3 @@
     </test>
 
 </suite>
-
