@@ -6,26 +6,34 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * Page Object for the League of Legends section.
- *
+ * <p>
  * Selectors confirmed via live DOM inspection on mobalytics.gg/lol:
- *   - Champion cards : a[href*="/lol/champions/"] — 19 links (stable URL pattern)
- *   - Search input   : input[placeholder*="Game Name"] (type=text, not type=search)
- *   - Tier list      : a[href*="tier-list"] links — multiple present
- *   - Builds         : a[href*="/lol/build"] links
+ * - Champion cards : a[href*="/lol/champions/"] — 19 links (stable URL pattern)
+ * - Search input   : input[placeholder*="Game Name"] (type=text, not type=search)
+ * - Tier list      : a[href*="tier-list"] links — multiple present
+ * - Builds         : a[href*="/lol/build"] links
  */
 public class LolPage extends BasePage {
 
     // ── Selectors ─────────────────────────────────────────────────────────────
 
-    private static final By PAGE_HEADING   = By.cssSelector("h1");
-    /** Stable URL-based selector — champion page links are always /lol/champions/{name}/... */
+    private static final By PAGE_HEADING = By.cssSelector("h1");
+    /**
+     * Stable URL-based selector — champion page links are always /lol/champions/{name}/...
+     */
     private static final By CHAMPION_CARDS = By.cssSelector("a[href*='/lol/champions/']");
-    /** Actual placeholder confirmed: "Game Name #Tag or Champion" */
-    private static final By SEARCH_INPUT   = By.cssSelector("input[placeholder*='Game Name'], input[placeholder*='Champion']");
-    /** Tier list links — present in page nav and in-page section */
+    /**
+     * Actual placeholder confirmed: "Game Name #Tag or Champion"
+     */
+    private static final By SEARCH_INPUT = By.cssSelector("input[placeholder*='Game Name'], input[placeholder*='Champion']");
+    /**
+     * Tier list links — present in page nav and in-page section
+     */
     private static final By TIER_LIST_SECTION = By.cssSelector("a[href*='tier-list']");
-    /** Champion build links — present as featured content */
-    private static final By BUILDS_SECTION    = By.cssSelector("a[href*='/lol/champions/'][href*='build'], a[href*='/lol/build']");
+    /**
+     * Champion build links — present as featured content
+     */
+    private static final By BUILDS_SECTION = By.cssSelector("a[href*='/lol/champions/'][href*='build'], a[href*='/lol/build']");
 
     // ── Constructor ──────────────────────────────────────────────────────────
 

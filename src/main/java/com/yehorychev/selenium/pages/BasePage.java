@@ -17,24 +17,24 @@ import java.util.List;
 
 /**
  * Abstract base class for all Page Objects.
- *
+ * <p>
  * Every concrete page extends BasePage and gets:
- *   - Pre-configured WebDriverWait with the default timeout
- *   - Reusable helpers: click, type, getText, isVisible, isPresent
- *   - Navigation utilities: open, waitForUrl, getTitle, getCurrentUrl
- *   - JavaScript shortcuts: scrollIntoView, jsClick
- *
+ * - Pre-configured WebDriverWait with the default timeout
+ * - Reusable helpers: click, type, getText, isVisible, isPresent
+ * - Navigation utilities: open, waitForUrl, getTitle, getCurrentUrl
+ * - JavaScript shortcuts: scrollIntoView, jsClick
+ * <p>
  * Usage:
- *   public class LoginPage extends BasePage {
- *       private final By emailInput = By.id("email");
- *
- *       public LoginPage(WebDriver driver) { super(driver); }
- *
- *       public void login(String email, String password) {
- *           type(emailInput, email);
- *           click(By.id("submit"));
- *       }
- *   }
+ * public class LoginPage extends BasePage {
+ * private final By emailInput = By.id("email");
+ * <p>
+ * public LoginPage(WebDriver driver) { super(driver); }
+ * <p>
+ * public void login(String email, String password) {
+ * type(emailInput, email);
+ * click(By.id("submit"));
+ * }
+ * }
  */
 public abstract class BasePage {
 
@@ -394,7 +394,7 @@ public abstract class BasePage {
      *
      * @param urlPattern expected URL substring or regex fragment
      * @throws com.yehorychev.selenium.errors.NavigationException if URL doesn't match
-     * @throws PageLoadException if getCurrentUrl() returns null (page failed to load)
+     * @throws PageLoadException                                  if getCurrentUrl() returns null (page failed to load)
      */
     public void assertNavigatesTo(String urlPattern) {
         String currentUrl = getCurrentUrl();

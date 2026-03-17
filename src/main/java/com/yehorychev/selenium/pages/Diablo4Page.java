@@ -6,26 +6,28 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * Page Object for the Diablo 4 section.
- *
+ * <p>
  * Represents the Diablo 4-specific page with character classes, builds,
  * season content, and item guides.
- *
+ * <p>
  * Usage:
- *   Diablo4Page d4Page = new Diablo4Page(driverContext.getDriver());
- *   d4Page.open();
- *   assertTrue(d4Page.isLoaded());
- *   d4Page.searchBuilds("Necromancer");
+ * Diablo4Page d4Page = new Diablo4Page(driverContext.getDriver());
+ * d4Page.open();
+ * assertTrue(d4Page.isLoaded());
+ * d4Page.searchBuilds("Necromancer");
  */
 public class Diablo4Page extends BasePage {
 
     // ── Selectors ─────────────────────────────────────────────────────────────
 
-    private static final By PAGE_HEADING    = By.cssSelector("h1");
-    private static final By SEARCH_INPUT    = By.cssSelector("input[type='search'], input[placeholder*='Search']");
-    /** Stable text-based locator — game sub-pages use hashed CSS classes. */
-    private static final By BUILDS_SECTION  = By.xpath("//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'build')]");
-    private static final By GUIDES_SECTION  = By.xpath("//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'guide')]");
-    private static final By BUILD_CARDS     = By.cssSelector("[class*='build-card'], [data-testid='build-card'], article");
+    private static final By PAGE_HEADING = By.cssSelector("h1");
+    private static final By SEARCH_INPUT = By.cssSelector("input[type='search'], input[placeholder*='Search']");
+    /**
+     * Stable text-based locator — game sub-pages use hashed CSS classes.
+     */
+    private static final By BUILDS_SECTION = By.xpath("//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'build')]");
+    private static final By GUIDES_SECTION = By.xpath("//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'guide')]");
+    private static final By BUILD_CARDS = By.cssSelector("[class*='build-card'], [data-testid='build-card'], article");
 
     // ── Constructor ──────────────────────────────────────────────────────────
 

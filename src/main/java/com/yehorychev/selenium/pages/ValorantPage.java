@@ -6,37 +6,37 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * Page Object for the Valorant section.
- *
+ * <p>
  * Represents the Valorant-specific page with agent tier lists,
  * weapon guides, builds, and performance analytics.
- *
+ * <p>
  * Usage:
- *   ValorantPage valorantPage = new ValorantPage(driverContext.getDriver());
- *   valorantPage.open();
- *   assertTrue(valorantPage.isLoaded());
- *   assertTrue(valorantPage.isTierListVisible());
+ * ValorantPage valorantPage = new ValorantPage(driverContext.getDriver());
+ * valorantPage.open();
+ * assertTrue(valorantPage.isLoaded());
+ * assertTrue(valorantPage.isTierListVisible());
  */
 public class ValorantPage extends BasePage {
 
     // ── Selectors ─────────────────────────────────────────────────────────────
 
-    private static final By PAGE_HEADING    = By.cssSelector("h1");
+    private static final By PAGE_HEADING = By.cssSelector("h1");
     /**
      * Search input on /valorant/search — the page Mobalytics redirects to from /valorant.
      * Used for player profile lookup; stable identifier on the player search page.
      */
-    private static final By SEARCH_INPUT    = By.cssSelector(
+    private static final By SEARCH_INPUT = By.cssSelector(
             "input[type='search'], input[type='text'], input[placeholder*='name' i], input[placeholder*='search' i]"
     );
     /**
      * Agent tier-list cards — only present on /valorant when routed to agent analytics pages.
      * Falls back gracefully: if selector returns empty list, count will be 0.
      */
-    private static final By AGENT_CARDS     = By.cssSelector(
+    private static final By AGENT_CARDS = By.cssSelector(
             "[class*='agent-card'], [class*='AgentCard'], [data-testid='agent-card']"
     );
-    private static final By TIER_LIST       = By.cssSelector("[class*='tier-list'], [data-testid='tier-list']");
-    private static final By WEAPON_SECTION  = By.cssSelector(".weapon-section, [data-testid='weapons']");
+    private static final By TIER_LIST = By.cssSelector("[class*='tier-list'], [data-testid='tier-list']");
+    private static final By WEAPON_SECTION = By.cssSelector(".weapon-section, [data-testid='weapons']");
 
     // ── Constructor ──────────────────────────────────────────────────────────
 

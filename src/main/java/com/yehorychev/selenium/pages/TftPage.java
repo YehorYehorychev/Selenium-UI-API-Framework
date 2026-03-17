@@ -6,26 +6,34 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * Page Object for the Teamfight Tactics section.
- *
+ * <p>
  * Selectors confirmed via live DOM inspection on mobalytics.gg/tft:
- *   - Champion links : a[href*="/tft/champions/"] or a[href*="/tft/units/"] — 52 links
- *   - Tier list      : a[href*="/tft/tier-list"] — present
- *   - Team comps     : a[href*="comp"] — 11 links
- *   - Search input   : input[placeholder*="Game Name"]
+ * - Champion links : a[href*="/tft/champions/"] or a[href*="/tft/units/"] — 52 links
+ * - Tier list      : a[href*="/tft/tier-list"] — present
+ * - Team comps     : a[href*="comp"] — 11 links
+ * - Search input   : input[placeholder*="Game Name"]
  */
 public class TftPage extends BasePage {
 
     // ── Selectors ─────────────────────────────────────────────────────────────
 
-    private static final By PAGE_HEADING  = By.cssSelector("h1");
-    private static final By SEARCH_INPUT  = By.cssSelector("input[placeholder*='Game Name'], input[placeholder*='Search']");
-    /** TFT champion / unit links — stable URL pattern */
+    private static final By PAGE_HEADING = By.cssSelector("h1");
+    private static final By SEARCH_INPUT = By.cssSelector("input[placeholder*='Game Name'], input[placeholder*='Search']");
+    /**
+     * TFT champion / unit links — stable URL pattern
+     */
     private static final By CHAMPION_CARDS = By.cssSelector("a[href*='/tft/champions/'], a[href*='/tft/units/']");
-    /** TFT-specific tier list links */
-    private static final By TIER_LIST     = By.cssSelector("a[href*='/tft/tier-list']");
-    /** Team comp links */
-    private static final By TEAM_COMPS    = By.cssSelector("a[href*='comp']");
-    /** Items section via links */
+    /**
+     * TFT-specific tier list links
+     */
+    private static final By TIER_LIST = By.cssSelector("a[href*='/tft/tier-list']");
+    /**
+     * Team comp links
+     */
+    private static final By TEAM_COMPS = By.cssSelector("a[href*='comp']");
+    /**
+     * Items section via links
+     */
     private static final By ITEMS_SECTION = By.cssSelector("a[href*='/tft/items'], a[href*='/tft/item']");
 
     // ── Constructor ──────────────────────────────────────────────────────────
