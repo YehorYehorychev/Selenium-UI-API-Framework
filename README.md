@@ -48,19 +48,100 @@ The framework follows a 7-layer architecture for separation of concerns:
 ```
 selenium-ui-api/
 ├── src/main/java/com/yehorychev/selenium/
-│   ├── config/          # Configuration classes (DriverConfig, TestConfig)
-│   ├── errors/          # Custom exceptions (FrameworkException, etc.)
-│   ├── helpers/         # Utility helpers (AuthHelper, Logger)
-│   ├── driver/          # WebDriver management (DriverManager)
-│   ├── pages/           # Page Object classes (BasePage, LolPage, etc.)
-│   ├── components/      # Reusable UI components (BaseComponent, NavigationComponent)
-│   ├── data/            # Test data and constants (Tags, GraphqlQueries)
-│   └── utils/           # Utility classes (WaitUtils, ScreenshotUtils)
-├── src/test/java/com/yehorychev/selenium/
-│   ├── context/         # Dependency injection contexts (DriverContext, ApiContext)
-│   ├── hooks/           # Cucumber lifecycle hooks (AuthHooks, DriverHooks)
-│   ├── runner/          # Test runners (CucumberRunner, RetryAnalyzer)
-│   └── steps/           # Step definitions (LolSteps, AuthSteps, etc.)
+│   │
+│   ├── components/                  
+│   │   ├── BaseComponent.java       # Component base class (scoped element lookups)
+│   │   ├── NavigationComponent.java # Header navigation
+│   │   ├── HeroComponent.java       # Hero section
+│   │   ├── FooterComponent.java     # Footer section
+│   │   ├── GameCardsComponent.java  # Game cards grid
+│   │   └── FeaturesComponent.java   # Features section
+│   │
+│   ├── data/
+│   │   ├── TestData.java            # Static test data (Credentials, URLs, UI strings)
+│   │   ├── Tags.java                # Cucumber tags (@smoke, @api, @critical, etc.)
+│   │   └── GraphqlQueries.java      # GraphQL query constants
+│   │
+│   ├── driver/
+│   │   └── DriverManager.java       # ThreadLocal WebDriver lifecycle
+│   │
+│   ├── errors/                       # Layer 1 — Typed exception hierarchy
+│   │   ├── FrameworkException.java   # Base runtime exception (catch-all)
+│   │   ├── PageLoadException.java    # Thrown by BasePage.open() on page-load timeout
+│   │   ├── ElementNotFoundException.java  # Thrown by waitForVisible/waitForPresent on timeout
+│   │   ├── NavigationException.java  # Thrown by assertNavigatesTo(), waitForUrl(), waitForTitle()
+│   │   ├── AuthenticationException.java  # Thrown by AuthHelper on sign-in / sign-out failure
+│   │   ├── ApiException.java         # Thrown on REST/GraphQL call failure
+│   │   └── TestDataException.java    # Thrown when required env var / data is missing
+│   │
+│   ├── helpers/                      # Layer 1 — Core helpers
+│   │   ├── Logger.java               # SLF4J wrapper with step() / info() / debug()
+│   │   └── AuthHelper.java           # GraphQL sign-in + WebDriver cookie injection
+│   │
+│   ├── driver/
+│   │   └── DriverManager.java        # ThreadLocal<WebDriver> lifecycle
+│   │
+│   ├── pages/                        # Layer 2 — Page Object Model
+│   │   ├── BasePage.java             # Abstract base: waits, clicks, assertions, screenshots
+│   │   ├── HomePage.java
+│   │   ├── LoginPage.java
+│   │   ├── LolPage.java
+│   │   ├── Poe2Page.java
+│   │   ├── TftPage.java
+│   │   ├── ValorantPage.java
+│   │   └── Diablo4Page.java
+│   │
+│   ├── components/                   # Layer 3 — Component Pattern
+│   │   ├── BaseComponent.java        # Abstract base: scoped element lookups, short/long waits
+│   │   ├── NavigationComponent.java  # Header navigation — game links, logo, sign-in button
+│   │   ├── HeroComponent.java        # Hero section
+│   │   ├── GameCardsComponent.java   # Game cards grid
+│   │   ├── FeaturesComponent.java    # Features section
+│   │   └── FooterComponent.java      # Footer
+│   │
+│   ├── data/                         # Layer 4 — Test Data
+│   │   ├── TestData.java             # Credentials, URL patterns, UI strings, timeouts
+│   │   ├── Tags.java                 # Cucumber tag constants (@smoke, @api, @critical…)
+│   │   └── GraphqlQueries.java       # GraphQL query / mutation strings
+│   │
+│   └── utils/
+│       ├── WaitUtils.java            # Fluent waits, retry, polling — typed errors on timeout
+│       ├── ScreenshotUtils.java      # AShot: viewport / full-page / element + Allure attach
+│       └── TestDataUtils.java        # Faker-based random data generators
+│
+├── src/main/resources/
+│   └── config.properties             # Fallback configuration values
+│
+├── src/test/java/yehorychev/selenium/
+│   ├── context/                      
+│   │   ├── DriverContext.java        # WebDriver lifecycle + thread-local access
+│   │   ├── ApiContext.java           # RestAssured wrapper
+│   │   └── ScenarioContext.java      # Cross-step state storage
+│   │
+│   ├── hooks/                        
+│   │   ├── DriverHooks.java          # @Before/@After — driver start/quit + failure screenshot
+│   │   ├── ApiHooks.java             # @Before/@After("@api") — RestAssured init/reset
+│   │   ├── AuthHooks.java            # @Before("@authenticated") — sign-in + cookie inject
+│   │   ├── RetryHook.java            # @Before/@After — retry attempt tracking + Allure flaky labels
+│   │   └── AllureEnvironmentHook.java  # @BeforeAll — writes environment.properties to allure-results
+│   │
+│   ├── steps/                        # Layer 7 — Step Definitions
+│   │   ├── CommonSteps.java          # Shared: open homepage, URL/title assertions
+│   │   ├── HomePageSteps.java        # Homepage-specific steps
+│   │   ├── LoginSteps.java           # Login page steps
+│   │   ├── LolSteps.java             # LoL page steps
+│   │   ├── Poe2Steps.java            # PoE2 page steps
+│   │   ├── TftSteps.java             # TFT page steps
+│   │   ├── ValorantSteps.java        # Valorant page steps
+│   │   ├── Diablo4Steps.java         # Diablo 4 page steps
+│   │   ├── NavigationSteps.java      # Navigation component steps
+│   │   ├── ApiSteps.java             # REST/GraphQL assertion steps
+│   │   └── AuthSteps.java            # Sign-in / sign-out steps
+│   │
+│   └── runner/
+│       ├── CucumberRunner.java       # TestNG + Cucumber runner (parallel, retry wired)
+│       └── RetryAnalyzer.java        # TestNG IRetryAnalyzer — re-runs failures up to RETRY_COUNT
+│
 └── src/test/resources/
     ├── features/        # Cucumber feature files (ui/, api/, e2e/)
     ├── config.properties # Default config values
