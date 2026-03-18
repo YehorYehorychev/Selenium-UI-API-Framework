@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Overwatch game page.
- *
- * Covers: page load, stadium builds section, hero links count, sign-in button.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Overwatch")
 @Story("Overwatch Page")
 public class OverwatchSteps {
@@ -24,8 +18,6 @@ public class OverwatchSteps {
     public OverwatchSteps(DriverContext driverContext) {
         this.overwatchPage = new OverwatchPage(driverContext.getDriver());
     }
-
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the Overwatch page")
     public void iOpenTheOverwatchPage() {
@@ -45,8 +37,6 @@ public class OverwatchSteps {
                 "Expected Overwatch heading to contain \"" + expected + "\" but was: \"" + actual + "\""
         );
     }
-
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the Overwatch stadium builds section should be visible")
     public void theOverwatchStadiumBuildsSectionShouldBeVisible() {
@@ -73,4 +63,3 @@ public class OverwatchSteps {
         );
     }
 }
-

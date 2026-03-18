@@ -10,12 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Teamfight Tactics page.
- *
- * Covers: page load, champion search, tier list, team comps sections.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Teamfight Tactics")
 @Story("TFT Page")
 public class TftSteps {
@@ -25,8 +19,6 @@ public class TftSteps {
     public TftSteps(DriverContext driverContext) {
         this.tftPage = new TftPage(driverContext.getDriver());
     }
-
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the TFT page")
     public void iOpenTheTftPage() {
@@ -47,8 +39,6 @@ public class TftSteps {
         );
     }
 
-    // ── Champion search ───────────────────────────────────────────────────────
-
     @When("I search for TFT champion {string}")
     public void iSearchForTftChampion(String championName) {
         tftPage.searchChampion(championName);
@@ -62,8 +52,6 @@ public class TftSteps {
                 "Expected at least " + minCount + " TFT champion cards but found: " + actual
         );
     }
-
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the TFT tier list section should be visible")
     public void theTftTierListSectionShouldBeVisible() {
@@ -80,4 +68,3 @@ public class TftSteps {
         assertTrue(tftPage.isItemsSectionVisible(), "Expected the TFT items section to be visible");
     }
 }
-

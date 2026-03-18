@@ -10,12 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the LoL Champions list page.
- *
- * Covers: page load, champion count, search field, and individual champion links.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — League of Legends")
 @Story("LoL Champions List")
 public class LolChampionsSteps {
@@ -26,7 +20,6 @@ public class LolChampionsSteps {
         this.championsPage = new LolChampionsPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the LoL Champions page")
     public void iOpenTheLolChampionsPage() {
@@ -47,7 +40,6 @@ public class LolChampionsSteps {
         );
     }
 
-    // ── Champion count ────────────────────────────────────────────────────────
 
     @Then("there should be at least {int} champions listed on the LoL Champions page")
     public void thereShouldBeAtLeastChampionsListed(int minCount) {
@@ -58,7 +50,6 @@ public class LolChampionsSteps {
         );
     }
 
-    // ── Search ────────────────────────────────────────────────────────────────
 
     @Then("the LoL Champions search input should be visible")
     public void theLolChampionsSearchInputShouldBeVisible() {
@@ -73,7 +64,6 @@ public class LolChampionsSteps {
         championsPage.searchChampion(championName);
     }
 
-    // ── Champion-specific ─────────────────────────────────────────────────────
 
     @Then("champion {string} should be present on the LoL Champions page")
     public void championShouldBePresentOnLolChampionsPage(String championSlug) {

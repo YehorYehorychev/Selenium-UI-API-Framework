@@ -10,13 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the LoL Tier List page.
- *
- * Covers: page load, champion link presence, methodology section,
- * patch info, and filter interaction.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — League of Legends")
 @Story("LoL Tier List")
 public class LolTierListSteps {
@@ -27,7 +20,6 @@ public class LolTierListSteps {
         this.tierListPage = new LolTierListPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the LoL Tier List page")
     public void iOpenTheLolTierListPage() {
@@ -48,7 +40,6 @@ public class LolTierListSteps {
         );
     }
 
-    // ── Content ───────────────────────────────────────────────────────────────
 
     @Then("there should be at least {int} champion links on the LoL Tier List")
     public void thereShouldBeAtLeastChampionLinksOnLolTierList(int minCount) {

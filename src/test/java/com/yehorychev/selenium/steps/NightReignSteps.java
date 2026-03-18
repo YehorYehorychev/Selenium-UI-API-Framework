@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Elden Ring Nightreign page.
- *
- * Covers: page load, Nightfarers/Nightlords sections, builds/guides sections, content links.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Elden Ring Nightreign")
 @Story("Nightreign Page")
 public class NightReignSteps {
@@ -25,7 +19,6 @@ public class NightReignSteps {
         this.nightReignPage = new NightReignPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the Nightreign page")
     public void iOpenTheNightReignPage() {
@@ -46,7 +39,6 @@ public class NightReignSteps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the Nightreign Nightfarers section should be visible")
     public void theNightReignNightfarersSectionShouldBeVisible() {

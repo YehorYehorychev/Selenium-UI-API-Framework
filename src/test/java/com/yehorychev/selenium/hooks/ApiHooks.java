@@ -11,35 +11,12 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import org.slf4j.MDC;
 
 /**
- * API lifecycle hooks — manages global RestAssured state for @api-tagged scenarios.
- *
- * Responsibilities:
- *   - @Before("@api", order=1) — configure RestAssured base URI and logging filters
- *   - @After("@api",  order=5) — reset RestAssured global state between scenarios
- *
- * Per-scenario ApiContext is managed by PicoContainer independently —
- * inject it directly in step definitions, not here.
- *
- * Hook order relative to DriverHooks:
- *   Before "not @api" order=0 — DriverHooks.setUp       (UI only)
- *   Before "@api"     order=1 — ApiHooks.setUpApi        (this class)
- *   After  "@api"     order=5 — ApiHooks.tearDownApi     (this class)
- *   After  "not @api" order=10 — DriverHooks.captureFailure (UI only)
- *   After  "not @api" order=0  — DriverHooks.tearDown    (UI only)
+ * API lifecycle hooks — configures RestAssured before @api scenarios and resets it after.
  */
 public class ApiHooks {
 
     private static final Logger log = new Logger(ApiHooks.class);
 
-    // ── Before ───────────────────────────────────────────────────────────────
-
-    /**
-     * Fires before each @api-tagged scenario.
-     * Sets RestAssured global baseline (base URI, logging) so every request
-     * uses the correct environment config without per-request setup in steps.
-     *
-     * @param scenario Cucumber Scenario metadata
-     */
     @Before(value = "@api", order = 1)
     public void setUpApi(Scenario scenario) {
         MDC.put("scenario", scenario.getName());
@@ -49,9 +26,7 @@ public class ApiHooks {
         RestAssured.baseURI = TestConfig.API_BASE_URL;
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 
-        // Verbose request/response logging when running non-headless (local debug).
-        // replaceFiltersWith() guarantees exactly one logging pair even when @Before of
-        // scenario N+1 runs before @After of scenario N in a parallel suite.
+        // Verbose logging in non-headless (local debug) mode
         if (!TestConfig.HEADLESS) {
             RestAssured.replaceFiltersWith(new RequestLoggingFilter(), new ResponseLoggingFilter());
         }
@@ -59,15 +34,6 @@ public class ApiHooks {
         log.info("RestAssured ready — baseURI: " + TestConfig.API_BASE_URL);
     }
 
-    // ── After ─────────────────────────────────────────────────────────────────
-
-    /**
-     * Fires after each @api-tagged scenario.
-     * Resets all global RestAssured config (base URI, filters, auth)
-     * to prevent cross-scenario pollution.
-     *
-     * @param scenario Cucumber Scenario metadata
-     */
     @After(value = "@api", order = 5)
     public void tearDownApi(Scenario scenario) {
         log.step("■ [API] Resetting RestAssured after scenario: "
@@ -76,4 +42,3 @@ public class ApiHooks {
         MDC.clear();
     }
 }
-

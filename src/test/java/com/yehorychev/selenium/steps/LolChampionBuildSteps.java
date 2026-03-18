@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for individual LoL Champion Build pages.
- *
- * Covers: page load, builds/runes/matchups section presence, counter links.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — League of Legends")
 @Story("LoL Champion Build Pages")
 public class LolChampionBuildSteps {
@@ -24,8 +18,6 @@ public class LolChampionBuildSteps {
     public LolChampionBuildSteps(DriverContext driverContext) {
         this.championBuildPage = new LolChampionBuildPage(driverContext.getDriver());
     }
-
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the build page for champion {string}")
     public void iOpenTheBuildPageForChampion(String championSlug) {
@@ -45,8 +37,6 @@ public class LolChampionBuildSteps {
                 "Expected champion build heading to contain \"" + expected + "\" but was: \"" + actual + "\""
         );
     }
-
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the champion builds section should be present")
     public void theChampionBuildsSectionShouldBePresent() {
@@ -72,8 +62,6 @@ public class LolChampionBuildSteps {
         );
     }
 
-    // ── Links ─────────────────────────────────────────────────────────────────
-
     @Then("there should be at least {int} counter links on the champion build page")
     public void thereShouldBeAtLeastCounterLinksOnBuildPage(int minCount) {
         int actual = championBuildPage.getCounterLinkCount();
@@ -92,4 +80,3 @@ public class LolChampionBuildSteps {
         );
     }
 }
-

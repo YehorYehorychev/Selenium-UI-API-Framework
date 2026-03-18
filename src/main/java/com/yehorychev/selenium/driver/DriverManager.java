@@ -5,35 +5,16 @@ import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.WebDriver;
 
 /**
- * Thread-safe WebDriver registry.
- * Each test thread owns its own WebDriver instance stored in a ThreadLocal.
- * This makes the class safe for parallel execution with no synchronization overhead.
- * Lifecycle:
- * DriverManager.initDriver();          // before test
- * WebDriver driver = DriverManager.getDriver(); // inside test / page object
- * DriverManager.quitDriver();          // after test
+ * Thread-safe WebDriver registry using ThreadLocal — each test thread owns its own instance.
  */
 public final class DriverManager {
 
     private static final Logger log = new Logger(DriverManager.class);
-
-    /**
-     * One WebDriver instance per thread.
-     */
     private static final ThreadLocal<WebDriver> DRIVER_THREAD_LOCAL = new ThreadLocal<>();
 
-    /**
-     * Not instantiable — all members are static.
-     */
     private DriverManager() {
     }
 
-    // ── Lifecycle ───────────────────────────────────────────────────────────
-
-    /**
-     * Creates a new WebDriver using DriverConfig and binds it to the current thread.
-     * If a driver is already running on this thread, it is quit first to avoid leaking browser processes.
-     */
     public static void initDriver() {
         if (DRIVER_THREAD_LOCAL.get() != null) {
             log.warn("Driver already initialised on this thread — quitting old instance first.");
@@ -45,11 +26,6 @@ public final class DriverManager {
         log.info("WebDriver ready", driver.getClass().getSimpleName());
     }
 
-    /**
-     * Initialises a WebDriver for the specified browser on the current thread.
-     *
-     * @param browser chrome | firefox | edge
-     */
     public static void initDriver(String browser) {
         if (DRIVER_THREAD_LOCAL.get() != null) {
             log.warn("Driver already initialised on this thread — quitting old instance first.");
@@ -61,14 +37,6 @@ public final class DriverManager {
         log.info("WebDriver ready", driver.getClass().getSimpleName());
     }
 
-    // ── Accessors ────────────────────────────────────────────────────────────
-
-    /**
-     * Returns the WebDriver bound to the current thread.
-     *
-     * @return active WebDriver instance
-     * @throws IllegalStateException if initDriver() has not been called on this thread
-     */
     public static WebDriver getDriver() {
         WebDriver driver = DRIVER_THREAD_LOCAL.get();
         if (driver == null) {
@@ -80,21 +48,10 @@ public final class DriverManager {
         return driver;
     }
 
-    /**
-     * Returns true if a driver is currently active on this thread.
-     *
-     * @return whether the driver is initialised
-     */
     public static boolean isDriverInitialised() {
         return DRIVER_THREAD_LOCAL.get() != null;
     }
 
-    // ── Teardown ─────────────────────────────────────────────────────────────
-
-    /**
-     * Quits the WebDriver on the current thread and removes it from the ThreadLocal
-     * to prevent memory leaks. Safe to call even if no driver is active (no-op).
-     */
     public static void quitDriver() {
         WebDriver driver = DRIVER_THREAD_LOCAL.get();
         if (driver != null) {
@@ -109,4 +66,3 @@ public final class DriverManager {
         }
     }
 }
-

@@ -11,14 +11,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Login / Sign-in page.
- *
- * Covers: page load, credential entry, form submission, error feedback,
- * and post-login authenticated state verification.
- *
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Authentication")
 @Story("Login Page")
 public class LoginSteps {
@@ -29,7 +21,6 @@ public class LoginSteps {
         this.loginPage = new LoginPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the login page")
     public void iOpenTheLoginPage() {
@@ -41,7 +32,6 @@ public class LoginSteps {
         assertTrue(loginPage.isLoaded(), "Expected the login page email input to be visible");
     }
 
-    // ── Credential entry ──────────────────────────────────────────────────────
 
     @When("I enter email {string} and password {string}")
     public void iEnterEmailAndPassword(String email, String password) {
@@ -59,7 +49,6 @@ public class LoginSteps {
         loginPage.login(TestData.Credentials.LOGIN, TestData.Credentials.PASSWORD);
     }
 
-    // ── Assertions ────────────────────────────────────────────────────────────
 
     @Then("I should be logged in")
     public void iShouldBeLoggedIn() {

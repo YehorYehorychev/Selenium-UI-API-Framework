@@ -10,12 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Valorant page.
- *
- * Covers: page load, agent tier list, weapon section.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Valorant")
 @Story("Valorant Page")
 public class ValorantSteps {
@@ -26,7 +20,6 @@ public class ValorantSteps {
         this.valorantPage = new ValorantPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the Valorant page")
     public void iOpenTheValorantPage() {
@@ -47,7 +40,6 @@ public class ValorantSteps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the Valorant tier list section should be visible")
     public void theValorantTierListSectionShouldBeVisible() {
@@ -59,7 +51,6 @@ public class ValorantSteps {
         assertTrue(valorantPage.isWeaponSectionVisible(), "Expected the Valorant weapon section to be visible");
     }
 
-    // ── Search ────────────────────────────────────────────────────────────────
 
     @When("I search in Valorant page for {string}")
     public void iSearchInValorantPageFor(String keyword) {
