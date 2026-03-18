@@ -107,4 +107,5 @@ logs/
 # not meant to be committed to the repo
 # ──────────────────────────────────────────────
 FRAMEWORK_IMPROVEMENT_PLAN.md
+AGENTS.md
 

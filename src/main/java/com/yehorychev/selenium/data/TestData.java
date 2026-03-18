@@ -79,8 +79,24 @@ public final class TestData {
         public static final String LOL = "/lol";
         public static final String TFT = "/tft";
         public static final String VALORANT = "/valorant";
-        public static final String DIABLO4  = "/diablo-4";
+        public static final String DIABLO4 = "/diablo-4";
         public static final String POE2 = "/poe-2";
+
+        // New game page paths
+        public static final String DEADLOCK = "/deadlock";
+        public static final String MHW = "/mhw";
+        public static final String BORDERLANDS4 = "/borderlands-4";
+        public static final String NIGHTREIGN = "/elden-ring-nightreign";
+        public static final String OVERWATCH = "/overwatch";
+
+        // LoL sub-pages
+        public static final String LOL_TIER_LIST = "/lol/tier-list";
+        public static final String LOL_CHAMPIONS = "/lol/champions";
+        public static final String LOL_SUMMONER_SEARCH = "/lol/summoner-search";
+
+        // TFT sub-pages
+        public static final String TFT_TIER_LIST = "/tft/tier-list";
+        public static final String TFT_TEAM_COMPS = "/tft/team-comps";
 
         // API endpoints
         public static final String API_LOGIN = "/api/auth/login";
@@ -107,6 +123,18 @@ public final class TestData {
         public static final String VALORANT_HEADING = "Valorant";
         public static final String DIABLO4_HEADING = "Diablo";
         public static final String POE2_HEADING = "Exile";
+
+        // New game heading fragments
+        public static final String DEADLOCK_HEADING = "Deadlock";
+        public static final String MHW_HEADING = "Wilds";
+        public static final String BORDERLANDS4_HEADING = "Borderlands";
+        public static final String NIGHTREIGN_HEADING = "Nightreign";
+        public static final String OVERWATCH_HEADING = "Overwatch";
+
+        // LoL sub-page heading fragments
+        public static final String LOL_TIER_LIST_HEADING = "Tier List";
+        public static final String LOL_CHAMPIONS_HEADING = "Champions";
+        public static final String TFT_TIER_LIST_HEADING = "Tier";
 
         public static final String WELCOME_MESSAGE = "Welcome";
         public static final String ERROR_INVALID_LOGIN = "Invalid username or password";
