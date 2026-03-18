@@ -21,10 +21,15 @@ Feature: Site Navigation
     Then the navigation should contain game link "<game>"
 
     Examples:
-      | game |
-      | LoL  |
-      | TFT  |
-      | PoE2 |
+      | game          |
+      | LoL           |
+      | TFT           |
+      | PoE2          |
+      | Diablo 4      |
+      | Borderlands 4 |
+      | Nightreign    |
+      | Deadlock      |
+      | MH Wilds      |
 
   @regression @ui @navigation
   Scenario Outline: Clicking a game link navigates to the correct URL
@@ -32,7 +37,12 @@ Feature: Site Navigation
     Then the current URL should contain "<urlFragment>"
 
     Examples:
-      | game | urlFragment |
-      | LoL  | /lol        |
-      | TFT  | /tft        |
-      | PoE2 | poe         |
+      | game          | urlFragment         |
+      | LoL           | /lol                |
+      | TFT           | /tft                |
+      | PoE2          | poe                 |
+      | Diablo 4      | diablo-4            |
+      | Borderlands 4 | borderlands-4       |
+      | Nightreign    | elden-ring-nightreign |
+      | Deadlock      | deadlock            |
+      | MH Wilds      | /mhw                |
