@@ -3,102 +3,52 @@ package com.yehorychev.selenium.data;
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.errors.TestDataException;
 
-/**
- * Central repository for test data constants and environment-backed credentials.
- * Contains nested static classes:
- * - Credentials  — login/password from env vars; use areConfigured() before accessing
- * - UrlPatterns  — page paths and API endpoint constants
- * - UiStrings    — expected text labels and page titles for assertions
- * - Timeouts     — scenario-specific timeouts supplementing TestConfig
- * Usage:
- * String login   = TestData.Credentials.LOGIN;
- * String title   = TestData.UiStrings.HOME_PAGE_TITLE;
- * String apiUrl  = TestData.UrlPatterns.API_LOGIN;
- * String envVal  = TestData.requireEnv("MY_VAR");
- */
 public final class TestData {
 
     private TestData() {
     }
 
-    // ── Credentials ───────────────────────────────────────────────────────────
-
-    /**
-     * Test user credentials — sourced from environment variables or .env file.
-     * Values are null if the env vars are not set — use areConfigured() to check.
-     */
     public static final class Credentials {
 
-        /**
-         * Primary test user login / email. Required for AuthHelper.
-         */
         public static final String LOGIN = TestConfig.USER_LOGIN;
-
-        /**
-         * Primary test user password. Required for AuthHelper.
-         */
         public static final String PASSWORD = TestConfig.USER_PASSWORD;
-
-        /**
-         * Admin user login (optional) — sourced via TestConfig resolution chain.
-         */
         public static final String ADMIN_LOGIN = TestConfig.ADMIN_USER_LOGIN;
-
-        /**
-         * Admin user password (optional) — sourced via TestConfig resolution chain.
-         */
         public static final String ADMIN_PASSWORD = TestConfig.ADMIN_USER_PASSWORD;
 
         private Credentials() {
         }
 
-        /**
-         * Returns true if both LOGIN and PASSWORD are non-null and non-blank.
-         * Use to conditionally skip auth-dependent tests when credentials are absent.
-         *
-         * @return true if primary credentials are configured
-         */
         public static boolean areConfigured() {
             return LOGIN != null && !LOGIN.isBlank()
                     && PASSWORD != null && !PASSWORD.isBlank();
         }
     }
 
-    // ── URL patterns ──────────────────────────────────────────────────────────
-
-    /**
-     * URL fragments and endpoint paths used in navigation and assertions.
-     */
     public static final class UrlPatterns {
         public static final String HOME = "/";
         public static final String LOGIN = "/login";
         public static final String DASHBOARD = "/dashboard";
         public static final String PROFILE = "/profile";
 
-        // Game page paths
         public static final String LOL = "/lol";
         public static final String TFT = "/tft";
         public static final String VALORANT = "/valorant";
         public static final String DIABLO4 = "/diablo-4";
         public static final String POE2 = "/poe-2";
 
-        // New game page paths
         public static final String DEADLOCK = "/deadlock";
         public static final String MHW = "/mhw";
         public static final String BORDERLANDS4 = "/borderlands-4";
         public static final String NIGHTREIGN = "/elden-ring-nightreign";
         public static final String OVERWATCH = "/overwatch";
 
-        // LoL sub-pages
         public static final String LOL_TIER_LIST = "/lol/tier-list";
         public static final String LOL_CHAMPIONS = "/lol/champions";
         public static final String LOL_SUMMONER_SEARCH = "/lol/summoner-search";
 
-        // TFT sub-pages
         public static final String TFT_TIER_LIST = "/tft/tier-list";
         public static final String TFT_TEAM_COMPS = "/tft/team-comps";
 
-        // API endpoints
         public static final String API_LOGIN = "/api/auth/login";
         public static final String API_GRAPHQL = "/api/graphql/v1/query";
         public static final String API_LOGOUT = "/api/auth/logout";
@@ -107,31 +57,23 @@ public final class TestData {
         }
     }
 
-    // ── UI strings ────────────────────────────────────────────────────────────
-
-    /**
-     * Expected text labels, titles and messages used for assertions.
-     */
     public static final class UiStrings {
         public static final String HOME_PAGE_TITLE = "Mobalytics";
         public static final String LOGIN_PAGE_TITLE = "Sign In";
         public static final String DASHBOARD_PAGE_TITLE = "Dashboard";
 
-        // Game page heading fragments
         public static final String LOL_HEADING = "League";
         public static final String TFT_HEADING = "Teamfight";
         public static final String VALORANT_HEADING = "Valorant";
         public static final String DIABLO4_HEADING = "Diablo";
         public static final String POE2_HEADING = "Exile";
 
-        // New game heading fragments
         public static final String DEADLOCK_HEADING = "Deadlock";
         public static final String MHW_HEADING = "Wilds";
         public static final String BORDERLANDS4_HEADING = "Borderlands";
         public static final String NIGHTREIGN_HEADING = "Nightreign";
         public static final String OVERWATCH_HEADING = "Overwatch";
 
-        // LoL sub-page heading fragments
         public static final String LOL_TIER_LIST_HEADING = "Tier List";
         public static final String LOL_CHAMPIONS_HEADING = "Champions";
         public static final String TFT_TIER_LIST_HEADING = "Tier";
@@ -144,57 +86,16 @@ public final class TestData {
         }
     }
 
-    // ── Timeouts ──────────────────────────────────────────────────────────────
-
-    /**
-     * Special timeouts for specific scenarios (supplementing TestConfig).
-     */
     public static final class Timeouts {
-        /**
-         * Timeout for animations / transitions (milliseconds).
-         */
         public static final long ANIMATION_MS = 1000;
-
-        /**
-         * Timeout for file uploads (milliseconds).
-         */
         public static final long FILE_UPLOAD_MS = 30_000;
-
-        /**
-         * Timeout for slow GraphQL queries (milliseconds).
-         */
         public static final long GRAPHQL_SLOW_MS = 20_000;
-
-        /**
-         * Short wait for UI debounce (milliseconds).
-         */
         public static final long DEBOUNCE_MS = 500;
 
         private Timeouts() {
         }
     }
 
-    // ── Utilities ─────────────────────────────────────────────────────────────
-
-    /**
-     * Retrieves an environment variable without throwing. Returns null if not set.
-     * Use this for optional configuration values.
-     *
-     * @param key environment variable name
-     * @return the variable value, or null if not set
-     */
-    private static String getEnv(String key) {
-        return System.getenv(key);
-    }
-
-    /**
-     * Retrieves an environment variable and throws TestDataException if missing or blank.
-     * Use this for required config values that must be present at runtime.
-     *
-     * @param key environment variable name
-     * @return the variable value (guaranteed non-null, non-blank)
-     * @throws TestDataException if the variable is absent or empty
-     */
     public static String requireEnv(String key) {
         String value = System.getenv(key);
         if (value == null || value.isBlank()) {

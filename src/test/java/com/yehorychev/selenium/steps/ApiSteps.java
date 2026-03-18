@@ -16,14 +16,6 @@ import java.util.Map;
 
 import static org.testng.Assert.*;
 
-/**
- * Step definitions for REST and GraphQL API tests.
- *
- * Stores the last API response in ScenarioContext under key "lastResponse"
- * so assertion steps can access it without coupling to specific endpoints.
- *
- * PicoContainer injects ApiContext and ScenarioContext per-scenario.
- */
 @Feature("API — GraphQL & REST")
 @Story("API Requests & Assertions")
 public class ApiSteps {
@@ -39,8 +31,6 @@ public class ApiSteps {
         this.scenarioContext = scenarioContext;
     }
 
-    // ── Generic HTTP steps ────────────────────────────────────────────────────
-
     @When("I send a GET request to {string}")
     public void iSendAGetRequestTo(String endpoint) {
         Response response = api.get(endpoint);
@@ -54,8 +44,6 @@ public class ApiSteps {
         scenarioContext.set(LAST_RESPONSE, response);
         log.step("POST " + endpoint + " → " + response.getStatusCode());
     }
-
-    // ── GraphQL steps ─────────────────────────────────────────────────────────
 
     @When("I query the current user via GraphQL")
     public void iQueryTheCurrentUserViaGraphQL() {
@@ -73,10 +61,7 @@ public class ApiSteps {
 
     @When("I query summoner stats for {string} in region {string}")
     public void iQuerySummonerStatsFor(String summonerName, String region) {
-        Map<String, Object> variables = Map.of(
-                "summonerName", summonerName,
-                "region", region
-        );
+        Map<String, Object> variables = Map.of("summonerName", summonerName, "region", region);
         Response response = api.graphql(GraphqlQueries.GET_SUMMONER_STATS, variables);
         scenarioContext.set(LAST_RESPONSE, response);
         log.step("GraphQL GetSummonerStats(" + summonerName + ", " + region + ") → " + response.getStatusCode());
@@ -90,36 +75,27 @@ public class ApiSteps {
         log.step("GraphQL GetUserProfile(" + userId + ") → " + response.getStatusCode());
     }
 
-    // ── Response assertions ───────────────────────────────────────────────────
-
     @Then("the response status code should be {int}")
     public void theResponseStatusCodeShouldBe(int expectedStatus) {
         Response response = scenarioContext.get(LAST_RESPONSE);
         assertNotNull(response, "No API response stored — did you call a request step first?");
-        assertEquals(
-                response.getStatusCode(),
-                expectedStatus,
-                "Expected HTTP " + expectedStatus + " but got " + response.getStatusCode()
-        );
+        assertEquals(response.getStatusCode(), expectedStatus,
+                "Expected HTTP " + expectedStatus + " but got " + response.getStatusCode());
     }
 
     @Then("the response body should contain {string}")
     public void theResponseBodyShouldContain(String expected) {
         Response response = scenarioContext.get(LAST_RESPONSE);
         assertNotNull(response, "No API response stored");
-        assertTrue(
-                response.getBody().asString().contains(expected),
-                "Expected response body to contain \"" + expected
-                        + "\" but body was:\n" + response.getBody().asString()
-        );
+        assertTrue(response.getBody().asString().contains(expected),
+                "Expected response body to contain \"" + expected + "\" but body was:\n" + response.getBody().asString());
     }
 
     @Then("the response JSON path {string} should not be null")
     public void theResponseJsonPathShouldNotBeNull(String jsonPath) {
         Response response = scenarioContext.get(LAST_RESPONSE);
         assertNotNull(response, "No API response stored");
-        Object value = response.jsonPath().get(jsonPath);
-        assertNotNull(value, "Expected JSON path \"" + jsonPath + "\" to be non-null");
+        assertNotNull(response.jsonPath().get(jsonPath), "Expected JSON path \"" + jsonPath + "\" to be non-null");
     }
 
     @Then("the response JSON path {string} should equal {string}")
@@ -128,8 +104,7 @@ public class ApiSteps {
         assertNotNull(response, "No API response stored");
         String actual = response.jsonPath().getString(jsonPath);
         assertEquals(actual, expected,
-                "Expected JSON path \"" + jsonPath + "\" = \"" + expected
-                        + "\" but was \"" + actual + "\"");
+                "Expected JSON path \"" + jsonPath + "\" = \"" + expected + "\" but was \"" + actual + "\"");
     }
 
     @And("I save response JSON path {string} as {string}")
@@ -140,8 +115,6 @@ public class ApiSteps {
         scenarioContext.set(key, value);
         log.debug("Saved JSON path \"" + jsonPath + "\" as \"" + key + "\": " + value);
     }
-
-    // ── Account query steps ───────────────────────────────────────────────────
 
     @When("I query the current account via GraphQL")
     public void iQueryTheCurrentAccountViaGraphQL() {
@@ -185,12 +158,11 @@ public class ApiSteps {
         Response response = scenarioContext.get(LAST_RESPONSE);
         assertNotNull(response, "No API response stored");
         String body = response.getBody().asString();
-        boolean hasErrors = body.contains("\"errors\"");
+        boolean hasErrors  = body.contains("\"errors\"");
         boolean nullAccount = response.jsonPath().get("data.account") == null;
-        boolean httpError = response.getStatusCode() >= 400;
+        boolean httpError  = response.getStatusCode() >= 400;
         assertTrue(hasErrors || nullAccount || httpError,
                 "Expected unauthenticated request to be rejected (errors/null account/4xx) but body was:\n" + body);
         log.info("Unauthenticated rejection verified");
     }
 }
-

@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Deadlock game page.
- *
- * Covers: page load, heroes section, builds section, content links, sign-in button.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Deadlock")
 @Story("Deadlock Page")
 public class DeadlockSteps {
@@ -25,7 +19,6 @@ public class DeadlockSteps {
         this.deadlockPage = new DeadlockPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the Deadlock page")
     public void iOpenTheDeadlockPage() {
@@ -46,7 +39,6 @@ public class DeadlockSteps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the Deadlock heroes section should be visible")
     public void theDeadlockHeroesSectionShouldBeVisible() {

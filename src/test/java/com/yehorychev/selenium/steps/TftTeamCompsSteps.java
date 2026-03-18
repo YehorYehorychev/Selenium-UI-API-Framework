@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the TFT Team Comps page.
- *
- * Covers: page load, comp card presence, unit links, tier list link.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Teamfight Tactics")
 @Story("TFT Team Comps")
 public class TftTeamCompsSteps {
@@ -25,7 +19,6 @@ public class TftTeamCompsSteps {
         this.teamCompsPage = new TftTeamCompsPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the TFT Team Comps page")
     public void iOpenTheTftTeamCompsPage() {
@@ -46,7 +39,6 @@ public class TftTeamCompsSteps {
         );
     }
 
-    // ── Content checks ────────────────────────────────────────────────────────
 
     @Then("the TFT Team Comps page should have comp cards")
     public void theTftTeamCompsPageShouldHaveCompCards() {

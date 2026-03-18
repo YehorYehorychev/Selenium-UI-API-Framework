@@ -13,41 +13,17 @@ import java.time.Duration;
 
 /**
  * WebDriver factory — creates browser instances for Chrome, Firefox, and Edge.
- * Reads browser type, headless flag, and viewport from TestConfig.
- * Driver binary management is handled automatically by Selenium Manager
- * (bundled with Selenium 4.6+) — no manual downloads or WebDriverManager needed.
- * Usage:
- * WebDriver driver = DriverConfig.createDriver();           // uses TestConfig.BROWSER
- * WebDriver driver = DriverConfig.createDriver("firefox");  // explicit override
- * Supported browsers (case-insensitive): chrome | firefox | edge
+ * Driver binaries are managed automatically by Selenium Manager (Selenium 4.6+).
  */
 public final class DriverConfig {
 
-    /**
-     * Not instantiable — all members are static.
-     */
     private DriverConfig() {
     }
 
-    // ── Public factory methods ──────────────────────────────────────────────
-
-    /**
-     * Creates a WebDriver using the browser defined in TestConfig.
-     *
-     * @return configured and ready-to-use WebDriver instance
-     */
     public static WebDriver createDriver() {
         return createDriver(TestConfig.BROWSER);
     }
 
-    /**
-     * Creates a WebDriver for the requested browser.
-     * Applies headless mode and viewport from TestConfig.
-     *
-     * @param browser target browser: chrome | firefox | edge
-     * @return configured WebDriver instance
-     * @throws IllegalArgumentException if the browser name is not supported
-     */
     public static WebDriver createDriver(String browser) {
         WebDriver driver = switch (browser.toLowerCase().trim()) {
             case "firefox" -> createFirefoxDriver();
@@ -62,8 +38,6 @@ public final class DriverConfig {
         applyTimeouts(driver);
         return driver;
     }
-
-    // ── Browser-specific builders ───────────────────────────────────────────
 
     private static WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
@@ -80,7 +54,6 @@ public final class DriverConfig {
                 "--remote-allow-origins=*",
                 "--window-size=" + TestConfig.VIEWPORT_WIDTH + "," + TestConfig.VIEWPORT_HEIGHT
         );
-
         return new ChromeDriver(options);
     }
 
@@ -93,7 +66,6 @@ public final class DriverConfig {
                 "--width=" + TestConfig.VIEWPORT_WIDTH,
                 "--height=" + TestConfig.VIEWPORT_HEIGHT
         );
-
         return new FirefoxDriver(options);
     }
 
@@ -109,28 +81,17 @@ public final class DriverConfig {
                 "--disable-extensions",
                 "--window-size=" + TestConfig.VIEWPORT_WIDTH + "," + TestConfig.VIEWPORT_HEIGHT
         );
-
         return new EdgeDriver(options);
     }
 
-    // ── Post-creation configuration ─────────────────────────────────────────
-
-    /**
-     * Sets the browser window size to the configured viewport dimensions.
-     * Safety net for drivers that ignore the --window-size CLI argument.
-     */
     private static void applyViewport(WebDriver driver) {
         driver.manage().window()
                 .setSize(new Dimension(TestConfig.VIEWPORT_WIDTH, TestConfig.VIEWPORT_HEIGHT));
     }
 
-    /**
-     * Applies page-load and script timeouts.
-     * Implicit wait is intentionally NOT set here — the framework uses explicit
-     * WebDriverWait throughout, and mixing implicit + explicit waits causes
-     * unpredictable behaviour (e.g. doubled effective timeouts).
-     */
     private static void applyTimeouts(WebDriver driver) {
+        // Implicit wait is intentionally NOT set — mixing implicit + explicit waits
+        // causes unpredictable behavior (e.g. doubled effective timeouts).
         driver.manage().timeouts()
                 .pageLoadTimeout(Duration.ofMillis(TestConfig.NAVIGATION_TIMEOUT_MS))
                 .scriptTimeout(Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));

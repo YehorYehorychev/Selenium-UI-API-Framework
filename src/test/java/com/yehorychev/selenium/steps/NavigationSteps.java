@@ -13,12 +13,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for NavigationComponent-based scenarios.
- *
- * Exercises: logo, game nav links, social links, login button visibility.
- * PicoContainer injects DriverContext and ScenarioContext per-scenario.
- */
 @Feature("UI — Navigation")
 @Story("Header Navigation")
 public class NavigationSteps {
@@ -35,15 +29,11 @@ public class NavigationSteps {
         this.scenarioContext = scenarioContext;
     }
 
-    // ── Page navigation ───────────────────────────────────────────────────────
-
     @When("I navigate to the LoL page")
     public void iNavigateToTheLolPage() {
         log.step("Navigating to LoL page");
         new LolPage(driverContext.getDriver()).open();
     }
-
-    // ── Logo ──────────────────────────────────────────────────────────────────
 
     @Then("the site logo should be visible")
     public void theSiteLogoShouldBeVisible() {
@@ -54,8 +44,6 @@ public class NavigationSteps {
     public void iClickTheSiteLogo() {
         nav.clickLogo();
     }
-
-    // ── Game navigation links ─────────────────────────────────────────────────
 
     @Then("the navigation should contain game link {string}")
     public void theNavigationShouldContainGameLink(String gameName) {
@@ -77,11 +65,8 @@ public class NavigationSteps {
         log.debug("Saved available games list as: " + key);
     }
 
-    // ── Login button ──────────────────────────────────────────────────────────
-
     @Then("the login button should be visible in the navigation")
     public void theLoginButtonShouldBeVisibleInNavigation() {
         assertTrue(nav.isLoginButtonVisible(), "Expected login button to be visible in navigation");
     }
 }
-

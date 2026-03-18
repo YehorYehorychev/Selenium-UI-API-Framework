@@ -19,15 +19,6 @@ import java.util.Map;
 
 import static org.testng.Assert.*;
 
-/**
- * Step definitions for authentication flows — API-based sign-in/sign-out.
- *
- * Auth is cookie-based via GraphQL signIn mutation.
- * All requests go through ApiContext so the session cookie (CookieFilter)
- * is shared across subsequent GraphQL calls within the same scenario.
- *
- * PicoContainer injects DriverContext, ApiContext and ScenarioContext per-scenario.
- */
 @Feature("API — Authentication")
 @Story("Sign-in & Sign-out")
 public class AuthSteps {
@@ -46,15 +37,9 @@ public class AuthSteps {
         this.scenarioContext = scenarioContext;
     }
 
-    // ── API login steps ───────────────────────────────────────────────────────
-
     @Given("I am authenticated via API")
     public void iAmAuthenticatedViaApi() {
         log.step("Authenticating via API using configured test credentials");
-
-        // Sign in through ApiContext so the session cookie is stored in the shared
-        // RestAssured CookieFilter — subsequent api.graphql() calls in this
-        // scenario will automatically include the session cookie.
         Map<String, Object> vars = Map.of(
                 "email", TestData.Credentials.LOGIN,
                 "password", TestData.Credentials.PASSWORD,
@@ -93,8 +78,6 @@ public class AuthSteps {
         scenarioContext.set(AUTH_TOKEN_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
     }
 
-    // ── API logout steps ──────────────────────────────────────────────────────
-
     @When("I log out via API")
     public void iLogOutViaApi() {
         String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
@@ -104,8 +87,6 @@ public class AuthSteps {
         scenarioContext.set(AUTH_TOKEN_KEY, null);
         log.info("API logout complete");
     }
-
-    // ── Assertion steps ───────────────────────────────────────────────────────
 
     @Then("an auth token should be stored in the scenario context")
     public void anAuthTokenShouldBeStoredInScenarioContext() {
@@ -142,4 +123,3 @@ public class AuthSteps {
         log.info("Sign-in failure verified");
     }
 }
-

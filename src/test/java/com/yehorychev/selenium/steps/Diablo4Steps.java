@@ -10,12 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Diablo 4 page.
- *
- * Covers: page load, class selector, build search, season section.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Diablo 4")
 @Story("Diablo 4 Page")
 public class Diablo4Steps {
@@ -26,7 +20,6 @@ public class Diablo4Steps {
         this.diablo4Page = new Diablo4Page(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the Diablo 4 page")
     public void iOpenTheDiablo4Page() {
@@ -47,7 +40,6 @@ public class Diablo4Steps {
         );
     }
 
-    // ── Class selector ────────────────────────────────────────────────────────
 
     @Then("the Diablo 4 class selector should be visible")
     public void theDiablo4ClassSelectorShouldBeVisible() {
@@ -55,7 +47,6 @@ public class Diablo4Steps {
         assertTrue(diablo4Page.isBuildsSectionVisible(), "Expected the Diablo 4 page to display build sections");
     }
 
-    // ── Build search ──────────────────────────────────────────────────────────
 
     @When("I search for Diablo 4 builds with keyword {string}")
     public void iSearchForDiablo4BuildsWithKeyword(String keyword) {
@@ -71,7 +62,6 @@ public class Diablo4Steps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the Diablo 4 builds section should be visible")
     public void theDiablo4BuildsSectionShouldBeVisible() {

@@ -13,14 +13,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Common navigation steps shared across all UI feature files.
- *
- * Covers: opening the home page, asserting page title, URL,
- * and storing transient data in ScenarioContext.
- *
- * PicoContainer injects DriverContext and ScenarioContext per-scenario.
- */
 @Feature("UI — Common Navigation")
 @Story("Page Navigation & URL Assertions")
 public class CommonSteps {
@@ -35,7 +27,6 @@ public class CommonSteps {
         this.scenarioContext = scenarioContext;
     }
 
-    // ── Navigation ────────────────────────────────────────────────────────────
 
     @Given("I open the homepage")
     public void iOpenTheHomepage() {
@@ -47,7 +38,6 @@ public class CommonSteps {
         homePage.open();
     }
 
-    // ── Page title assertions ─────────────────────────────────────────────────
 
     @Then("the page title should contain {string}")
     public void thePageTitleShouldContain(String expected) {
@@ -58,7 +48,6 @@ public class CommonSteps {
         );
     }
 
-    // ── URL assertions ────────────────────────────────────────────────────────
 
     @Then("the current URL should contain {string}")
     public void theCurrentUrlShouldContain(String expected) {
@@ -69,7 +58,6 @@ public class CommonSteps {
         );
     }
 
-    // ── ScenarioContext helpers ───────────────────────────────────────────────
 
     @And("I save the current URL as {string}")
     public void iSaveCurrentUrlAs(String key) {

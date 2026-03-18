@@ -10,12 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the League of Legends page.
- *
- * Covers: page load, champion search, tier list, builds sections.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — League of Legends")
 @Story("LoL Page")
 public class LolSteps {
@@ -25,8 +19,6 @@ public class LolSteps {
     public LolSteps(DriverContext driverContext) {
         this.lolPage = new LolPage(driverContext.getDriver());
     }
-
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the LoL page")
     public void iOpenTheLolPage() {
@@ -47,8 +39,6 @@ public class LolSteps {
         );
     }
 
-    // ── Champion search ───────────────────────────────────────────────────────
-
     @When("I search for champion {string}")
     public void iSearchForChampion(String championName) {
         lolPage.searchChampion(championName);
@@ -63,8 +53,6 @@ public class LolSteps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
-
     @Then("the tier list section should be visible")
     public void theTierListSectionShouldBeVisible() {
         assertTrue(lolPage.isTierListVisible(), "Expected the tier list section to be visible");
@@ -75,4 +63,3 @@ public class LolSteps {
         assertTrue(lolPage.isBuildsVisible(), "Expected the builds section to be visible");
     }
 }
-

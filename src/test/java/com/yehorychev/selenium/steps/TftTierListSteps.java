@@ -9,13 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the TFT Tier List page.
- *
- * Note: /tft/tier-list redirects to /tft/tier-list/team-comps.
- * Covers: page load, unit links, team comp links.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Teamfight Tactics")
 @Story("TFT Tier List")
 public class TftTierListSteps {
@@ -26,7 +19,6 @@ public class TftTierListSteps {
         this.tierListPage = new TftTierListPage(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the TFT Tier List page")
     public void iOpenTheTftTierListPage() {
@@ -47,7 +39,6 @@ public class TftTierListSteps {
         );
     }
 
-    // ── Content ───────────────────────────────────────────────────────────────
 
     @Then("there should be at least {int} unit links on the TFT Tier List")
     public void thereShouldBeAtLeastUnitLinksOnTftTierList(int minCount) {

@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Borderlands 4 page.
- *
- * Covers: page load, builds section, content links.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Borderlands 4")
 @Story("Borderlands 4 Page")
 public class Borderlands4Steps {
@@ -25,7 +19,6 @@ public class Borderlands4Steps {
         this.borderlands4Page = new Borderlands4Page(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the Borderlands 4 page")
     public void iOpenTheBorderlands4Page() {
@@ -46,7 +39,6 @@ public class Borderlands4Steps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the Borderlands 4 builds section should be visible")
     public void theBorderlands4BuildsSectionShouldBeVisible() {

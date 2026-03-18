@@ -9,12 +9,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Monster Hunter Wilds page.
- *
- * Covers: page load, builds section, guides section, content link count.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Monster Hunter Wilds")
 @Story("MH Wilds Page")
 public class MhwSteps {
@@ -24,8 +18,6 @@ public class MhwSteps {
     public MhwSteps(DriverContext driverContext) {
         this.mhwPage = new MhwPage(driverContext.getDriver());
     }
-
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the MH Wilds page")
     public void iOpenTheMhwPage() {
@@ -45,8 +37,6 @@ public class MhwSteps {
                 "Expected MH Wilds heading to contain \"" + expected + "\" but was: \"" + actual + "\""
         );
     }
-
-    // ── Sections ──────────────────────────────────────────────────────────────
 
     @Then("the MH Wilds builds section should be visible")
     public void theMhwBuildsSectionShouldBeVisible() {
@@ -73,4 +63,3 @@ public class MhwSteps {
         );
     }
 }
-

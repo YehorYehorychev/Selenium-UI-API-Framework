@@ -13,13 +13,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions specific to the Mobalytics home page.
- *
- * Covers: hero section, download CTA, nav game links,
- * game cards, footer, and features section components.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Home Page")
 @Story("Home Page Components")
 public class HomePageSteps {
@@ -38,7 +31,6 @@ public class HomePageSteps {
         this.features    = new FeaturesComponent(driverContext.getDriver());
     }
 
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Then("the home page is loaded")
     public void theHomePageIsLoaded() {
@@ -50,7 +42,6 @@ public class HomePageSteps {
         assertTrue(homePage.isHeaderVisible(), "Expected the site header to be visible");
     }
 
-    // ── Hero section ──────────────────────────────────────────────────────────
 
     @Then("the hero heading should contain {string}")
     public void theHeroHeadingShouldContain(String expected) {
@@ -61,7 +52,6 @@ public class HomePageSteps {
         );
     }
 
-    // ── Game navigation ───────────────────────────────────────────────────────
 
     @Then("the nav game {string} should be present")
     public void theNavGameShouldBePresent(String gameName) {
@@ -76,7 +66,6 @@ public class HomePageSteps {
         homePage.clickNavGame(gameName);
     }
 
-    // ── Download CTA ──────────────────────────────────────────────────────────
 
     @When("I click the download CTA")
     public void iClickTheDownloadCta() {
@@ -92,7 +81,6 @@ public class HomePageSteps {
         );
     }
 
-    // ── Social links ──────────────────────────────────────────────────────────
 
     @Then("there should be at least {int} social links")
     public void thereShouldBeAtLeastSocialLinks(int minCount) {
@@ -103,14 +91,12 @@ public class HomePageSteps {
         );
     }
 
-    // ── Hero component ────────────────────────────────────────────────────────
 
     @Then("the hero CTA should be visible")
     public void theHeroCtaShouldBeVisible() {
         assertTrue(hero.isCtaVisible(), "Expected hero CTA buttons to be visible");
     }
 
-    // ── Game cards component ──────────────────────────────────────────────────
 
     @Then("there should be at least {int} game cards on the home page")
     public void thereShouldBeAtLeastGameCards(int minCount) {
@@ -134,7 +120,6 @@ public class HomePageSteps {
         );
     }
 
-    // ── Footer component ──────────────────────────────────────────────────────
 
     @Then("the footer should be visible")
     public void theFooterShouldBeVisible() {
@@ -155,7 +140,6 @@ public class HomePageSteps {
         assertTrue(footer.areSocialIconsVisible(), "Expected footer social media icons to be visible");
     }
 
-    // ── Features component ────────────────────────────────────────────────────
 
     @Then("the features section should be visible")
     public void theFeaturesSectionShouldBeVisible() {

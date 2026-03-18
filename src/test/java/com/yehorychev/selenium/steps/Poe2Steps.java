@@ -10,12 +10,6 @@ import io.qameta.allure.Story;
 
 import static org.testng.Assert.assertTrue;
 
-/**
- * Step definitions for the Path of Exile 2 page.
- *
- * Covers: page load, class selection, build search, guides section.
- * PicoContainer injects DriverContext per-scenario.
- */
 @Feature("UI — Path of Exile 2")
 @Story("PoE2 Page")
 public class Poe2Steps {
@@ -25,8 +19,6 @@ public class Poe2Steps {
     public Poe2Steps(DriverContext driverContext) {
         this.poe2Page = new Poe2Page(driverContext.getDriver());
     }
-
-    // ── Page load ─────────────────────────────────────────────────────────────
 
     @Given("I open the PoE2 page")
     public void iOpenThePoe2Page() {
@@ -47,8 +39,6 @@ public class Poe2Steps {
         );
     }
 
-    // ── Class selector ────────────────────────────────────────────────────────
-
     @Then("the class selector should be visible")
     public void theClassSelectorShouldBeVisible() {
         assertTrue(poe2Page.isClassSelectorVisible(), "Expected the class selector to be visible");
@@ -58,8 +48,6 @@ public class Poe2Steps {
     public void iSelectClass(String className) {
         poe2Page.selectClass(className);
     }
-
-    // ── Build search ──────────────────────────────────────────────────────────
 
     @When("I search for PoE2 builds with keyword {string}")
     public void iSearchForPoe2BuildsWithKeyword(String keyword) {
@@ -75,11 +63,8 @@ public class Poe2Steps {
         );
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
-
     @Then("the guides section should be visible")
     public void theGuidesSectionShouldBeVisible() {
         assertTrue(poe2Page.isGuidesSectionVisible(), "Expected the guides section to be visible");
     }
 }
-
