@@ -12,8 +12,7 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- parallel.threads: single source of truth for thread count.
-             Update thread-count in testng.xml to match when changing this. -->
+        <!-- parallel.threads: single source of truth for thread count (wired via DynamicThreadListener). -->
         <parallel.threads>4</parallel.threads>
         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
     </properties>

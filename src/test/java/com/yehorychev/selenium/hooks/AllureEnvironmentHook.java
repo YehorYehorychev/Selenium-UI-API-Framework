@@ -18,9 +18,6 @@ public class AllureEnvironmentHook {
 
     private static final Logger log = new Logger(AllureEnvironmentHook.class);
 
-    private static final String ALLURE_RESULTS_DIR =
-            System.getProperty("allure.results.directory", TestConfig.ALLURE_RESULTS_DIR);
-
     /**
      * Runs once before any scenario in the suite.
      * Creates the allure-results directory if needed, then writes environment.properties.
@@ -28,7 +25,7 @@ public class AllureEnvironmentHook {
     @BeforeAll
     public static void writeAllureEnvironment() {
         try {
-            Path dir = Paths.get(ALLURE_RESULTS_DIR);
+            Path dir = Paths.get(TestConfig.ALLURE_RESULTS_DIR);
             Files.createDirectories(dir);
 
             Properties env = new Properties();

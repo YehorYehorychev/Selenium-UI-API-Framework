@@ -34,9 +34,6 @@ public class ApiContext {
         return requestSpec;
     }
 
-    public RequestSpecification withAuth(String token) {
-        return requestSpec.auth().oauth2(token);
-    }
 
     public RequestSpecification withHeaders(Map<String, String> headers) {
         return requestSpec.headers(headers);

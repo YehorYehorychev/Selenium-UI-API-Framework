@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.runner;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.helpers.Logger;
 import org.testng.IRetryAnalyzer;
 import org.testng.ITestResult;
 
@@ -8,6 +9,8 @@ import org.testng.ITestResult;
  * TestNG retry analyzer — re-runs a failed scenario up to {@code TestConfig.RETRY_COUNT} times.
  */
 public class RetryAnalyzer implements IRetryAnalyzer {
+
+    private static final Logger log = new Logger(RetryAnalyzer.class);
 
     private int attemptCount = 0;
 
@@ -17,8 +20,8 @@ public class RetryAnalyzer implements IRetryAnalyzer {
 
         if (attemptCount < TestConfig.RETRY_COUNT) {
             attemptCount++;
-            System.out.printf("[RetryAnalyzer] Retrying '%s' — attempt %d / %d%n",
-                    result.getName(), attemptCount, TestConfig.RETRY_COUNT);
+            log.info("Retrying '" + result.getName() + "' — attempt "
+                    + attemptCount + " / " + TestConfig.RETRY_COUNT);
             return true;
         }
 

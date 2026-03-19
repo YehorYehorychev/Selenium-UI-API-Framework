@@ -8,6 +8,7 @@ import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.context.ApiContext;
 import com.yehorychev.selenium.context.DriverContext;
 import com.yehorychev.selenium.context.ScenarioContext;
+import com.yehorychev.selenium.hooks.AuthHooks;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -24,7 +25,6 @@ import static org.testng.Assert.*;
 public class AuthSteps {
 
     private static final Logger log = new Logger(AuthSteps.class);
-    private static final String AUTH_TOKEN_KEY = "authToken";
     private static final String LAST_RESPONSE  = "lastResponse";
 
     private final DriverContext driverContext;
@@ -53,7 +53,7 @@ public class AuthSteps {
                     "GraphQL signIn returned false for: " + TestData.Credentials.LOGIN);
         }
 
-        scenarioContext.set(AUTH_TOKEN_KEY, "true");
+        scenarioContext.set(AuthHooks.AUTH_STATUS_KEY, "true");
         log.info("API authentication successful for: " + TestData.Credentials.LOGIN);
     }
 
@@ -75,22 +75,22 @@ public class AuthSteps {
         log.step("Injecting authenticated session into WebDriver");
         Map<String, String> authData = AuthHelper.loginViaApi();
         AuthHelper.injectAuthIntoDriver(driverContext.getDriver(), authData);
-        scenarioContext.set(AUTH_TOKEN_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
+        scenarioContext.set(AuthHooks.AUTH_STATUS_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
     }
 
     @When("I log out via API")
     public void iLogOutViaApi() {
-        String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
+        String signedIn = scenarioContext.get(AuthHooks.AUTH_STATUS_KEY);
         assertNotNull(signedIn, "No auth session in ScenarioContext — did you log in first?");
         log.step("Logging out via API");
         api.graphql(GraphqlQueries.SIGN_OUT);
-        scenarioContext.set(AUTH_TOKEN_KEY, null);
+        scenarioContext.set(AuthHooks.AUTH_STATUS_KEY, null);
         log.info("API logout complete");
     }
 
     @Then("an auth token should be stored in the scenario context")
     public void anAuthTokenShouldBeStoredInScenarioContext() {
-        String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
+        String signedIn = scenarioContext.get(AuthHooks.AUTH_STATUS_KEY);
         assertNotNull(signedIn, "Expected auth session marker to be stored in ScenarioContext");
         assertEquals(signedIn, "true", "Expected auth session marker to be 'true' but was: " + signedIn);
         log.info("Auth session verified in ScenarioContext");
@@ -98,8 +98,8 @@ public class AuthSteps {
 
     @Then("the auth token should no longer be present")
     public void theAuthTokenShouldNoLongerBePresent() {
-        String signedIn = scenarioContext.get(AUTH_TOKEN_KEY);
-        assertNull(signedIn, "Expected auth token to be null after logout but was: " + signedIn);
+        String signedIn = scenarioContext.get(AuthHooks.AUTH_STATUS_KEY);
+        assertNull(signedIn, "Expected auth session marker to be null after logout but was: " + signedIn);
     }
 
     @Then("the configured test credentials should be available")

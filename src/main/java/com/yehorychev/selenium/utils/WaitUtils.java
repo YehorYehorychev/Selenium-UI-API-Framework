@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.utils;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.errors.FrameworkException;
 import com.yehorychev.selenium.errors.NavigationException;
 import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -78,7 +79,7 @@ public final class WaitUtils {
             if (value != null && !value.isBlank()) return value;
             sleep(pollIntervalMs);
         }
-        throw new RuntimeException("pollUntilNotEmpty: no non-empty value obtained within " + timeoutMs + " ms");
+        throw new FrameworkException("pollUntilNotEmpty: no non-empty value obtained within " + timeoutMs + " ms");
     }
 
     public static String pollUntilNotEmpty(Supplier<String> supplier) {
@@ -97,7 +98,7 @@ public final class WaitUtils {
                 if (attempt < maxAttempts) sleep(500);
             }
         }
-        throw new RuntimeException("All " + maxAttempts + " attempts failed", last);
+        throw new FrameworkException("All " + maxAttempts + " attempts failed", last);
     }
 
     public static <T> T retry(int maxAttempts, Callable<T> action) {
@@ -111,7 +112,7 @@ public final class WaitUtils {
                 if (attempt < maxAttempts) sleep(500);
             }
         }
-        throw new RuntimeException("All " + maxAttempts + " attempts failed", last);
+        throw new FrameworkException("All " + maxAttempts + " attempts failed", last);
     }
 
     /**

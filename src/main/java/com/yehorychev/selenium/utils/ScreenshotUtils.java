@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.utils;
 
+import com.yehorychev.selenium.errors.FrameworkException;
 import com.yehorychev.selenium.helpers.Logger;
 import io.qameta.allure.Allure;
 import org.openqa.selenium.OutputType;
@@ -88,7 +89,7 @@ public final class ScreenshotUtils {
             return toBytes(screenshot.getImage());
         } catch (Exception e) {
             log.warn("Element screenshot failed: " + e.getMessage());
-            throw new RuntimeException("Failed to capture element screenshot", e);
+            throw new FrameworkException("Failed to capture element screenshot", e);
         }
     }
 
@@ -134,50 +135,7 @@ public final class ScreenshotUtils {
             log.info("Screenshot saved", filePath.toString());
             return filePath;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save screenshot to: " + dir, e);
-        }
-    }
-
-    public static void cleanupOldScreenshots(String dir, int daysOld) {
-        validateDirectory(dir);
-        if (daysOld < 0) throw new IllegalArgumentException("daysOld must be non-negative");
-
-        log.info("Cleaning up screenshots older than " + daysOld + " days from: " + dir);
-        try {
-            Path directory = Paths.get(dir);
-            if (!Files.exists(directory)) {
-                log.debug("Directory does not exist, nothing to clean: " + dir);
-                return;
-            }
-
-            long cutoffTime = System.currentTimeMillis() - (daysOld * 24L * 60 * 60 * 1000);
-            final long[] deletedCount = {0};
-
-            try (var stream = Files.walk(directory)) {
-                stream.filter(Files::isRegularFile)
-                        .filter(path -> path.toString().endsWith(FILE_EXTENSION))
-                        .filter(path -> {
-                            try {
-                                return Files.getLastModifiedTime(path).toMillis() < cutoffTime;
-                            } catch (IOException e) {
-                                log.warn("Could not check file time: " + path, e);
-                                return false;
-                            }
-                        })
-                        .forEach(path -> {
-                            try {
-                                Files.deleteIfExists(path);
-                                deletedCount[0]++;
-                                log.debug("Deleted old screenshot: " + path);
-                            } catch (IOException e) {
-                                log.warn("Could not delete file: " + path, e);
-                            }
-                        });
-            }
-
-            log.info("Cleanup complete. Deleted " + deletedCount[0] + " old screenshot(s)");
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to cleanup screenshots in: " + dir, e);
+            throw new FrameworkException("Failed to save screenshot to: " + dir, e);
         }
     }
 }
