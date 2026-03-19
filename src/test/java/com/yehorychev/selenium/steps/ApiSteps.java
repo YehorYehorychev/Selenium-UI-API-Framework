@@ -12,8 +12,6 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import io.restassured.response.Response;
 
-import java.util.Map;
-
 import static org.testng.Assert.*;
 
 @Feature("API — GraphQL & REST")
@@ -45,6 +43,13 @@ public class ApiSteps {
         log.step("POST " + endpoint + " → " + response.getStatusCode());
     }
 
+    @When("I run the GraphQL health check")
+    public void iRunTheGraphqlHealthCheck() {
+        Response response = api.graphql(GraphqlQueries.HEALTH_CHECK);
+        scenarioContext.set(LAST_RESPONSE, response);
+        log.step("GraphQL HealthCheck → " + response.getStatusCode());
+    }
+
     @When("I query the current user via GraphQL")
     public void iQueryTheCurrentUserViaGraphQL() {
         Response response = api.graphql(GraphqlQueries.GET_CURRENT_USER);
@@ -52,28 +57,6 @@ public class ApiSteps {
         log.step("GraphQL GetCurrentUser → " + response.getStatusCode());
     }
 
-    @When("I query the list of supported games via GraphQL")
-    public void iQueryTheListOfSupportedGamesViaGraphQL() {
-        Response response = api.graphql(GraphqlQueries.GET_GAMES);
-        scenarioContext.set(LAST_RESPONSE, response);
-        log.step("GraphQL GetGames → " + response.getStatusCode());
-    }
-
-    @When("I query summoner stats for {string} in region {string}")
-    public void iQuerySummonerStatsFor(String summonerName, String region) {
-        Map<String, Object> variables = Map.of("summonerName", summonerName, "region", region);
-        Response response = api.graphql(GraphqlQueries.GET_SUMMONER_STATS, variables);
-        scenarioContext.set(LAST_RESPONSE, response);
-        log.step("GraphQL GetSummonerStats(" + summonerName + ", " + region + ") → " + response.getStatusCode());
-    }
-
-    @When("I query user profile for id {string} via GraphQL")
-    public void iQueryUserProfileFor(String userId) {
-        Map<String, Object> variables = Map.of("userId", userId);
-        Response response = api.graphql(GraphqlQueries.GET_USER_PROFILE, variables);
-        scenarioContext.set(LAST_RESPONSE, response);
-        log.step("GraphQL GetUserProfile(" + userId + ") → " + response.getStatusCode());
-    }
 
     @Then("the response status code should be {int}")
     public void theResponseStatusCodeShouldBe(int expectedStatus) {

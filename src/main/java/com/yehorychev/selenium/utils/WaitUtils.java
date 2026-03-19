@@ -59,19 +59,6 @@ public final class WaitUtils {
         });
     }
 
-    public static void waitForAjax(WebDriver driver) {
-        log.step("Waiting for jQuery AJAX to finish");
-        try {
-            waitFor(driver, d -> {
-                Object active = ((JavascriptExecutor) d)
-                        .executeScript("return (typeof jQuery !== 'undefined') ? jQuery.active : 0");
-                if (active == null) return true;
-                return ((Number) active).longValue() == 0;
-            });
-        } catch (Exception e) {
-            log.warn("waitForAjax skipped: " + e.getMessage());
-        }
-    }
 
     public static void waitForTextChange(WebDriver driver, WebElement element, String oldText) {
         log.step("Waiting for text to change from: \"" + oldText + "\"");

@@ -62,7 +62,7 @@ public class HomePage extends BasePage {
     }
 
     public int getSocialLinkCount() {
-        return driver.findElements(SOCIAL_LINKS).size();
+        return waitForAll(SOCIAL_LINKS).size();
     }
 
     private By getNavGameLocator(String gameName) {

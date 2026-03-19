@@ -42,7 +42,7 @@ public class OverwatchPage extends BasePage {
     }
 
     public int getHeroLinkCount() {
-        return driver.findElements(HERO_LINKS).size();
+        return waitForAll(HERO_LINKS).size();
     }
 
     public boolean isSignInButtonVisible() {

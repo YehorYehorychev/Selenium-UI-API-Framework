@@ -33,7 +33,7 @@ public class TftTeamCompsPage extends BasePage {
     }
 
     public int getCompCardCount() {
-        return driver.findElements(COMP_CARDS).size();
+        return waitForAll(COMP_CARDS).size();
     }
 
     public boolean hasCompCards() {

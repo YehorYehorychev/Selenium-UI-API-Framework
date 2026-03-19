@@ -51,10 +51,10 @@ public class LolChampionBuildPage extends BasePage {
     }
 
     public int getCounterLinkCount() {
-        return driver.findElements(COUNTER_LINKS).size();
+        return waitForAll(COUNTER_LINKS).size();
     }
 
     public int getRoleBuildLinkCount() {
-        return driver.findElements(ROLE_BUILD_LINKS).size();
+        return waitForAll(ROLE_BUILD_LINKS).size();
     }
 }

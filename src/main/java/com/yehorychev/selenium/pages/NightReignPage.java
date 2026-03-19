@@ -61,6 +61,6 @@ public class NightReignPage extends BasePage {
     }
 
     public int getContentLinkCount() {
-        return driver.findElements(CONTENT_LINKS).size();
+        return waitForAll(CONTENT_LINKS).size();
     }
 }

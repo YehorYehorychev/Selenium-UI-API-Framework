@@ -116,8 +116,12 @@ public final class AuthHelper {
         loginAndInject(driver, TestData.Credentials.LOGIN, TestData.Credentials.PASSWORD);
     }
 
-    public static void logoutViaApi() {
-        log.step("Logging out via GraphQL signOut");
+    public static void logoutViaApi(Map<String, String> cookies) {
+        if (cookies == null || cookies.isEmpty()) {
+            throw new AuthenticationException("Logout requires session cookies from loginViaApi()");
+        }
+
+        log.step("Logging out via GraphQL signOut with session cookies");
 
         Map<String, Object> body = Map.of("query", GraphqlQueries.SIGN_OUT);
 
@@ -125,6 +129,8 @@ public final class AuthHelper {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
+                .config(buildTimeoutConfig())
+                .cookies(cookies)
                 .body(body)
                 .post("/api/graphql/v1/query");
 
