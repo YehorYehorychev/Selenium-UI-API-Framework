@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -8,21 +9,13 @@ public class NightReignPage extends BasePage {
 
     private static final By PAGE_HEADING = By.cssSelector("h1");
 
-    private static final By NIGHTFARERS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'nightfarer')]"
-    );
+    private static final By NIGHTFARERS_SECTION = LocatorUtils.h2ContainsText("nightfarer");
 
-    private static final By NIGHTLORDS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'nightlord')]"
-    );
+    private static final By NIGHTLORDS_SECTION = LocatorUtils.h2ContainsText("nightlord");
 
-    private static final By BUILDS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'build')]"
-    );
+    private static final By BUILDS_SECTION = LocatorUtils.h2ContainsText("build");
 
-    private static final By GUIDES_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'guide')]"
-    );
+    private static final By GUIDES_SECTION = LocatorUtils.h2ContainsText("guide");
 
     private static final By CONTENT_LINKS = By.cssSelector("a[href*='/elden-ring-nightreign/']");
 

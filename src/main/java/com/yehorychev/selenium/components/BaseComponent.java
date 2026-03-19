@@ -1,12 +1,11 @@
 package com.yehorychev.selenium.components;
 
-import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.utils.WaitFactory;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
 import java.util.List;
 
 public abstract class BaseComponent {
@@ -20,8 +19,8 @@ public abstract class BaseComponent {
     protected BaseComponent(WebDriver driver, By rootLocator) {
         this.driver = driver;
         this.rootLocator = rootLocator;
-        this.wait = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
-        this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        this.wait = WaitFactory.defaultWait(driver);
+        this.shortWait = WaitFactory.shortWait(driver);
         this.log = new Logger(this.getClass());
     }
 

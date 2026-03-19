@@ -30,7 +30,7 @@
     <logger name="com.github.automatedowl"     level="WARN"/>
     <logger name="org.apache.http"             level="WARN"/>
 
-    <!-- Framework loggers — INFO by default, switchable to DEBUG via env var -->
+    <!-- Framework loggers — INFO by default; adjust level here if you need DEBUG locally -->
     <logger name="com.yehorychev.selenium"     level="INFO"/>
 
     <root level="WARN">

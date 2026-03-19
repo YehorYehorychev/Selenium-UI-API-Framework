@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.components;
 
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -14,8 +15,7 @@ public class NavigationComponent extends BaseComponent {
     private static final By GAME_LINKS = By.cssSelector("nav li.menu-item-type-custom > a");
     private static final By SOCIAL_LINKS = By.cssSelector("a[href*='twitter'], a[href*='discord'], a[href*='youtube']");
     // Sign In lives in the React app header on sub-pages; class names are hashed per deploy
-    private static final By SIGN_IN_BUTTON_XPATH =
-            By.xpath("//button[.//span[translate(normalize-space(text()),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='sign in']]");
+    private static final By SIGN_IN_BUTTON_XPATH = LocatorUtils.buttonSpanEquals("sign in");
     private static final String LINK_BY_TEXT_XPATH = ".//nav//a[contains(text(),'%s')]";
 
     public NavigationComponent(WebDriver driver) {

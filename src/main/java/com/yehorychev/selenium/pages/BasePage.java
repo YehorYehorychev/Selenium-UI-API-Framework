@@ -2,16 +2,21 @@ package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.errors.ElementNotFoundException;
+import com.yehorychev.selenium.errors.NavigationException;
 import com.yehorychev.selenium.errors.PageLoadException;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.utils.WaitFactory;
 import com.yehorychev.selenium.utils.WaitUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.time.Duration;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public abstract class BasePage {
 
@@ -23,8 +28,8 @@ public abstract class BasePage {
 
     protected BasePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofMillis(TestConfig.DEFAULT_TIMEOUT_MS));
-        this.shortWait = new WebDriverWait(driver, Duration.ofSeconds(3));
+        this.wait = WaitFactory.defaultWait(driver);
+        this.shortWait = WaitFactory.shortWait(driver);
         this.actions = new Actions(driver);
         this.log = new Logger(this.getClass());
     }
@@ -153,5 +158,244 @@ public abstract class BasePage {
     public void scrollIntoView(By locator) {
         WebElement el = waitForPresent(locator);
         executeScript("arguments[0].scrollIntoView({block:'center'});", el);
+    }
+
+    public void waitForPageReady() {
+        try {
+            WaitUtils.waitForPageLoad(driver);
+        } catch (TimeoutException e) {
+            throw new PageLoadException(driver.getCurrentUrl(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public WebElement waitForClickable(By locator) {
+        try {
+            return wait.until(ExpectedConditions.elementToBeClickable(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public List<WebElement> waitForVisibleElements(By locator) {
+        try {
+            return wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public List<String> getTexts(By locator) {
+        return waitForVisibleElements(locator).stream()
+                .map(element -> element.getText().trim())
+                .toList();
+    }
+
+    public List<WebElement> waitForNumberOfElements(By locator, int expectedCount) {
+        try {
+            return wait.until(ExpectedConditions.numberOfElementsToBe(locator, expectedCount));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void waitForAttributeEquals(By locator, String attribute, String value) {
+        try {
+            wait.until(ExpectedConditions.attributeToBe(locator, attribute, value));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void waitForAttributeContains(By locator, String attribute, String value) {
+        try {
+            wait.until(ExpectedConditions.attributeContains(locator, attribute, value));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void waitForText(By locator, String text) {
+        try {
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void waitForStaleness(WebElement element) {
+        try {
+            wait.until(ExpectedConditions.stalenessOf(element));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(element.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void switchToFrame(By locator) {
+        try {
+            wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void switchToDefaultContent() {
+        driver.switchTo().defaultContent();
+    }
+
+    public void jsClick(By locator) {
+        WebElement element = waitForVisible(locator);
+        executeScript("arguments[0].click();", element);
+    }
+
+    public void clickWithRetry(By locator) {
+        clickWithRetry(locator, 3);
+    }
+
+    public void clickWithRetry(By locator, int attempts) {
+        WaitUtils.retry(attempts, () -> {
+            scrollIntoView(locator);
+            waitForClickable(locator).click();
+        });
+    }
+
+    public void waitForUrlToBe(String expectedUrl) {
+        try {
+            wait.until(ExpectedConditions.urlToBe(expectedUrl));
+        } catch (TimeoutException e) {
+            throw new NavigationException(driver.getCurrentUrl(), expectedUrl, e);
+        }
+    }
+
+    public void waitForUrlMatches(Pattern pattern) {
+        try {
+            wait.until(ExpectedConditions.urlMatches(pattern.pattern()));
+        } catch (TimeoutException e) {
+            throw new NavigationException(driver.getCurrentUrl(), pattern.pattern(), e);
+        }
+    }
+
+    public void scrollToTop() {
+        executeScript("window.scrollTo(0, 0);");
+    }
+
+    public void scrollToBottom() {
+        executeScript("window.scrollTo(0, document.body.scrollHeight);");
+    }
+
+    public void scrollBy(int x, int y) {
+        executeScript("window.scrollBy(arguments[0], arguments[1]);", x, y);
+    }
+
+    public void dragAndDrop(By sourceLocator, By targetLocator) {
+        WebElement source = waitForVisible(sourceLocator);
+        WebElement target = waitForVisible(targetLocator);
+        actions.dragAndDrop(source, target).perform();
+    }
+
+    public void dragAndDrop(WebElement source, WebElement target) {
+        actions.dragAndDrop(source, target).perform();
+    }
+
+    public void dragAndDropBy(By sourceLocator, int xOffset, int yOffset) {
+        WebElement source = waitForVisible(sourceLocator);
+        actions.dragAndDropBy(source, xOffset, yOffset).perform();
+    }
+
+    public void dragAndDropHtml5(By sourceLocator, By targetLocator) {
+        WebElement source = waitForVisible(sourceLocator);
+        WebElement target = waitForVisible(targetLocator);
+        String script = "const src=arguments[0],tgt=arguments[1];" +
+                "const dt=new DataTransfer();" +
+                "src.dispatchEvent(new DragEvent('dragstart',{dataTransfer:dt}));" +
+                "tgt.dispatchEvent(new DragEvent('drop',{dataTransfer:dt}));" +
+                "src.dispatchEvent(new DragEvent('dragend',{dataTransfer:dt}));";
+        executeScript(script, source, target);
+    }
+
+    public void uploadFile(By locator, Path file) {
+        waitForVisible(locator).sendKeys(file.toString());
+    }
+
+    public Alert waitForAlert() {
+        try {
+            return wait.until(ExpectedConditions.alertIsPresent());
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException("alert", TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public String getAlertText() {
+        return waitForAlert().getText();
+    }
+
+    public void acceptAlert() {
+        waitForAlert().accept();
+    }
+
+    public void dismissAlert() {
+        waitForAlert().dismiss();
+    }
+
+    public void waitForEnabled(By locator) {
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void waitForDisabled(By locator) {
+        try {
+            wait.until(ExpectedConditions.not(ExpectedConditions.elementToBeClickable(locator)));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void waitForNotPresent(By locator) {
+        try {
+            wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        } catch (TimeoutException e) {
+            throw new ElementNotFoundException(locator.toString(), TestConfig.DEFAULT_TIMEOUT_MS, e);
+        }
+    }
+
+    public void openNewTab() {
+        executeScript("window.open('about:blank','_blank');");
+        switchToLastTab();
+    }
+
+    public void switchToLastTab() {
+        ArrayList<String> handles = new ArrayList<>(driver.getWindowHandles());
+        driver.switchTo().window(handles.get(handles.size() - 1));
+    }
+
+    public void switchToTab(int index) {
+        ArrayList<String> handles = new ArrayList<>(driver.getWindowHandles());
+        if (index < 0 || index >= handles.size()) {
+            throw new NavigationException(driver.getCurrentUrl(), "tab index " + index, null);
+        }
+        driver.switchTo().window(handles.get(index));
+    }
+
+    public boolean switchToWindowWithTitle(String titleFragment) {
+        Set<String> handles = driver.getWindowHandles();
+        for (String handle : handles) {
+            driver.switchTo().window(handle);
+            if (driver.getTitle().contains(titleFragment)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void closeCurrentTabAndSwitchToFirst() {
+        String current = driver.getWindowHandle();
+        driver.close();
+        ArrayList<String> handles = new ArrayList<>(driver.getWindowHandles());
+        if (handles.isEmpty()) {
+            throw new NavigationException(current, "no remaining tabs", null);
+        }
+        driver.switchTo().window(handles.get(0));
     }
 }

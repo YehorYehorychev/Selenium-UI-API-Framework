@@ -1,12 +1,12 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.components.NavigationComponent;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class HomePage extends BasePage {
 
-    private static final By LOGO = By.cssSelector("a.base-logo");
     private static final By HEADER = By.cssSelector("header.site-header");
     private static final By HERO_HEADING = By.cssSelector("h1");
     private static final By HERO_SECTION = By.cssSelector(".hl-hero");
@@ -17,7 +17,10 @@ public class HomePage extends BasePage {
 
     public HomePage(WebDriver driver) {
         super(driver);
+        this.navigation = new NavigationComponent(driver);
     }
+
+    private final NavigationComponent navigation;
 
     public void open() {
         log.step("Opening Mobalytics home page: " + TestConfig.BASE_URL);
@@ -26,8 +29,7 @@ public class HomePage extends BasePage {
     }
 
     public void clickLogo() {
-        log.step("Clicking site logo");
-        click(LOGO);
+        navigation.clickLogo();
         waitForUrl("mobalytics.gg");
     }
 

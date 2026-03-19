@@ -11,6 +11,7 @@ import java.util.Locale;
 public final class TestDataUtils {
 
     private static final Logger log = new Logger(TestDataUtils.class);
+    // DataFaker 2.x is thread-safe; share one instance across threads for consistency
     private static final Faker FAKER = new Faker(Locale.ENGLISH);
 
     private TestDataUtils() {
