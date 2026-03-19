@@ -42,7 +42,6 @@ public final class DriverConfig {
     private static WebDriver createChromeDriver() {
         ChromeOptions options = new ChromeOptions();
         if (TestConfig.HEADLESS) {
-            // --headless=new is the modern headless mode (Chrome 112+)
             options.addArguments("--headless=new");
         }
         options.addArguments(

@@ -1,21 +1,16 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 public class LolChampionBuildPage extends BasePage {
 
     private static final By PAGE_HEADING = By.cssSelector("h1");
-    private static final By BUILDS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'build')]"
-    );
-    private static final By RUNES_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'rune')]"
-    );
-    private static final By MATCHUPS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'matchup')]"
-    );
+    private static final By BUILDS_SECTION = LocatorUtils.h2ContainsText("build");
+    private static final By RUNES_SECTION = LocatorUtils.h2ContainsText("rune");
+    private static final By MATCHUPS_SECTION = LocatorUtils.h2ContainsText("matchup");
     private static final By COUNTER_LINKS = By.cssSelector("a[href*='counter']");
     private static final By ROLE_BUILD_LINKS = By.cssSelector("a[href*='/lol/champions/'][href*='build']");
 
@@ -51,10 +46,10 @@ public class LolChampionBuildPage extends BasePage {
     }
 
     public int getCounterLinkCount() {
-        return driver.findElements(COUNTER_LINKS).size();
+        return waitForAll(COUNTER_LINKS).size();
     }
 
     public int getRoleBuildLinkCount() {
-        return driver.findElements(ROLE_BUILD_LINKS).size();
+        return waitForAll(ROLE_BUILD_LINKS).size();
     }
 }

@@ -55,7 +55,7 @@ selenium-ui-api/
 │   ├── pages/           # Page Object classes (BasePage, LolPage, etc.)
 │   ├── components/      # Reusable UI components (BaseComponent, NavigationComponent)
 │   ├── data/            # Test data and constants (Tags, GraphqlQueries)
-│   └── utils/           # Utility classes (WaitUtils, ScreenshotUtils)
+│   └── utils/           # Utility classes (WaitUtils, WaitFactory, LocatorUtils, ScreenshotUtils)
 ├── src/test/java/com/yehorychev/selenium/
 │   ├── context/         # Dependency injection contexts (DriverContext, ApiContext)
 │   ├── hooks/           # Cucumber lifecycle hooks (AuthHooks, DriverHooks)

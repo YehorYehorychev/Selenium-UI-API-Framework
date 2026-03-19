@@ -6,12 +6,12 @@ Feature: GraphQL API
 
   @api @smoke @critical
   Scenario: GraphQL endpoint is reachable and returns 200
-    When I query the list of supported games via GraphQL
+    When I run the GraphQL health check
     Then the response status code should be 200
 
   @api @regression
   Scenario: GraphQL health check returns __typename field
-    When I query the list of supported games via GraphQL
+    When I run the GraphQL health check
     Then the response status code should be 200
     And  the response body should contain "__typename"
 

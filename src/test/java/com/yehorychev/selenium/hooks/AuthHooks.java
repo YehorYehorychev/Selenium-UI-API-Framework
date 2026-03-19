@@ -1,9 +1,9 @@
 package com.yehorychev.selenium.hooks;
 
-import com.yehorychev.selenium.helpers.AuthHelper;
-import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.context.DriverContext;
 import com.yehorychev.selenium.context.ScenarioContext;
+import com.yehorychev.selenium.helpers.AuthHelper;
+import com.yehorychev.selenium.helpers.Logger;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -16,6 +16,7 @@ import java.util.Map;
 public class AuthHooks {
 
     private static final Logger log = new Logger(AuthHooks.class);
+    public static final String AUTH_STATUS_KEY = "isAuthenticated";
 
     private final DriverContext driverContext;
     private final ScenarioContext scenarioContext;
@@ -38,7 +39,7 @@ public class AuthHooks {
         try {
             Map<String, String> authData = AuthHelper.loginViaApi();
             AuthHelper.injectAuthIntoDriver(driverContext.getDriver(), authData);
-            scenarioContext.set("authToken", authData.get(AuthHelper.KEY_SIGNED_IN));
+            scenarioContext.set(AUTH_STATUS_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
             log.info("Authenticated session established for: " + scenario.getName());
         } catch (Exception e) {
             log.warn("Authentication setup failed: " + e.getMessage());
@@ -54,7 +55,7 @@ public class AuthHooks {
                 driverContext.getDriver().manage().deleteAllCookies();
                 log.debug("Browser cookies cleared");
             }
-            scenarioContext.remove("authToken");
+            scenarioContext.remove(AUTH_STATUS_KEY);
         } catch (Exception e) {
             log.warn("Failed to clear auth session: " + e.getMessage());
         }

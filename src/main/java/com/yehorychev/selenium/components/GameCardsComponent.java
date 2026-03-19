@@ -4,14 +4,14 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class GameCardsComponent extends BaseComponent {
 
-    private static final By GAME_TILES = By.cssSelector(".games-tiles-grid-wrap > a, a[href*='/lol'], a");
-    private static final By TILE_LINKS = By.cssSelector("a");
+    private static final By GAME_TILES = By.cssSelector(".games-tiles-grid-wrap a[href]");
     private static final String TILE_BY_HREF_XPATH = ".//a[contains(@href,'/%s')]";
 
     public GameCardsComponent(WebDriver driver) {
@@ -24,11 +24,11 @@ public class GameCardsComponent extends BaseComponent {
     }
 
     public int getCardCount() {
-        return findElements(TILE_LINKS).size();
+        return waitForGameTiles().size();
     }
 
     public List<String> getGameHrefs() {
-        return findElements(TILE_LINKS).stream()
+        return waitForGameTiles().stream()
                 .map(a -> a.getAttribute("href"))
                 .filter(href -> href != null && !href.isBlank())
                 .map(href -> href.replaceAll("\\?.*", "")
@@ -44,5 +44,9 @@ public class GameCardsComponent extends BaseComponent {
         log.step("Hovering over game tile: " + gameSlug);
         WebElement tile = findElement(By.xpath(String.format(TILE_BY_HREF_XPATH, gameSlug)));
         new Actions(driver).moveToElement(tile).perform();
+    }
+
+    private List<WebElement> waitForGameTiles() {
+        return wait.until(ExpectedConditions.numberOfElementsToBeMoreThan(GAME_TILES, 0));
     }
 }

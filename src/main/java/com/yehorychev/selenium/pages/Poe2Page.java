@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -10,7 +11,7 @@ public class Poe2Page extends BasePage {
     private static final By BUILD_CARDS = By.cssSelector("a[href*='/poe-2/builds/']");
     private static final By GUIDES_SECTION = By.cssSelector("a[href*='guide']");
     // "Latest Classes" H2 — proxy for character class section (no widget selector exists)
-    private static final By CLASS_SELECTOR = By.xpath("//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'class')]");
+    private static final By CLASS_SELECTOR = LocatorUtils.h2ContainsText("class");
     private static final By SEARCH_INPUT = By.cssSelector(
             "input[placeholder*='builds' i], input[placeholder*='PoE' i], input[type='text']"
     );

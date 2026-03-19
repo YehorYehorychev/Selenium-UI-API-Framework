@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -8,9 +9,7 @@ public class Borderlands4Page extends BasePage {
 
     private static final By PAGE_HEADING = By.cssSelector("h1");
 
-    private static final By BUILDS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'build')]"
-    );
+    private static final By BUILDS_SECTION = LocatorUtils.h2ContainsText("build");
 
     private static final By CONTENT_LINKS = By.cssSelector("a[href*='/borderlands-4/']");
 
@@ -37,6 +36,6 @@ public class Borderlands4Page extends BasePage {
     }
 
     public int getContentLinkCount() {
-        return driver.findElements(CONTENT_LINKS).size();
+        return waitForAll(CONTENT_LINKS).size();
     }
 }

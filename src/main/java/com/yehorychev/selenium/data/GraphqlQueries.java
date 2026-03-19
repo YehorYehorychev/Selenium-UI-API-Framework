@@ -49,9 +49,4 @@ public final class GraphqlQueries {
             """;
 
     public static final String GET_CURRENT_USER = ACCOUNT_QUERY;
-
-    // Placeholders — game data lives on a separate service (Phase 4)
-    public static final String GET_GAMES = HEALTH_CHECK;
-    public static final String GET_SUMMONER_STATS = HEALTH_CHECK;
-    public static final String GET_USER_PROFILE = HEALTH_CHECK;
 }

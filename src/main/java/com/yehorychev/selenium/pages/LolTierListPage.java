@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.pages;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -12,9 +13,7 @@ public class LolTierListPage extends BasePage {
     private static final By FILTERS_BUTTON = By.xpath(
             "//button[normalize-space(text())='Filters' or normalize-space(.)='Filters']"
     );
-    private static final By METHODOLOGY_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'methodology')]"
-    );
+    private static final By METHODOLOGY_SECTION = LocatorUtils.h2ContainsText("methodology");
     private static final By PATCH_INFO = By.xpath(
             "//*[contains(text(),'Patch') or contains(text(),'patch')]"
     );

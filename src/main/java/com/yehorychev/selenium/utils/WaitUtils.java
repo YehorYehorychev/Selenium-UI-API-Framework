@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.utils;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.errors.FrameworkException;
 import com.yehorychev.selenium.errors.NavigationException;
 import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.JavascriptExecutor;
@@ -59,19 +60,6 @@ public final class WaitUtils {
         });
     }
 
-    public static void waitForAjax(WebDriver driver) {
-        log.step("Waiting for jQuery AJAX to finish");
-        try {
-            waitFor(driver, d -> {
-                Object active = ((JavascriptExecutor) d)
-                        .executeScript("return (typeof jQuery !== 'undefined') ? jQuery.active : 0");
-                if (active == null) return true;
-                return ((Number) active).longValue() == 0;
-            });
-        } catch (Exception e) {
-            log.warn("waitForAjax skipped: " + e.getMessage());
-        }
-    }
 
     public static void waitForTextChange(WebDriver driver, WebElement element, String oldText) {
         log.step("Waiting for text to change from: \"" + oldText + "\"");
@@ -91,7 +79,7 @@ public final class WaitUtils {
             if (value != null && !value.isBlank()) return value;
             sleep(pollIntervalMs);
         }
-        throw new RuntimeException("pollUntilNotEmpty: no non-empty value obtained within " + timeoutMs + " ms");
+        throw new FrameworkException("pollUntilNotEmpty: no non-empty value obtained within " + timeoutMs + " ms");
     }
 
     public static String pollUntilNotEmpty(Supplier<String> supplier) {
@@ -110,7 +98,7 @@ public final class WaitUtils {
                 if (attempt < maxAttempts) sleep(500);
             }
         }
-        throw new RuntimeException("All " + maxAttempts + " attempts failed", last);
+        throw new FrameworkException("All " + maxAttempts + " attempts failed", last);
     }
 
     public static <T> T retry(int maxAttempts, Callable<T> action) {
@@ -124,7 +112,7 @@ public final class WaitUtils {
                 if (attempt < maxAttempts) sleep(500);
             }
         }
-        throw new RuntimeException("All " + maxAttempts + " attempts failed", last);
+        throw new FrameworkException("All " + maxAttempts + " attempts failed", last);
     }
 
     /**

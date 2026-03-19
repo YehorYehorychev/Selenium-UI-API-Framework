@@ -1,6 +1,8 @@
 package com.yehorychev.selenium.pages;
 
+import com.yehorychev.selenium.components.NavigationComponent;
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
@@ -8,20 +10,16 @@ public class OverwatchPage extends BasePage {
 
     private static final By PAGE_HEADING = By.cssSelector("h1");
 
-    private static final By STADIUM_BUILDS_SECTION = By.xpath(
-            "//h2[contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'stadium') or " +
-            "contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),'build')]"
-    );
+    private static final By STADIUM_BUILDS_SECTION = LocatorUtils.h2ContainsAny("stadium", "build");
 
     private static final By HERO_LINKS = By.cssSelector("a[href*='/overwatch/']");
 
-    private static final By SIGN_IN_BUTTON = By.xpath(
-            "//button[.//span[translate(normalize-space(text()),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='sign in']]"
-    );
-
     public OverwatchPage(WebDriver driver) {
         super(driver);
+        this.navigation = new NavigationComponent(driver);
     }
+
+    private final NavigationComponent navigation;
 
     public void open() {
         log.step("Opening Overwatch page");
@@ -42,10 +40,10 @@ public class OverwatchPage extends BasePage {
     }
 
     public int getHeroLinkCount() {
-        return driver.findElements(HERO_LINKS).size();
+        return waitForAll(HERO_LINKS).size();
     }
 
     public boolean isSignInButtonVisible() {
-        return isVisible(SIGN_IN_BUTTON);
+        return navigation.isLoginButtonVisible();
     }
 }
