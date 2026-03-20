@@ -91,37 +91,36 @@ selenium-ui-api/
 
 ## ▶️ Running Tests
 
+### Local (no Docker required)
+
 ```bash
 # Run all tests
 mvn clean test
 
-# Run only smoke tests (fast, critical path)
+# Smoke only — fastest, critical path
 mvn test -Dcucumber.filter.tags="@smoke"
 
-# Run with visible browser for debugging
+# Regression gate
+mvn test -Dcucumber.filter.tags="@regression and not @flaky"
+
+# Debug with visible browser window
 mvn test -DHEADLESS=false -Dcucumber.filter.tags="@smoke"
 
-# Generate and open Allure report
-mvn clean test && mvn allure:serve
-
-# Run in sequential mode (1 thread)
+# Sequential mode (1 thread, easier to read logs)
 mvn test -DPARALLEL_THREADS=1
 
 # Disable retries
 mvn test -DRETRY_COUNT=0
 
-# Run on Selenium Grid (Chrome example)
-REMOTE_ENABLED=true \
-REMOTE_URL=http://localhost:4444/wd/hub \
-BROWSER=chrome \
-mvn test -Dcucumber.filter.tags="@smoke"
-
-# Run on Selenium Grid (Firefox example)
-REMOTE_ENABLED=true \
-REMOTE_URL=http://localhost:4444/wd/hub \
-BROWSER=firefox \
-mvn test -Dcucumber.filter.tags="@smoke"
+# Run + open Allure report
+mvn clean test && mvn allure:serve
 ```
+
+### Via Selenium Grid (recommended for CI / cross-browser)
+
+See the full guide below: [🌐 Running on Selenium Grid](#-running-on-selenium-grid)
+
+---
 
 ## 🔑 Authentication
 
@@ -170,29 +169,124 @@ Feature: User can search champions on LoL page
 
 ## 🌐 Running on Selenium Grid
 
-Local Docker Grid (Chrome + Firefox):
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Docker Compose v2 (bundled with Docker Desktop)
+- The framework is already wired — just set `REMOTE_ENABLED=true`
+
+> **Apple Silicon note:** The bundled compose stack uses official `selenium/*` images with `platform: linux/arm64`.  
+> Chrome node uses `selenium/node-chromium` (Chromium) because Google Chrome has no Linux ARM64 binary — it registers as `chrome` in the grid and is fully transparent to test code.
+
+---
+
+### Step 1 — Start the Grid
 
 ```bash
-docker network create grid || true
-docker run -d --net grid -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.21.0
-docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size=2g --name selenium-node-chrome selenium/node-chrome:4.21.0
-docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size=2g --name selenium-node-firefox selenium/node-firefox:4.21.0
+docker compose -f docker-compose.selenium-grid.yml up -d
 ```
 
-Then run tests with grid-enabled config:
+Expected output:
+```
+✔ Container selenium-hub            Healthy
+✔ Container selenium-node-chromium  Started
+✔ Container selenium-node-firefox   Started
+```
+
+Verify nodes registered at the Grid UI:
+```
+http://localhost:4444/ui
+```
+
+---
+
+### Step 2 — Run Tests
+
+#### Smoke suite on Chrome (Chromium)
+```bash
+REMOTE_ENABLED=true BROWSER=chrome mvn test -Dcucumber.filter.tags="@smoke"
+```
+
+#### Smoke suite on Firefox
+```bash
+REMOTE_ENABLED=true BROWSER=firefox mvn test -Dcucumber.filter.tags="@smoke"
+```
+
+#### Full regression on Chrome
+```bash
+REMOTE_ENABLED=true BROWSER=chrome mvn clean test
+```
+
+#### Full regression on Firefox
+```bash
+REMOTE_ENABLED=true BROWSER=firefox mvn clean test
+```
+
+#### Cross-browser: run both in sequence
+```bash
+REMOTE_ENABLED=true BROWSER=chrome mvn clean test
+REMOTE_ENABLED=true BROWSER=firefox mvn test -Dcucumber.filter.tags="@regression"
+```
+
+> `REMOTE_URL` defaults to `http://localhost:4444/wd/hub` — no need to pass it unless using a remote/cloud grid.
+
+---
+
+### Step 3 — View Allure Report
+
+Allure results are always written locally to `target/allure-results` regardless of where the browser runs.
 
 ```bash
+# Open live report in browser
+mvn allure:serve
+
+# Or generate static HTML report
+mvn allure:report
+# → target/allure-report/index.html
+```
+
+---
+
+### Step 4 — Stop the Grid
+
+```bash
+docker compose -f docker-compose.selenium-grid.yml down
+```
+
+---
+
+### Grid Configuration Reference
+
+All grid settings are in `.env` (or passed as env vars):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REMOTE_ENABLED` | `false` | Set `true` to use grid instead of local driver |
+| `REMOTE_URL` | `http://localhost:4444/wd/hub` | Grid hub endpoint |
+| `BROWSER` | `chrome` | `chrome` or `firefox` (safari requires macOS grid/cloud) |
+| `REMOTE_BROWSER_VERSION` | _(blank)_ | Pin a specific version; blank = node default |
+| `REMOTE_PLATFORM_NAME` | _(blank)_ | `LINUX`, `MAC`, `WINDOWS` — required by some providers |
+| `REMOTE_ENABLE_VNC` | `false` | Enable VNC live preview (Selenoid / cloud) |
+| `REMOTE_ENABLE_VIDEO` | `false` | Enable video recording (Selenoid / cloud) |
+| `HEADLESS` | `true` | Keep `true` in grid runs for consistency |
+
+---
+
+### Using an External / Cloud Grid
+
+Replace `REMOTE_URL` with your provider endpoint:
+
+```bash
+# BrowserStack / Sauce Labs / LambdaTest / your own remote hub
 REMOTE_ENABLED=true \
-REMOTE_URL=http://localhost:4444/wd/hub \
-REMOTE_PLATFORM_NAME=LINUX \
+REMOTE_URL=https://<user>:<key>@hub.browserstack.com/wd/hub \
 BROWSER=chrome \
+REMOTE_BROWSER_VERSION=latest \
+REMOTE_PLATFORM_NAME=Windows 10 \
 mvn test -Dcucumber.filter.tags="@smoke"
 ```
 
-Notes:
-- Leave `REMOTE_BROWSER_VERSION` blank to use node default (usually `latest`).
-- Set `REMOTE_ENABLE_VNC=true` or `REMOTE_ENABLE_VIDEO=true` when the provider supports it (e.g., Selenoid).
-- Keep `HEADLESS=true` for consistency unless debugging visually.
+---
 
 ## 🤝 Contributing
 

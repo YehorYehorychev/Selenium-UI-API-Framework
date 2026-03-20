@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.config;
 
+import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
@@ -20,6 +21,8 @@ import java.time.Duration;
  * Driver binaries are managed automatically by Selenium Manager (Selenium 4.6+).
  */
 public final class DriverConfig {
+
+    private static final Logger log = new Logger(DriverConfig.class);
 
     private DriverConfig() {
     }
@@ -92,6 +95,9 @@ public final class DriverConfig {
     }
 
     private static SafariOptions buildSafariOptions() {
+        if (TestConfig.HEADLESS) {
+            log.warn("Safari does not support headless mode — HEADLESS flag is ignored.");
+        }
         SafariOptions options = new SafariOptions();
         applyRemoteCapabilities(options);
         return options;
