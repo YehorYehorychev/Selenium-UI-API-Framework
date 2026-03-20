@@ -20,7 +20,7 @@ Key principles:
 ### Prerequisites
 - Java 25
 - Maven 3.8+
-- Chrome, Firefox, or Edge browser
+- Chrome, Firefox, or Safari browser (Edge via remote grid only)
 - Allure CLI (for reports)
 
 ### Installation
@@ -48,7 +48,7 @@ The framework follows a 7-layer architecture for separation of concerns:
 ```
 selenium-ui-api/
 ├── src/main/java/com/yehorychev/selenium/
-│   ├── config/          # Configuration classes (TestConfig, DriverConfig – local & grid)
+│   ├── config/          # Configuration classes (TestConfig, DriverConfig – chrome/firefox/safari, local & grid)
 │   ├── errors/          # Custom exceptions (FrameworkException, etc.)
 │   ├── helpers/         # Utility helpers (AuthHelper, Logger)
 │   ├── driver/          # WebDriver management (DriverManager)

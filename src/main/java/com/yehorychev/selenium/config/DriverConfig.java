@@ -1,22 +1,22 @@
 package com.yehorychev.selenium.config;
 
 import org.openqa.selenium.Dimension;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.MutableCapabilities;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.safari.SafariOptions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 
 /**
- * WebDriver factory — creates browser instances for Chrome, Firefox, and Edge.
+ * WebDriver factory — creates browser instances for Chrome, Firefox, and Safari.
  * Driver binaries are managed automatically by Selenium Manager (Selenium 4.6+).
  */
 public final class DriverConfig {
@@ -41,7 +41,7 @@ public final class DriverConfig {
     private static WebDriver createLocalDriver(String browser) {
         return switch (browser.toLowerCase().trim()) {
             case "firefox" -> new FirefoxDriver(buildFirefoxOptions());
-            case "edge" -> new EdgeDriver(buildEdgeOptions());
+            case "safari" -> new SafariDriver(buildSafariOptions());
             case "chrome" -> new ChromeDriver(buildChromeOptions());
             default -> throw unsupportedBrowser(browser);
         };
@@ -51,7 +51,7 @@ public final class DriverConfig {
         try {
             return switch (browser.toLowerCase().trim()) {
                 case "firefox" -> new RemoteWebDriver(buildRemoteUrl(), buildFirefoxOptions());
-                case "edge" -> new RemoteWebDriver(buildRemoteUrl(), buildEdgeOptions());
+                case "safari" -> new RemoteWebDriver(buildRemoteUrl(), buildSafariOptions());
                 case "chrome" -> new RemoteWebDriver(buildRemoteUrl(), buildChromeOptions());
                 default -> throw unsupportedBrowser(browser);
             };
@@ -91,18 +91,8 @@ public final class DriverConfig {
         return options;
     }
 
-    private static EdgeOptions buildEdgeOptions() {
-        EdgeOptions options = new EdgeOptions();
-        if (TestConfig.HEADLESS) {
-            options.addArguments("--headless=new");
-        }
-        options.addArguments(
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--disable-extensions",
-                "--window-size=" + TestConfig.VIEWPORT_WIDTH + "," + TestConfig.VIEWPORT_HEIGHT
-        );
+    private static SafariOptions buildSafariOptions() {
+        SafariOptions options = new SafariOptions();
         applyRemoteCapabilities(options);
         return options;
     }
@@ -128,7 +118,7 @@ public final class DriverConfig {
 
     private static IllegalArgumentException unsupportedBrowser(String browser) {
         return new IllegalArgumentException(
-                "Unsupported browser: \"" + browser + "\". Use: chrome | firefox | edge"
+                "Unsupported browser: \"" + browser + "\". Use: chrome | firefox | safari"
         );
     }
 
