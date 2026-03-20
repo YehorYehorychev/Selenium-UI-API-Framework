@@ -25,6 +25,12 @@ public final class TestConfig {
     private static final String DEFAULT_SCREENSHOT_FAILURE = "true";
     private static final String DEFAULT_ALLURE_RESULTS_DIR = "target/allure-results";
     private static final String DEFAULT_ALLURE_REPORT_DIR = "target/allure-report";
+    private static final String DEFAULT_REMOTE_ENABLED = "false";
+    private static final String DEFAULT_REMOTE_URL = "http://localhost:4444/wd/hub";
+    private static final String DEFAULT_REMOTE_BROWSER_VERSION = "";
+    private static final String DEFAULT_REMOTE_PLATFORM_NAME = "";
+    private static final String DEFAULT_REMOTE_ENABLE_VNC = "false";
+    private static final String DEFAULT_REMOTE_ENABLE_VIDEO = "false";
 
     public static final String BASE_URL;
     public static final String API_BASE_URL;
@@ -44,6 +50,12 @@ public final class TestConfig {
     public static final String USER_PASSWORD;
     public static final String ADMIN_USER_LOGIN;
     public static final String ADMIN_USER_PASSWORD;
+    public static final boolean REMOTE_ENABLED;
+    public static final String REMOTE_URL;
+    public static final String REMOTE_BROWSER_VERSION;
+    public static final String REMOTE_PLATFORM_NAME;
+    public static final boolean REMOTE_ENABLE_VNC;
+    public static final boolean REMOTE_ENABLE_VIDEO;
 
     private static final Dotenv DOTENV = loadDotenv();
 
@@ -69,6 +81,13 @@ public final class TestConfig {
         USER_PASSWORD = resolveOptional("TEST_USER_PASSWORD");
         ADMIN_USER_LOGIN = resolveOptional("ADMIN_USER_LOGIN");
         ADMIN_USER_PASSWORD = resolveOptional("ADMIN_USER_PASSWORD");
+
+        REMOTE_ENABLED = Boolean.parseBoolean(resolve("REMOTE_ENABLED", "remote.enabled", DEFAULT_REMOTE_ENABLED, props));
+        REMOTE_URL = resolve("REMOTE_URL", "remote.url", DEFAULT_REMOTE_URL, props);
+        REMOTE_BROWSER_VERSION = resolve("REMOTE_BROWSER_VERSION", "remote.browser.version", DEFAULT_REMOTE_BROWSER_VERSION, props);
+        REMOTE_PLATFORM_NAME = resolve("REMOTE_PLATFORM_NAME", "remote.platform.name", DEFAULT_REMOTE_PLATFORM_NAME, props);
+        REMOTE_ENABLE_VNC = Boolean.parseBoolean(resolve("REMOTE_ENABLE_VNC", "remote.enable.vnc", DEFAULT_REMOTE_ENABLE_VNC, props));
+        REMOTE_ENABLE_VIDEO = Boolean.parseBoolean(resolve("REMOTE_ENABLE_VIDEO", "remote.enable.video", DEFAULT_REMOTE_ENABLE_VIDEO, props));
     }
 
     private TestConfig() {

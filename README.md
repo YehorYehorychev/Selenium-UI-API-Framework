@@ -20,7 +20,7 @@ Key principles:
 ### Prerequisites
 - Java 25
 - Maven 3.8+
-- Chrome, Firefox, or Edge browser
+- Chrome, Firefox, or Safari browser (Edge via remote grid only)
 - Allure CLI (for reports)
 
 ### Installation
@@ -48,7 +48,7 @@ The framework follows a 7-layer architecture for separation of concerns:
 ```
 selenium-ui-api/
 ├── src/main/java/com/yehorychev/selenium/
-│   ├── config/          # Configuration classes (DriverConfig, TestConfig)
+│   ├── config/          # Configuration classes (TestConfig, DriverConfig – chrome/firefox/safari, local & grid)
 │   ├── errors/          # Custom exceptions (FrameworkException, etc.)
 │   ├── helpers/         # Utility helpers (AuthHelper, Logger)
 │   ├── driver/          # WebDriver management (DriverManager)
@@ -69,10 +69,11 @@ selenium-ui-api/
 ```
 
 ### Key Classes
-- **BasePage**: Common page methods (click, type, waitForVisible)
+- **BasePage**: Common page methods (click, type, waits, drag/drop, alerts, windows)
 - **BaseComponent**: Scoped element interactions for reusable sections
 - **DriverContext**: Holds WebDriver instance, injected per scenario
 - **ScenarioContext**: Key-value store for sharing data between steps
+- **WaitFactory / WaitUtils / LocatorUtils**: Shared wait factories and locator builders
 - **AuthHelper**: Handles GraphQL authentication and cookie injection
 
 ## 🔑 Key Features
@@ -90,25 +91,36 @@ selenium-ui-api/
 
 ## ▶️ Running Tests
 
+### Local (no Docker required)
+
 ```bash
 # Run all tests
 mvn clean test
 
-# Run only smoke tests (fast, critical path)
+# Smoke only — fastest, critical path
 mvn test -Dcucumber.filter.tags="@smoke"
 
-# Run with visible browser for debugging
+# Regression gate
+mvn test -Dcucumber.filter.tags="@regression and not @flaky"
+
+# Debug with visible browser window
 mvn test -DHEADLESS=false -Dcucumber.filter.tags="@smoke"
 
-# Generate and open Allure report
-mvn clean test && mvn allure:serve
-
-# Run in sequential mode (1 thread)
+# Sequential mode (1 thread, easier to read logs)
 mvn test -DPARALLEL_THREADS=1
 
 # Disable retries
 mvn test -DRETRY_COUNT=0
+
+# Run + open Allure report
+mvn clean test && mvn allure:serve
 ```
+
+### Via Selenium Grid (recommended for CI / cross-browser)
+
+See the full guide below: [🌐 Running on Selenium Grid](#-running-on-selenium-grid)
+
+---
 
 ## 🔑 Authentication
 
@@ -154,6 +166,127 @@ Feature: User can search champions on LoL page
     When I search for champion "Ahri"
     Then there should be at least 1 champion card displayed
 ```
+
+## 🌐 Running on Selenium Grid
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Docker Compose v2 (bundled with Docker Desktop)
+- The framework is already wired — just set `REMOTE_ENABLED=true`
+
+> **Apple Silicon note:** The bundled compose stack uses official `selenium/*` images with `platform: linux/arm64`.  
+> Chrome node uses `selenium/node-chromium` (Chromium) because Google Chrome has no Linux ARM64 binary — it registers as `chrome` in the grid and is fully transparent to test code.
+
+---
+
+### Step 1 — Start the Grid
+
+```bash
+docker compose -f docker-compose.selenium-grid.yml up -d
+```
+
+Expected output:
+```
+✔ Container selenium-hub            Healthy
+✔ Container selenium-node-chromium  Started
+✔ Container selenium-node-firefox   Started
+```
+
+Verify nodes registered at the Grid UI:
+```
+http://localhost:4444/ui
+```
+
+---
+
+### Step 2 — Run Tests
+
+#### Smoke suite on Chrome (Chromium)
+```bash
+REMOTE_ENABLED=true BROWSER=chrome mvn test -Dcucumber.filter.tags="@smoke"
+```
+
+#### Smoke suite on Firefox
+```bash
+REMOTE_ENABLED=true BROWSER=firefox mvn test -Dcucumber.filter.tags="@smoke"
+```
+
+#### Full regression on Chrome
+```bash
+REMOTE_ENABLED=true BROWSER=chrome mvn clean test
+```
+
+#### Full regression on Firefox
+```bash
+REMOTE_ENABLED=true BROWSER=firefox mvn clean test
+```
+
+#### Cross-browser: run both in sequence
+```bash
+REMOTE_ENABLED=true BROWSER=chrome mvn clean test
+REMOTE_ENABLED=true BROWSER=firefox mvn test -Dcucumber.filter.tags="@regression"
+```
+
+> `REMOTE_URL` defaults to `http://localhost:4444/wd/hub` — no need to pass it unless using a remote/cloud grid.
+
+---
+
+### Step 3 — View Allure Report
+
+Allure results are always written locally to `target/allure-results` regardless of where the browser runs.
+
+```bash
+# Open live report in browser
+mvn allure:serve
+
+# Or generate static HTML report
+mvn allure:report
+# → target/allure-report/index.html
+```
+
+---
+
+### Step 4 — Stop the Grid
+
+```bash
+docker compose -f docker-compose.selenium-grid.yml down
+```
+
+---
+
+### Grid Configuration Reference
+
+All grid settings are in `.env` (or passed as env vars):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REMOTE_ENABLED` | `false` | Set `true` to use grid instead of local driver |
+| `REMOTE_URL` | `http://localhost:4444/wd/hub` | Grid hub endpoint |
+| `BROWSER` | `chrome` | `chrome` or `firefox` (safari requires macOS grid/cloud) |
+| `REMOTE_BROWSER_VERSION` | _(blank)_ | Pin a specific version; blank = node default |
+| `REMOTE_PLATFORM_NAME` | _(blank)_ | `LINUX`, `MAC`, `WINDOWS` — required by some providers |
+| `REMOTE_ENABLE_VNC` | `false` | Enable VNC live preview (Selenoid / cloud) |
+| `REMOTE_ENABLE_VIDEO` | `false` | Enable video recording (Selenoid / cloud) |
+| `HEADLESS` | `true` | Keep `true` in grid runs for consistency |
+
+---
+
+### Using an External / Cloud Grid
+
+Replace `REMOTE_URL` with your provider endpoint:
+
+```bash
+# BrowserStack / Sauce Labs / LambdaTest / your own remote hub
+REMOTE_ENABLED=true \
+REMOTE_URL=https://<user>:<key>@hub.browserstack.com/wd/hub \
+BROWSER=chrome \
+REMOTE_BROWSER_VERSION=latest \
+REMOTE_PLATFORM_NAME=Windows 10 \
+mvn test -Dcucumber.filter.tags="@smoke"
+```
+
+---
 
 ## 🤝 Contributing
 
