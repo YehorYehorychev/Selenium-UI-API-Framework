@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.driver;
 
 import com.yehorychev.selenium.config.DriverConfig;
+import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
 import org.openqa.selenium.WebDriver;
 
@@ -20,7 +21,7 @@ public final class DriverManager {
             log.warn("Driver already initialised on this thread — quitting old instance first.");
             quitDriver();
         }
-        log.step("Initialising WebDriver for thread: " + Thread.currentThread().getName());
+        log.step(targetDescription(TestConfig.BROWSER));
         WebDriver driver = DriverConfig.createDriver();
         DRIVER_THREAD_LOCAL.set(driver);
         log.info("WebDriver ready", driver.getClass().getSimpleName());
@@ -31,7 +32,7 @@ public final class DriverManager {
             log.warn("Driver already initialised on this thread — quitting old instance first.");
             quitDriver();
         }
-        log.step("Initialising WebDriver [" + browser + "] for thread: " + Thread.currentThread().getName());
+        log.step(targetDescription(browser));
         WebDriver driver = DriverConfig.createDriver(browser);
         DRIVER_THREAD_LOCAL.set(driver);
         log.info("WebDriver ready", driver.getClass().getSimpleName());
@@ -64,5 +65,12 @@ public final class DriverManager {
                 DRIVER_THREAD_LOCAL.remove();
             }
         }
+    }
+
+    private static String targetDescription(String browser) {
+        String target = TestConfig.REMOTE_ENABLED
+                ? "RemoteWebDriver → " + TestConfig.REMOTE_URL
+                : "Local WebDriver";
+        return "Initialising " + target + " [" + browser + "] for thread: " + Thread.currentThread().getName();
     }
 }

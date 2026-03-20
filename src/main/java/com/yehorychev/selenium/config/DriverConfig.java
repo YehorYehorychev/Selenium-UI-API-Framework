@@ -2,13 +2,17 @@ package com.yehorychev.selenium.config;
 
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 
 /**
@@ -25,21 +29,38 @@ public final class DriverConfig {
     }
 
     public static WebDriver createDriver(String browser) {
-        WebDriver driver = switch (browser.toLowerCase().trim()) {
-            case "firefox" -> createFirefoxDriver();
-            case "edge" -> createEdgeDriver();
-            case "chrome" -> createChromeDriver();
-            default -> throw new IllegalArgumentException(
-                    "Unsupported browser: \"" + browser + "\". Use: chrome | firefox | edge"
-            );
-        };
+        WebDriver driver = TestConfig.REMOTE_ENABLED
+                ? createRemoteDriver(browser)
+                : createLocalDriver(browser);
 
         applyViewport(driver);
         applyTimeouts(driver);
         return driver;
     }
 
-    private static WebDriver createChromeDriver() {
+    private static WebDriver createLocalDriver(String browser) {
+        return switch (browser.toLowerCase().trim()) {
+            case "firefox" -> new FirefoxDriver(buildFirefoxOptions());
+            case "edge" -> new EdgeDriver(buildEdgeOptions());
+            case "chrome" -> new ChromeDriver(buildChromeOptions());
+            default -> throw unsupportedBrowser(browser);
+        };
+    }
+
+    private static WebDriver createRemoteDriver(String browser) {
+        try {
+            return switch (browser.toLowerCase().trim()) {
+                case "firefox" -> new RemoteWebDriver(buildRemoteUrl(), buildFirefoxOptions());
+                case "edge" -> new RemoteWebDriver(buildRemoteUrl(), buildEdgeOptions());
+                case "chrome" -> new RemoteWebDriver(buildRemoteUrl(), buildChromeOptions());
+                default -> throw unsupportedBrowser(browser);
+            };
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Invalid REMOTE_URL: " + TestConfig.REMOTE_URL, e);
+        }
+    }
+
+    private static ChromeOptions buildChromeOptions() {
         ChromeOptions options = new ChromeOptions();
         if (TestConfig.HEADLESS) {
             options.addArguments("--headless=new");
@@ -53,10 +74,11 @@ public final class DriverConfig {
                 "--remote-allow-origins=*",
                 "--window-size=" + TestConfig.VIEWPORT_WIDTH + "," + TestConfig.VIEWPORT_HEIGHT
         );
-        return new ChromeDriver(options);
+        applyRemoteCapabilities(options);
+        return options;
     }
 
-    private static WebDriver createFirefoxDriver() {
+    private static FirefoxOptions buildFirefoxOptions() {
         FirefoxOptions options = new FirefoxOptions();
         if (TestConfig.HEADLESS) {
             options.addArguments("-headless");
@@ -65,10 +87,11 @@ public final class DriverConfig {
                 "--width=" + TestConfig.VIEWPORT_WIDTH,
                 "--height=" + TestConfig.VIEWPORT_HEIGHT
         );
-        return new FirefoxDriver(options);
+        applyRemoteCapabilities(options);
+        return options;
     }
 
-    private static WebDriver createEdgeDriver() {
+    private static EdgeOptions buildEdgeOptions() {
         EdgeOptions options = new EdgeOptions();
         if (TestConfig.HEADLESS) {
             options.addArguments("--headless=new");
@@ -80,7 +103,33 @@ public final class DriverConfig {
                 "--disable-extensions",
                 "--window-size=" + TestConfig.VIEWPORT_WIDTH + "," + TestConfig.VIEWPORT_HEIGHT
         );
-        return new EdgeDriver(options);
+        applyRemoteCapabilities(options);
+        return options;
+    }
+
+    private static void applyRemoteCapabilities(MutableCapabilities options) {
+        if (TestConfig.REMOTE_BROWSER_VERSION != null && !TestConfig.REMOTE_BROWSER_VERSION.isBlank()) {
+            options.setCapability("browserVersion", TestConfig.REMOTE_BROWSER_VERSION);
+        }
+        if (TestConfig.REMOTE_PLATFORM_NAME != null && !TestConfig.REMOTE_PLATFORM_NAME.isBlank()) {
+            options.setCapability("platformName", TestConfig.REMOTE_PLATFORM_NAME);
+        }
+        if (TestConfig.REMOTE_ENABLE_VNC) {
+            options.setCapability("enableVNC", true);
+        }
+        if (TestConfig.REMOTE_ENABLE_VIDEO) {
+            options.setCapability("enableVideo", true);
+        }
+    }
+
+    private static URL buildRemoteUrl() throws MalformedURLException {
+        return new URL(TestConfig.REMOTE_URL);
+    }
+
+    private static IllegalArgumentException unsupportedBrowser(String browser) {
+        return new IllegalArgumentException(
+                "Unsupported browser: \"" + browser + "\". Use: chrome | firefox | edge"
+        );
     }
 
     private static void applyViewport(WebDriver driver) {

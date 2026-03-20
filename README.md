@@ -48,7 +48,7 @@ The framework follows a 7-layer architecture for separation of concerns:
 ```
 selenium-ui-api/
 ├── src/main/java/com/yehorychev/selenium/
-│   ├── config/          # Configuration classes (DriverConfig, TestConfig)
+│   ├── config/          # Configuration classes (TestConfig, DriverConfig – local & grid)
 │   ├── errors/          # Custom exceptions (FrameworkException, etc.)
 │   ├── helpers/         # Utility helpers (AuthHelper, Logger)
 │   ├── driver/          # WebDriver management (DriverManager)
@@ -69,10 +69,11 @@ selenium-ui-api/
 ```
 
 ### Key Classes
-- **BasePage**: Common page methods (click, type, waitForVisible)
+- **BasePage**: Common page methods (click, type, waits, drag/drop, alerts, windows)
 - **BaseComponent**: Scoped element interactions for reusable sections
 - **DriverContext**: Holds WebDriver instance, injected per scenario
 - **ScenarioContext**: Key-value store for sharing data between steps
+- **WaitFactory / WaitUtils / LocatorUtils**: Shared wait factories and locator builders
 - **AuthHelper**: Handles GraphQL authentication and cookie injection
 
 ## 🔑 Key Features
@@ -108,6 +109,18 @@ mvn test -DPARALLEL_THREADS=1
 
 # Disable retries
 mvn test -DRETRY_COUNT=0
+
+# Run on Selenium Grid (Chrome example)
+REMOTE_ENABLED=true \
+REMOTE_URL=http://localhost:4444/wd/hub \
+BROWSER=chrome \
+mvn test -Dcucumber.filter.tags="@smoke"
+
+# Run on Selenium Grid (Firefox example)
+REMOTE_ENABLED=true \
+REMOTE_URL=http://localhost:4444/wd/hub \
+BROWSER=firefox \
+mvn test -Dcucumber.filter.tags="@smoke"
 ```
 
 ## 🔑 Authentication
@@ -154,6 +167,32 @@ Feature: User can search champions on LoL page
     When I search for champion "Ahri"
     Then there should be at least 1 champion card displayed
 ```
+
+## 🌐 Running on Selenium Grid
+
+Local Docker Grid (Chrome + Firefox):
+
+```bash
+docker network create grid || true
+docker run -d --net grid -p 4442-4444:4442-4444 --name selenium-hub selenium/hub:4.21.0
+docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size=2g --name selenium-node-chrome selenium/node-chrome:4.21.0
+docker run -d --net grid -e SE_EVENT_BUS_HOST=selenium-hub -e SE_EVENT_BUS_PUBLISH_PORT=4442 -e SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --shm-size=2g --name selenium-node-firefox selenium/node-firefox:4.21.0
+```
+
+Then run tests with grid-enabled config:
+
+```bash
+REMOTE_ENABLED=true \
+REMOTE_URL=http://localhost:4444/wd/hub \
+REMOTE_PLATFORM_NAME=LINUX \
+BROWSER=chrome \
+mvn test -Dcucumber.filter.tags="@smoke"
+```
+
+Notes:
+- Leave `REMOTE_BROWSER_VERSION` blank to use node default (usually `latest`).
+- Set `REMOTE_ENABLE_VNC=true` or `REMOTE_ENABLE_VIDEO=true` when the provider supports it (e.g., Selenoid).
+- Keep `HEADLESS=true` for consistency unless debugging visually.
 
 ## 🤝 Contributing
 
