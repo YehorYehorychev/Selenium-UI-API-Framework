@@ -53,8 +53,9 @@ public class DriverHooks {
             String name = "failure-" + sanitise(scenario.getName());
             log.step("Capturing failure screenshot: " + name);
             ScreenshotUtils.attachFullPage(driverContext.getDriver(), name);
+            ScreenshotUtils.attachConsoleLogs(driverContext.getDriver(), "console-" + sanitise(scenario.getName()));
         } catch (Exception e) {
-            log.warn("Failed to capture failure screenshot: " + e.getMessage());
+            log.warn("Failed to capture failure artifacts: " + e.getMessage());
         }
     }
 

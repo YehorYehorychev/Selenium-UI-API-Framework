@@ -52,7 +52,7 @@ public class ApiSteps {
 
     @When("I query the current user via GraphQL")
     public void iQueryTheCurrentUserViaGraphQL() {
-        Response response = api.graphql(GraphqlQueries.GET_CURRENT_USER);
+        Response response = api.graphql(GraphqlQueries.ACCOUNT_QUERY);
         scenarioContext.set(ScenarioContextKeys.LAST_RESPONSE, response);
         log.step("GraphQL GetCurrentUser → " + response.getStatusCode());
     }

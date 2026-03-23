@@ -47,6 +47,4 @@ public final class GraphqlQueries {
               }
             }
             """;
-
-    public static final String GET_CURRENT_USER = ACCOUNT_QUERY;
 }
