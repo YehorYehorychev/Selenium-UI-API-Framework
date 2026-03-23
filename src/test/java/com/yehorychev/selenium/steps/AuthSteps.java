@@ -8,7 +8,7 @@ import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.context.ApiContext;
 import com.yehorychev.selenium.context.DriverContext;
 import com.yehorychev.selenium.context.ScenarioContext;
-import com.yehorychev.selenium.hooks.AuthHooks;
+import com.yehorychev.selenium.context.ScenarioContextKeys;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -25,7 +25,6 @@ import static org.testng.Assert.*;
 public class AuthSteps {
 
     private static final Logger log = new Logger(AuthSteps.class);
-    private static final String LAST_RESPONSE  = "lastResponse";
 
     private final DriverContext driverContext;
     private final ApiContext api;
@@ -53,7 +52,7 @@ public class AuthSteps {
                     "GraphQL signIn returned false for: " + TestData.Credentials.LOGIN);
         }
 
-        scenarioContext.set(AuthHooks.AUTH_STATUS_KEY, "true");
+        scenarioContext.set(ScenarioContextKeys.IS_AUTHENTICATED, "true");
         log.info("API authentication successful for: " + TestData.Credentials.LOGIN);
     }
 
@@ -66,7 +65,7 @@ public class AuthSteps {
                 "continueFrom", ""
         );
         Response response = api.graphql(GraphqlQueries.SIGN_IN, vars);
-        scenarioContext.set(LAST_RESPONSE, response);
+        scenarioContext.set(ScenarioContextKeys.LAST_RESPONSE, response);
         log.step("Sign-in attempt → HTTP " + response.getStatusCode());
     }
 
@@ -75,22 +74,22 @@ public class AuthSteps {
         log.step("Injecting authenticated session into WebDriver");
         Map<String, String> authData = AuthHelper.loginViaApi();
         AuthHelper.injectAuthIntoDriver(driverContext.getDriver(), authData);
-        scenarioContext.set(AuthHooks.AUTH_STATUS_KEY, authData.get(AuthHelper.KEY_SIGNED_IN));
+        scenarioContext.set(ScenarioContextKeys.IS_AUTHENTICATED, authData.get(AuthHelper.KEY_SIGNED_IN));
     }
 
     @When("I log out via API")
     public void iLogOutViaApi() {
-        String signedIn = scenarioContext.get(AuthHooks.AUTH_STATUS_KEY);
+        String signedIn = scenarioContext.get(ScenarioContextKeys.IS_AUTHENTICATED);
         assertNotNull(signedIn, "No auth session in ScenarioContext — did you log in first?");
         log.step("Logging out via API");
         api.graphql(GraphqlQueries.SIGN_OUT);
-        scenarioContext.set(AuthHooks.AUTH_STATUS_KEY, null);
+        scenarioContext.set(ScenarioContextKeys.IS_AUTHENTICATED, null);
         log.info("API logout complete");
     }
 
     @Then("an auth token should be stored in the scenario context")
     public void anAuthTokenShouldBeStoredInScenarioContext() {
-        String signedIn = scenarioContext.get(AuthHooks.AUTH_STATUS_KEY);
+        String signedIn = scenarioContext.get(ScenarioContextKeys.IS_AUTHENTICATED);
         assertNotNull(signedIn, "Expected auth session marker to be stored in ScenarioContext");
         assertEquals(signedIn, "true", "Expected auth session marker to be 'true' but was: " + signedIn);
         log.info("Auth session verified in ScenarioContext");
@@ -98,7 +97,7 @@ public class AuthSteps {
 
     @Then("the auth token should no longer be present")
     public void theAuthTokenShouldNoLongerBePresent() {
-        String signedIn = scenarioContext.get(AuthHooks.AUTH_STATUS_KEY);
+        String signedIn = scenarioContext.get(ScenarioContextKeys.IS_AUTHENTICATED);
         assertNull(signedIn, "Expected auth session marker to be null after logout but was: " + signedIn);
     }
 
@@ -112,7 +111,7 @@ public class AuthSteps {
 
     @Then("the sign-in should have failed")
     public void theSignInShouldHaveFailed() {
-        Response response = scenarioContext.get(LAST_RESPONSE);
+        Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No sign-in response stored — did you call the sign-in step?");
         String body = response.getBody().asString();
         boolean hasFalse  = body.contains("\"signIn\":false") || body.contains("\"signIn\": false");

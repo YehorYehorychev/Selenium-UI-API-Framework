@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * Screenshot helpers — full-page, viewport, and element captures via AShot with Allure attachment.
@@ -136,6 +137,39 @@ public final class ScreenshotUtils {
             return filePath;
         } catch (IOException e) {
             throw new FrameworkException("Failed to save screenshot to: " + dir, e);
+        }
+    }
+
+    /**
+     * Deletes {@code .png} files in {@code dir} that are older than {@code retentionDays} days.
+     * Silently skips if the directory does not exist yet.
+     *
+     * @param dir           path to the screenshot directory (e.g. {@code "target/screenshots"})
+     * @param retentionDays files older than this many days are removed
+     */
+    public static void cleanupOldScreenshots(String dir, int retentionDays) {
+        Path directory = Paths.get(dir);
+        if (!Files.exists(directory)) {
+            log.debug("Screenshot directory does not exist yet — skipping cleanup: " + dir);
+            return;
+        }
+        long cutoffMillis = System.currentTimeMillis() - (long) retentionDays * 24 * 60 * 60 * 1000;
+        try (Stream<Path> files = Files.list(directory)) {
+            files.filter(p -> p.toString().endsWith(FILE_EXTENSION))
+                 .filter(p -> {
+                     try { return Files.getLastModifiedTime(p).toMillis() < cutoffMillis; }
+                     catch (IOException e) { return false; }
+                 })
+                 .forEach(p -> {
+                     try {
+                         Files.delete(p);
+                         log.debug("Deleted old screenshot: " + p.getFileName());
+                     } catch (IOException e) {
+                         log.warn("Could not delete screenshot: " + p + " — " + e.getMessage());
+                     }
+                 });
+        } catch (IOException e) {
+            log.warn("Failed to list screenshot directory for cleanup: " + dir + " — " + e.getMessage());
         }
     }
 }

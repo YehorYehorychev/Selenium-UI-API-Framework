@@ -6,6 +6,7 @@ import com.yehorychev.selenium.utils.ScreenshotUtils;
 import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
+import io.cucumber.java.BeforeAll;
 import io.cucumber.java.Scenario;
 import org.slf4j.MDC;
 
@@ -15,6 +16,13 @@ import org.slf4j.MDC;
 public class DriverHooks {
 
     private static final Logger log = new Logger(DriverHooks.class);
+
+    @BeforeAll
+    public static void cleanUpOldScreenshots() {
+        if (TestConfig.SCREENSHOT_ON_FAILURE) {
+            ScreenshotUtils.cleanupOldScreenshots(TestConfig.SCREENSHOT_DIR, 7);
+        }
+    }
 
     private final DriverContext driverContext;
 
