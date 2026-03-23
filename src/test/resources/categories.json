@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Product Defects",
+    "messageRegex": ".*AssertionError.*|.*AssertJ.*|.*expected.*but was.*|.*SoftAssertionError.*",
+    "matchedStatuses": ["failed"]
+  },
+  {
+    "name": "Test Infrastructure Failures",
+    "messageRegex": ".*TimeoutException.*|.*ElementNotFoundException.*|.*NavigationException.*|.*PageLoadException.*|.*AuthenticationException.*|.*FrameworkException.*|.*WebDriverException.*",
+    "matchedStatuses": ["failed", "broken"]
+  },
+  {
+    "name": "Flaky Tests",
+    "flaky": true,
+    "matchedStatuses": ["failed", "passed"]
+  },
+  {
+    "name": "Test Defects",
+    "matchedStatuses": ["broken"]
+  }
+]
+

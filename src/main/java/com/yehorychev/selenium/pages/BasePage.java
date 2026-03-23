@@ -7,6 +7,7 @@ import com.yehorychev.selenium.errors.PageLoadException;
 import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.utils.WaitFactory;
 import com.yehorychev.selenium.utils.WaitUtils;
+import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -34,6 +35,7 @@ public abstract class BasePage {
         this.log = new Logger(this.getClass());
     }
 
+    @Step("Navigate to {url}")
     public void open(String url) {
         log.step("Navigating to: " + url);
         try {
@@ -43,6 +45,7 @@ public abstract class BasePage {
         }
     }
 
+    @Step("Navigate to base URL")
     public void openBaseUrl() {
         open(TestConfig.BASE_URL);
     }
@@ -63,6 +66,7 @@ public abstract class BasePage {
         WaitUtils.waitForTitle(driver, titleFragment);
     }
 
+    @Step("Click {locator}")
     public void click(By locator) {
         log.step("Clicking element: " + locator);
         wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
@@ -73,6 +77,7 @@ public abstract class BasePage {
         wait.until(ExpectedConditions.elementToBeClickable(element)).click();
     }
 
+    @Step("Type '{text}' into {locator}")
     public void type(By locator, String text) {
         log.step("Typing \"" + text + "\" into: " + locator);
         WebElement el = waitForVisible(locator);
@@ -87,6 +92,7 @@ public abstract class BasePage {
         element.sendKeys(text);
     }
 
+    @Step("Append '{text}' into {locator}")
     public void typeAppend(By locator, String text) {
         waitForVisible(locator).sendKeys(text);
     }
@@ -99,10 +105,12 @@ public abstract class BasePage {
         return waitForVisible(locator).getAttribute(attribute);
     }
 
+    @Step("Press ENTER on {locator}")
     public void pressEnter(By locator) {
         waitForVisible(locator).sendKeys(Keys.ENTER);
     }
 
+    @Step("Hover over {locator}")
     public void hover(By locator) {
         log.step("Hovering over: " + locator);
         actions.moveToElement(waitForVisible(locator)).perform();
@@ -155,6 +163,7 @@ public abstract class BasePage {
         return ((JavascriptExecutor) driver).executeScript(script, args);
     }
 
+    @Step("Scroll {locator} into view")
     public void scrollIntoView(By locator) {
         WebElement el = waitForPresent(locator);
         executeScript("arguments[0].scrollIntoView({block:'center'});", el);
@@ -230,6 +239,7 @@ public abstract class BasePage {
         }
     }
 
+    @Step("Switch to frame {locator}")
     public void switchToFrame(By locator) {
         try {
             wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(locator));
@@ -238,15 +248,18 @@ public abstract class BasePage {
         }
     }
 
+    @Step("Switch to default content")
     public void switchToDefaultContent() {
         driver.switchTo().defaultContent();
     }
 
+    @Step("JS click {locator}")
     public void jsClick(By locator) {
         WebElement element = waitForVisible(locator);
         executeScript("arguments[0].click();", element);
     }
 
+    @Step("Click {locator} (with retry)")
     public void clickWithRetry(By locator) {
         clickWithRetry(locator, 3);
     }
@@ -274,18 +287,22 @@ public abstract class BasePage {
         }
     }
 
+    @Step("Scroll to top")
     public void scrollToTop() {
         executeScript("window.scrollTo(0, 0);");
     }
 
+    @Step("Scroll to bottom")
     public void scrollToBottom() {
         executeScript("window.scrollTo(0, document.body.scrollHeight);");
     }
 
+    @Step("Scroll by ({x}, {y})")
     public void scrollBy(int x, int y) {
         executeScript("window.scrollBy(arguments[0], arguments[1]);", x, y);
     }
 
+    @Step("Drag {sourceLocator} to {targetLocator}")
     public void dragAndDrop(By sourceLocator, By targetLocator) {
         WebElement source = waitForVisible(sourceLocator);
         WebElement target = waitForVisible(targetLocator);
@@ -296,11 +313,13 @@ public abstract class BasePage {
         actions.dragAndDrop(source, target).perform();
     }
 
+    @Step("Drag {sourceLocator} by offset ({xOffset}, {yOffset})")
     public void dragAndDropBy(By sourceLocator, int xOffset, int yOffset) {
         WebElement source = waitForVisible(sourceLocator);
         actions.dragAndDropBy(source, xOffset, yOffset).perform();
     }
 
+    @Step("HTML5 drag {sourceLocator} to {targetLocator}")
     public void dragAndDropHtml5(By sourceLocator, By targetLocator) {
         WebElement source = waitForVisible(sourceLocator);
         WebElement target = waitForVisible(targetLocator);
@@ -312,6 +331,7 @@ public abstract class BasePage {
         executeScript(script, source, target);
     }
 
+    @Step("Upload file '{file}' via {locator}")
     public void uploadFile(By locator, Path file) {
         waitForVisible(locator).sendKeys(file.toString());
     }
@@ -328,10 +348,12 @@ public abstract class BasePage {
         return waitForAlert().getText();
     }
 
+    @Step("Accept browser alert")
     public void acceptAlert() {
         waitForAlert().accept();
     }
 
+    @Step("Dismiss browser alert")
     public void dismissAlert() {
         waitForAlert().dismiss();
     }
@@ -360,16 +382,19 @@ public abstract class BasePage {
         }
     }
 
+    @Step("Open new browser tab")
     public void openNewTab() {
         executeScript("window.open('about:blank','_blank');");
         switchToLastTab();
     }
 
+    @Step("Switch to last tab")
     public void switchToLastTab() {
         ArrayList<String> handles = new ArrayList<>(driver.getWindowHandles());
         driver.switchTo().window(handles.get(handles.size() - 1));
     }
 
+    @Step("Switch to tab {index}")
     public void switchToTab(int index) {
         ArrayList<String> handles = new ArrayList<>(driver.getWindowHandles());
         if (index < 0 || index >= handles.size()) {
@@ -378,6 +403,7 @@ public abstract class BasePage {
         driver.switchTo().window(handles.get(index));
     }
 
+    @Step("Switch to window with title containing '{titleFragment}'")
     public boolean switchToWindowWithTitle(String titleFragment) {
         Set<String> handles = driver.getWindowHandles();
         for (String handle : handles) {
@@ -389,6 +415,7 @@ public abstract class BasePage {
         return false;
     }
 
+    @Step("Close current tab and return to first")
     public void closeCurrentTabAndSwitchToFirst() {
         String current = driver.getWindowHandle();
         driver.close();

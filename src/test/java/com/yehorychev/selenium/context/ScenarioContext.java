@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.context;
 
+import com.yehorychev.selenium.errors.FrameworkException;
 import com.yehorychev.selenium.helpers.Logger;
 
 import java.util.Collections;
@@ -24,6 +25,26 @@ public class ScenarioContext {
     @SuppressWarnings("unchecked")
     public <T> T get(String key) {
         return (T) context.get(key);
+    }
+
+    /**
+     * Type-safe get — throws {@link FrameworkException} when the key is absent or the stored
+     * value cannot be cast to {@code type}, giving a clear failure message instead of a
+     * silent {@code null} or a confusing {@link ClassCastException} deep in a step.
+     */
+    public <T> T get(String key, Class<T> type) {
+        Object value = context.get(key);
+        if (value == null) {
+            throw new FrameworkException(
+                    "ScenarioContext key '" + key + "' is not present. "
+                    + "Make sure the step that sets this value runs before the one that reads it.");
+        }
+        if (!type.isInstance(value)) {
+            throw new FrameworkException(
+                    "ScenarioContext key '" + key + "' holds a " + value.getClass().getName()
+                    + " but was expected to be " + type.getName() + ".");
+        }
+        return type.cast(value);
     }
 
     @SuppressWarnings("unchecked")

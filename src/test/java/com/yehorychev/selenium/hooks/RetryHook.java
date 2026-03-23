@@ -2,6 +2,7 @@ package com.yehorychev.selenium.hooks;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.context.ScenarioContext;
+import com.yehorychev.selenium.context.ScenarioContextKeys;
 import com.yehorychev.selenium.helpers.Logger;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -16,10 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and labels retried-but-passed scenarios as flaky.
  */
 public class RetryHook {
-
-    public static final String KEY_ATTEMPT_NUMBER = "retry.attemptNumber";
-    public static final String KEY_TOTAL_ATTEMPTS = "retry.totalAttempts";
-    public static final String KEY_WAS_RETRIED    = "retry.wasRetried";
 
     // Keyed by Scenario#getId() — survives PicoContainer resets between retries
     private static final ConcurrentHashMap<String, AtomicInteger> ATTEMPT_COUNTERS =
@@ -41,9 +38,9 @@ public class RetryHook {
         boolean wasRetried = attemptNumber > 1;
         int maxAttempts = TestConfig.RETRY_COUNT + 1;
 
-        scenarioContext.set(KEY_ATTEMPT_NUMBER, attemptNumber);
-        scenarioContext.set(KEY_TOTAL_ATTEMPTS, maxAttempts);
-        scenarioContext.set(KEY_WAS_RETRIED, wasRetried);
+        scenarioContext.set(ScenarioContextKeys.RETRY_ATTEMPT_NUMBER, attemptNumber);
+        scenarioContext.set(ScenarioContextKeys.RETRY_TOTAL_ATTEMPTS, maxAttempts);
+        scenarioContext.set(ScenarioContextKeys.RETRY_WAS_RETRIED, wasRetried);
 
         if (wasRetried) {
             log.step(String.format("↺ RETRY attempt %d / %d for scenario: [%s] %s",
@@ -60,10 +57,10 @@ public class RetryHook {
     @After(order = 20)
     public void recordOutcome(Scenario scenario) {
         String id = scenario.getId();
-        boolean wasRetried = Boolean.TRUE.equals(scenarioContext.<Boolean>get(KEY_WAS_RETRIED));
+        boolean wasRetried = Boolean.TRUE.equals(scenarioContext.<Boolean>get(ScenarioContextKeys.RETRY_WAS_RETRIED));
         boolean passed = !scenario.isFailed();
-        int attemptNumber = scenarioContext.getOrDefault(KEY_ATTEMPT_NUMBER, 1);
-        int maxAttempts = scenarioContext.getOrDefault(KEY_TOTAL_ATTEMPTS, 1);
+        int attemptNumber = scenarioContext.getOrDefault(ScenarioContextKeys.RETRY_ATTEMPT_NUMBER, 1);
+        int maxAttempts = scenarioContext.getOrDefault(ScenarioContextKeys.RETRY_TOTAL_ATTEMPTS, 1);
 
         if (passed && wasRetried) {
             log.warn(String.format("⚠ FLAKY scenario passed on attempt %d / %d: [%s] %s",

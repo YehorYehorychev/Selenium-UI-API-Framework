@@ -23,6 +23,7 @@ public final class TestConfig {
     private static final String DEFAULT_VIEWPORT_WIDTH = "1920";
     private static final String DEFAULT_VIEWPORT_HEIGHT = "1080";
     private static final String DEFAULT_SCREENSHOT_FAILURE = "true";
+    private static final String DEFAULT_SCREENSHOT_DIR = "target/screenshots";
     private static final String DEFAULT_ALLURE_RESULTS_DIR = "target/allure-results";
     private static final String DEFAULT_ALLURE_REPORT_DIR = "target/allure-report";
     private static final String DEFAULT_REMOTE_ENABLED = "false";
@@ -44,6 +45,7 @@ public final class TestConfig {
     public static final int VIEWPORT_WIDTH;
     public static final int VIEWPORT_HEIGHT;
     public static final boolean SCREENSHOT_ON_FAILURE;
+    public static final String SCREENSHOT_DIR;
     public static final String ALLURE_RESULTS_DIR;
     public static final String ALLURE_REPORT_DIR;
     public static final String USER_LOGIN;
@@ -74,6 +76,7 @@ public final class TestConfig {
         VIEWPORT_WIDTH = Integer.parseInt(resolve("VIEWPORT_WIDTH", "viewport.width", DEFAULT_VIEWPORT_WIDTH, props));
         VIEWPORT_HEIGHT = Integer.parseInt(resolve("VIEWPORT_HEIGHT", "viewport.height", DEFAULT_VIEWPORT_HEIGHT, props));
         SCREENSHOT_ON_FAILURE = Boolean.parseBoolean(resolve("SCREENSHOT_ON_FAILURE", "screenshot.on.failure", DEFAULT_SCREENSHOT_FAILURE, props));
+        SCREENSHOT_DIR = resolve("SCREENSHOT_DIR", "screenshot.dir", DEFAULT_SCREENSHOT_DIR, props);
         ALLURE_RESULTS_DIR = resolve("ALLURE_RESULTS_DIR", "allure.results.dir", DEFAULT_ALLURE_RESULTS_DIR, props);
         ALLURE_REPORT_DIR = resolve("ALLURE_REPORT_DIR", "allure.report.dir", DEFAULT_ALLURE_REPORT_DIR, props);
 
