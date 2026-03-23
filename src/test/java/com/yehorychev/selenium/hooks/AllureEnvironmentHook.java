@@ -68,20 +68,20 @@ public class AllureEnvironmentHook {
             Files.createDirectories(dir);
 
             Properties env = new Properties();
-            env.setProperty("Browser",         TestConfig.BROWSER);
-            env.setProperty("Headless",        String.valueOf(TestConfig.HEADLESS));
-            env.setProperty("Base URL",        TestConfig.BASE_URL);
-            env.setProperty("API Base URL",    TestConfig.API_BASE_URL);
-            env.setProperty("Threads",         String.valueOf(TestConfig.PARALLEL_THREADS));
-            env.setProperty("Retry Count",     String.valueOf(TestConfig.RETRY_COUNT));
-            env.setProperty("Timeout (ms)",    String.valueOf(TestConfig.DEFAULT_TIMEOUT_MS));
-            env.setProperty("Remote",          String.valueOf(TestConfig.REMOTE_ENABLED));
+            env.setProperty("Browser", TestConfig.BROWSER);
+            env.setProperty("Headless", String.valueOf(TestConfig.HEADLESS));
+            env.setProperty("Base URL", TestConfig.BASE_URL);
+            env.setProperty("API Base URL", TestConfig.API_BASE_URL);
+            env.setProperty("Threads", String.valueOf(TestConfig.PARALLEL_THREADS));
+            env.setProperty("Retry Count", String.valueOf(TestConfig.RETRY_COUNT));
+            env.setProperty("Timeout (ms)", String.valueOf(TestConfig.DEFAULT_TIMEOUT_MS));
+            env.setProperty("Remote", String.valueOf(TestConfig.REMOTE_ENABLED));
             if (TestConfig.REMOTE_ENABLED) {
-                env.setProperty("Grid URL",    TestConfig.REMOTE_URL);
+                env.setProperty("Grid URL", TestConfig.REMOTE_URL);
             }
-            env.setProperty("Java Version",    System.getProperty("java.version", "unknown"));
-            env.setProperty("OS",              System.getProperty("os.name", "unknown")
-                                               + " " + System.getProperty("os.arch", ""));
+            env.setProperty("Java Version", System.getProperty("java.version", "unknown"));
+            env.setProperty("OS", System.getProperty("os.name", "unknown")
+                    + " " + System.getProperty("os.arch", ""));
 
             Path envFile = dir.resolve("environment.properties");
             try (OutputStream out = Files.newOutputStream(envFile)) {
