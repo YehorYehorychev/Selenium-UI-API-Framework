@@ -5,16 +5,15 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FooterComponent extends BaseComponent {
 
     private static final By FOOTER_LINKS = By.cssSelector("a");
     private static final By SOCIAL_ICONS = By.cssSelector(
             "a[href*='twitter'], a[href*='x.com'], a[href*='discord'], " +
-            "a[href*='facebook'], a[href*='youtube']"
+                    "a[href*='facebook'], a[href*='youtube']"
     );
-    private static final By COPYRIGHT   = By.cssSelector(".footer-copyright");
+    private static final By COPYRIGHT = By.cssSelector(".footer-copyright");
     private static final By LEGAL_LINKS = By.cssSelector(
             "a[href*='privacy'], a[href*='terms'], a[href*='legal']"
     );
@@ -33,7 +32,7 @@ public class FooterComponent extends BaseComponent {
         return findElements(FOOTER_LINKS).stream()
                 .map(WebElement::getText)
                 .filter(text -> !text.isBlank())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean hasLink(String linkText) {
@@ -65,7 +64,7 @@ public class FooterComponent extends BaseComponent {
         return findElements(LEGAL_LINKS).stream()
                 .map(WebElement::getText)
                 .filter(text -> !text.isBlank())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean hasLegalLink(String linkText) {

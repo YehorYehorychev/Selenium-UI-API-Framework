@@ -1,6 +1,8 @@
 package com.yehorychev.selenium.context;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.data.TestData;
+import com.yehorychev.selenium.errors.ApiException;
 import com.yehorychev.selenium.helpers.ApiClientConfig;
 import com.yehorychev.selenium.helpers.Logger;
 import io.restassured.RestAssured;
@@ -75,11 +77,30 @@ public class ApiContext {
         Map<String, Object> body = variables != null
                 ? Map.of("query", query, "variables", variables)
                 : Map.of("query", query);
-        log.step("POST /api/graphql/v1/query");
-        return requestSpec.body(body).post("/api/graphql/v1/query");
+        log.step("POST " + TestData.UrlPatterns.API_GRAPHQL);
+        return requestSpec.body(body).post(TestData.UrlPatterns.API_GRAPHQL);
     }
 
     public Response graphql(String query) {
         return graphql(query, null);
+    }
+
+    /**
+     * Asserts that {@code response} has a 2xx status code.
+     * Throws {@link ApiException} (classified in Allure {@code categories.json} as an API failure)
+     * for any 4xx / 5xx response.
+     *
+     * <p>Call this from step definitions that expect a successful response so that API
+     * failures surface as typed {@code ApiException}s rather than silent assertion gaps.
+     *
+     * @param response the RestAssured response to validate
+     * @param endpoint the endpoint path used for the request (included in the exception message)
+     * @throws ApiException if the HTTP status is 400 or above
+     */
+    public void assertSuccessful(Response response, String endpoint) {
+        int status = response.getStatusCode();
+        if (status >= 400) {
+            throw new ApiException(status, response.getBody().asString(), endpoint);
+        }
     }
 }

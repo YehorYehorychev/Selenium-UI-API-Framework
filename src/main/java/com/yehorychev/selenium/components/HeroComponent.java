@@ -5,11 +5,11 @@ import org.openqa.selenium.WebDriver;
 
 public class HeroComponent extends BaseComponent {
 
-    private static final By HEADING         = By.cssSelector("h1");
-    private static final By SUBHEADING      = By.cssSelector("h2, p.hero-description");
+    private static final By HEADING = By.cssSelector("h1");
+    private static final By SUBHEADING = By.cssSelector("h2, p.hero-description");
     private static final By DOWNLOAD_BUTTON = By.cssSelector("a.download-btn, a[href*='download.overwolf']");
-    private static final By SIGNUP_BUTTON   = By.cssSelector("a[href*='signup'], button[data-testid='signup']");
-    private static final By CTA_BUTTONS     = By.cssSelector("a[class*='btn']");
+    private static final By SIGNUP_BUTTON = By.cssSelector("a[href*='signup'], button[data-testid='signup']");
+    private static final By CTA_BUTTONS = By.cssSelector("a[class*='btn']");
 
     public HeroComponent(WebDriver driver) {
         super(driver, By.cssSelector("section.hl-hero"));

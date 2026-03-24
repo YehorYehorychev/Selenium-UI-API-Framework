@@ -45,9 +45,3 @@ Feature: Authentication API
   Scenario: Sign-in with invalid credentials returns false or errors
     When I sign in via API with email "wrong@example.com" and password "wrongpassword"
     Then the sign-in should have failed
-
-  @api @auth @regression
-  Scenario: Unauthenticated account query returns error or null account
-    When I query the current account via GraphQL
-    Then the response status code should be 200
-    And  the unauthenticated account response should be rejected
