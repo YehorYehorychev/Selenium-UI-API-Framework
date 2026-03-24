@@ -9,6 +9,7 @@ import com.yehorychev.selenium.context.ApiContext;
 import com.yehorychev.selenium.context.DriverContext;
 import com.yehorychev.selenium.context.ScenarioContext;
 import com.yehorychev.selenium.context.ScenarioContextKeys;
+import com.yehorychev.selenium.context.ScenarioSoftAssertions;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -29,11 +30,14 @@ public class AuthSteps {
     private final DriverContext driverContext;
     private final ApiContext api;
     private final ScenarioContext scenarioContext;
+    private final ScenarioSoftAssertions soft;
 
-    public AuthSteps(DriverContext driverContext, ApiContext api, ScenarioContext scenarioContext) {
+    public AuthSteps(DriverContext driverContext, ApiContext api, ScenarioContext scenarioContext,
+                     ScenarioSoftAssertions soft) {
         this.driverContext = driverContext;
         this.api = api;
         this.scenarioContext = scenarioContext;
+        this.soft = soft;
     }
 
     @Given("I am authenticated via API")
@@ -90,9 +94,13 @@ public class AuthSteps {
     @Then("an auth token should be stored in the scenario context")
     public void anAuthTokenShouldBeStoredInScenarioContext() {
         String signedIn = scenarioContext.get(ScenarioContextKeys.IS_AUTHENTICATED);
-        assertNotNull(signedIn, "Expected auth session marker to be stored in ScenarioContext");
-        assertEquals(signedIn, "true", "Expected auth session marker to be 'true' but was: " + signedIn);
-        log.info("Auth session verified in ScenarioContext");
+        soft.assertThat(signedIn)
+                .as("Expected auth session marker to be stored in ScenarioContext")
+                .isNotNull();
+        soft.assertThat(signedIn)
+                .as("Expected auth session marker to be 'true' but was: %s", signedIn)
+                .isEqualTo("true");
+        log.info("Auth session check recorded");
     }
 
     @Then("the auth token should no longer be present")
@@ -114,7 +122,7 @@ public class AuthSteps {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No sign-in response stored — did you call the sign-in step?");
         String body = response.getBody().asString();
-        boolean hasFalse  = body.contains("\"signIn\":false") || body.contains("\"signIn\": false");
+        boolean hasFalse = body.contains("\"signIn\":false") || body.contains("\"signIn\": false");
         boolean hasErrors = body.contains("\"errors\"");
         boolean httpError = response.getStatusCode() >= 400;
         assertTrue(hasFalse || hasErrors || httpError,

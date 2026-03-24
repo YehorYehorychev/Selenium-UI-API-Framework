@@ -16,6 +16,13 @@ public final class ScenarioContextKeys {
     /** Boolean flag ("true") set by {@code AuthHooks} / {@code AuthSteps} after successful sign-in. */
     public static final String IS_AUTHENTICATED = "isAuthenticated";
 
+    /**
+     * Session cookies captured from {@code AuthHelper.loginViaApi()} (meta-keys {@code signedIn}
+     * and {@code email} excluded). Passed to {@code AuthHelper.logoutViaApi()} in teardown so the
+     * server-side session is properly invalidated, not just browser cookies cleared.
+     */
+    public static final String AUTH_COOKIES = "auth.cookies";
+
     // ── API ──────────────────────────────────────────────────────────────────
     /** Stores the last {@code io.restassured.response.Response} from an API step. */
     public static final String LAST_RESPONSE = "lastResponse";

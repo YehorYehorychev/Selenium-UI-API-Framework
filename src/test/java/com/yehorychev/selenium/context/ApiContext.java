@@ -1,6 +1,7 @@
 package com.yehorychev.selenium.context;
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.helpers.ApiClientConfig;
 import com.yehorychev.selenium.helpers.Logger;
 import io.restassured.RestAssured;
 import io.restassured.filter.cookie.CookieFilter;
@@ -26,6 +27,7 @@ public class ApiContext {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
+                .config(ApiClientConfig.withTimeouts())
                 .filter(new CookieFilter())
                 .log().ifValidationFails();
     }

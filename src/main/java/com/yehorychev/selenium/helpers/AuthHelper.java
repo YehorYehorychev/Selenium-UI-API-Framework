@@ -5,12 +5,8 @@ import com.yehorychev.selenium.data.GraphqlQueries;
 import com.yehorychev.selenium.data.TestData;
 import com.yehorychev.selenium.errors.AuthenticationException;
 import io.restassured.RestAssured;
-import io.restassured.config.HttpClientConfig;
-import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 
@@ -29,19 +25,6 @@ public final class AuthHelper {
     private AuthHelper() {
     }
 
-    private static RestAssuredConfig buildTimeoutConfig() {
-        int timeoutMs = (int) TestConfig.API_TIMEOUT_MS;
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(timeoutMs)
-                .setSocketTimeout(timeoutMs)
-                .setConnectionRequestTimeout(timeoutMs)
-                .build();
-        return RestAssuredConfig.config()
-                .httpClient(HttpClientConfig.httpClientConfig()
-                        .httpClientFactory(() -> HttpClientBuilder.create()
-                                .setDefaultRequestConfig(requestConfig)
-                                .build()));
-    }
 
     public static Map<String, String> loginViaApi(String email, String password) {
         log.step("Authenticating via GraphQL signIn: " + email);
@@ -53,7 +36,7 @@ public final class AuthHelper {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .config(buildTimeoutConfig())
+                .config(ApiClientConfig.withTimeouts())
                 .body(body)
                 .post("/api/graphql/v1/query");
 
@@ -129,7 +112,7 @@ public final class AuthHelper {
                 .baseUri(TestConfig.API_BASE_URL)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
-                .config(buildTimeoutConfig())
+                .config(ApiClientConfig.withTimeouts())
                 .cookies(cookies)
                 .body(body)
                 .post("/api/graphql/v1/query");
