@@ -16,6 +16,7 @@ public final class TestConfig {
     private static final String DEFAULT_BROWSER = "chrome";
     private static final String DEFAULT_HEADLESS = "true";
     private static final String DEFAULT_TIMEOUT = "15000";
+    private static final String DEFAULT_SHORT_TIMEOUT = "3000";
     private static final String DEFAULT_NAVIGATION_TIMEOUT = "30000";
     private static final String DEFAULT_API_TIMEOUT = "10000";
     private static final String DEFAULT_RETRY_COUNT = "1";
@@ -38,6 +39,7 @@ public final class TestConfig {
     public static final String BROWSER;
     public static final boolean HEADLESS;
     public static final long DEFAULT_TIMEOUT_MS;
+    public static final long SHORT_TIMEOUT_MS;
     public static final long NAVIGATION_TIMEOUT_MS;
     public static final long API_TIMEOUT_MS;
     public static final int RETRY_COUNT;
@@ -69,6 +71,7 @@ public final class TestConfig {
         BROWSER = resolve("BROWSER", "browser", DEFAULT_BROWSER, props).toLowerCase();
         HEADLESS = Boolean.parseBoolean(resolve("HEADLESS", "headless", DEFAULT_HEADLESS, props));
         DEFAULT_TIMEOUT_MS = Long.parseLong(resolve("DEFAULT_TIMEOUT", "timeout.default", DEFAULT_TIMEOUT, props));
+        SHORT_TIMEOUT_MS = Long.parseLong(resolve("SHORT_TIMEOUT", "timeout.short", DEFAULT_SHORT_TIMEOUT, props));
         NAVIGATION_TIMEOUT_MS = Long.parseLong(resolve("NAVIGATION_TIMEOUT", "timeout.navigation", DEFAULT_NAVIGATION_TIMEOUT, props));
         API_TIMEOUT_MS = Long.parseLong(resolve("API_TIMEOUT", "timeout.api", DEFAULT_API_TIMEOUT, props));
         RETRY_COUNT = Integer.parseInt(resolve("RETRY_COUNT", "retry.count", DEFAULT_RETRY_COUNT, props));

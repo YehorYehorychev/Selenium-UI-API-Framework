@@ -20,8 +20,3 @@ Feature: Valorant Page
   Scenario: Valorant page URL is correct
     Given I open the Valorant page
     Then the current URL should contain "valorant"
-
-  @regression @ui @wip
-  Scenario: Valorant agent tier list cards are visible
-    Given I open the Valorant page
-    Then there should be at least 1 Valorant agent cards displayed

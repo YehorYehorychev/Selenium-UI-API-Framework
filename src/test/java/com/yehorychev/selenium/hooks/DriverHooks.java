@@ -2,6 +2,7 @@ package com.yehorychev.selenium.hooks;
 
 import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.helpers.Logger;
+import com.yehorychev.selenium.utils.AllureUtils;
 import com.yehorychev.selenium.utils.ScreenshotUtils;
 import com.yehorychev.selenium.context.DriverContext;
 import io.cucumber.java.After;
@@ -54,6 +55,7 @@ public class DriverHooks {
             log.step("Capturing failure screenshot: " + name);
             ScreenshotUtils.attachFullPage(driverContext.getDriver(), name);
             ScreenshotUtils.attachConsoleLogs(driverContext.getDriver(), "console-" + sanitise(scenario.getName()));
+            AllureUtils.attachPageSource(driverContext.getDriver(), "page-source-" + sanitise(scenario.getName()));
         } catch (Exception e) {
             log.warn("Failed to capture failure artifacts: " + e.getMessage());
         }
