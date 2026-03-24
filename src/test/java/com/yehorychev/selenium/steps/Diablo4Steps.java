@@ -41,28 +41,6 @@ public class Diablo4Steps {
     }
 
 
-    @Then("the Diablo 4 class selector should be visible")
-    public void theDiablo4ClassSelectorShouldBeVisible() {
-        // Diablo 4 page uses hashed CSS classes — verify builds section as proxy for page content
-        assertTrue(diablo4Page.isBuildsSectionVisible(), "Expected the Diablo 4 page to display build sections");
-    }
-
-
-    @When("I search for Diablo 4 builds with keyword {string}")
-    public void iSearchForDiablo4BuildsWithKeyword(String keyword) {
-        diablo4Page.searchBuilds(keyword);
-    }
-
-    @Then("there should be at least {int} Diablo 4 build cards displayed")
-    public void thereShouldBeAtLeastDiablo4BuildCards(int minCount) {
-        int actual = diablo4Page.getBuildCardCount();
-        assertTrue(
-                actual >= minCount,
-                "Expected at least " + minCount + " Diablo 4 build cards but found: " + actual
-        );
-    }
-
-
     @Then("the Diablo 4 builds section should be visible")
     public void theDiablo4BuildsSectionShouldBeVisible() {
         assertTrue(diablo4Page.isBuildsSectionVisible(), "Expected a 'Builds' heading section to be visible on Diablo 4 page");
@@ -71,11 +49,6 @@ public class Diablo4Steps {
     @Then("the Diablo 4 guides section should be visible")
     public void theDiablo4GuidesSectionShouldBeVisible() {
         assertTrue(diablo4Page.isGuidesSectionVisible(), "Expected a 'Guides' heading section to be visible on Diablo 4 page");
-    }
-
-    @Then("the Diablo 4 season section should be visible")
-    public void theDiablo4SeasonSectionShouldBeVisible() {
-        assertTrue(diablo4Page.isBuildsSectionVisible(), "Expected the Diablo 4 page to have content sections visible");
     }
 }
 

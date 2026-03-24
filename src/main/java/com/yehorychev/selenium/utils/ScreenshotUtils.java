@@ -22,7 +22,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -134,7 +133,7 @@ public final class ScreenshotUtils {
             LogEntries entries = driver.manage().logs().get(LogType.BROWSER);
             List<String> lines = entries.getAll().stream()
                     .map(e -> String.format("[%s] %s", e.getLevel(), e.getMessage()))
-                    .collect(Collectors.toList());
+                    .toList();
             if (lines.isEmpty()) return;
             String content = String.join("\n", lines);
             Allure.addAttachment(name, "text/plain",

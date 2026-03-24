@@ -47,34 +47,58 @@ public final class ScenarioSoftAssertions {
 
     // ── Convenience assertThat overloads ─────────────────────────────────────
 
+    /**
+     * Soft-asserts on a {@link String}. Chain fluent AssertJ conditions on the returned object.
+     * Failures are collected and reported together at scenario end by
+     * {@link com.yehorychev.selenium.hooks.SoftAssertionsHook}.
+     */
     public AbstractStringAssert<?> assertThat(String actual) {
         return softly.assertThat(actual);
     }
 
+    /**
+     * Soft-asserts on a primitive {@code boolean}.
+     * Typical usage: {@code soft.assertThat(page.isLoaded()).isTrue();}
+     */
     public AbstractBooleanAssert<?> assertThat(boolean actual) {
         return softly.assertThat(actual);
     }
 
+    /**
+     * Soft-asserts on a boxed {@link Boolean}.
+     * Handles {@code null} correctly — use {@code isNull()} or {@code isTrue()} / {@code isFalse()}.
+     */
     public AbstractBooleanAssert<?> assertThat(Boolean actual) {
         return softly.assertThat(actual);
     }
 
+    /**
+     * Soft-asserts on a primitive {@code int}.
+     * Typical usage: {@code soft.assertThat(page.getCardCount()).isGreaterThan(0);}
+     */
     public AbstractIntegerAssert<?> assertThat(int actual) {
         return softly.assertThat(actual);
     }
 
+    /** Soft-asserts on a boxed {@link Integer}. */
     public AbstractIntegerAssert<?> assertThat(Integer actual) {
         return softly.assertThat(actual);
     }
 
+    /** Soft-asserts on a primitive {@code long}. */
     public AbstractLongAssert<?> assertThat(long actual) {
         return softly.assertThat(actual);
     }
 
+    /** Soft-asserts on a boxed {@link Long}. */
     public AbstractLongAssert<?> assertThat(Long actual) {
         return softly.assertThat(actual);
     }
 
+    /**
+     * Soft-asserts on a {@link List}.
+     * Typical usage: {@code soft.assertThat(titles).isNotEmpty().contains("LoL");}
+     */
     public <T> AbstractListAssert<?, List<? extends T>, T, ObjectAssert<T>> assertThat(List<? extends T> actual) {
         return softly.assertThat(actual);
     }
@@ -105,4 +129,3 @@ public final class ScenarioSoftAssertions {
         softly.assertAll();
     }
 }
-

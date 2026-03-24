@@ -7,7 +7,6 @@ import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GameCardsComponent extends BaseComponent {
 
@@ -32,8 +31,8 @@ public class GameCardsComponent extends BaseComponent {
                 .map(a -> a.getAttribute("href"))
                 .filter(href -> href != null && !href.isBlank())
                 .map(href -> href.replaceAll("\\?.*", "")
-                                 .replace("https://mobalytics.gg", ""))
-                .collect(Collectors.toList());
+                        .replace("https://mobalytics.gg", ""))
+                .toList();
     }
 
     public boolean hasTileForHref(String gameSlug) {

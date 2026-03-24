@@ -4,9 +4,9 @@ import com.yehorychev.selenium.utils.LocatorUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class NavigationComponent extends BaseComponent {
 
@@ -44,7 +44,7 @@ public class NavigationComponent extends BaseComponent {
         return findElements(GAME_LINKS).stream()
                 .map(WebElement::getText)
                 .filter(text -> !text.isBlank())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public boolean hasGameLink(String gameName) {
@@ -75,9 +75,8 @@ public class NavigationComponent extends BaseComponent {
 
     public boolean isLoginButtonVisible() {
         try {
-            return wait.until(
-                org.openqa.selenium.support.ui.ExpectedConditions
-                    .visibilityOfElementLocated(SIGN_IN_BUTTON_XPATH)
+            return shortWait.until(
+                    ExpectedConditions.visibilityOfElementLocated(SIGN_IN_BUTTON_XPATH)
             ) != null;
         } catch (Exception e) {
             return false;

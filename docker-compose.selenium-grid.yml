@@ -1,6 +1,6 @@
 services:
   selenium-hub:
-    image: selenium/hub:4.21.0
+    image: selenium/hub:4.38.0
     platform: linux/arm64
     container_name: selenium-hub
     ports:
@@ -15,7 +15,7 @@ services:
       start_period: 15s
 
   chrome:
-    image: selenium/node-chromium:4.21.0
+    image: selenium/node-chromium:4.38.0
     platform: linux/arm64
     container_name: selenium-node-chromium
     shm_size: 2gb
@@ -31,7 +31,7 @@ services:
       - SE_NODE_SESSION_TIMEOUT=300
 
   firefox:
-    image: selenium/node-firefox:4.21.0
+    image: selenium/node-firefox:4.38.0
     platform: linux/arm64
     container_name: selenium-node-firefox
     shm_size: 2gb

@@ -12,7 +12,6 @@ public class Diablo4Page extends BasePage {
     // Text-based locator — game sub-pages use hashed CSS classes
     private static final By BUILDS_SECTION = LocatorUtils.h2ContainsText("build");
     private static final By GUIDES_SECTION = LocatorUtils.h2ContainsText("guide");
-    private static final By BUILD_CARDS = By.cssSelector("[class*='build-card'], [data-testid='build-card'], article");
 
     public Diablo4Page(WebDriver driver) {
         super(driver);
@@ -44,9 +43,5 @@ public class Diablo4Page extends BasePage {
     public void searchBuilds(String keyword) {
         log.step("Searching for Diablo 4 builds: " + keyword);
         type(SEARCH_INPUT, keyword);
-    }
-
-    public int getBuildCardCount() {
-        return waitForAll(BUILD_CARDS).size();
     }
 }

@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.utils;
 
+import com.yehorychev.selenium.errors.FrameworkException;
 import com.yehorychev.selenium.helpers.Logger;
 import io.qameta.allure.Allure;
 import io.qameta.allure.model.Status;
@@ -77,7 +78,7 @@ public final class AllureUtils {
         } catch (Throwable t) {
             Allure.getLifecycle().updateStep(uuid, s -> s.setStatus(Status.FAILED));
             if (t instanceof RuntimeException re) throw re;
-            throw new RuntimeException(t);
+            throw new FrameworkException("Step failed: " + name, t);
         } finally {
             Allure.getLifecycle().stopStep(uuid);
         }

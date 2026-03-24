@@ -6,6 +6,7 @@ import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.context.ApiContext;
 import com.yehorychev.selenium.context.ScenarioContext;
 import com.yehorychev.selenium.context.ScenarioContextKeys;
+import com.yehorychev.selenium.context.ScenarioSoftAssertions;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -23,10 +24,12 @@ public class ApiSteps {
 
     private final ApiContext api;
     private final ScenarioContext scenarioContext;
+    private final ScenarioSoftAssertions soft;
 
-    public ApiSteps(ApiContext api, ScenarioContext scenarioContext) {
+    public ApiSteps(ApiContext api, ScenarioContext scenarioContext, ScenarioSoftAssertions soft) {
         this.api = api;
         this.scenarioContext = scenarioContext;
+        this.soft = soft;
     }
 
     @When("I send a GET request to {string}")
@@ -118,10 +121,13 @@ public class ApiSteps {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No API response stored");
         String uid = response.jsonPath().getString("data.account.uid");
-        assertNotNull(uid, "Expected data.account.uid to be non-null");
-        assertTrue(uid.length() >= 8,
-                "Expected uid to be at least 8 chars (UUID/nanoid), but was: " + uid);
-        log.info("Account uid verified: " + uid);
+        soft.assertThat(uid).as("Expected data.account.uid to be non-null").isNotNull();
+        if (uid != null) {
+            soft.assertThat(uid.length())
+                    .as("Expected uid to be at least 8 chars (UUID/nanoid), but was: %s", uid)
+                    .isGreaterThanOrEqualTo(8);
+        }
+        log.info("Account uid check recorded");
     }
 
     @And("the account email should match the configured test email")

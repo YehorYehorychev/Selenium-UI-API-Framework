@@ -19,7 +19,7 @@ public final class WaitFactory {
     }
 
     public static WebDriverWait shortWait(WebDriver driver) {
-        return new WebDriverWait(driver, Duration.ofSeconds(3));
+        return new WebDriverWait(driver, Duration.ofMillis(TestConfig.SHORT_TIMEOUT_MS));
     }
 }
 
