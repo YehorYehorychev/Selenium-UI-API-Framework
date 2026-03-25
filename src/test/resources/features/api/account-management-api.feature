@@ -10,12 +10,14 @@ Feature: Account Management API
     When I update my account login to "somelogin"
     Then the response status code should be 200
     And  the response body should contain "UNAUTHENTICATED"
+    And  the response should match the "graphql-errors" schema
 
   @regression
   Scenario: Update password without authentication returns UNAUTHENTICATED error
     When I update my password from "OldPassword1!" to "NewPassword2!"
     Then the response status code should be 200
     And  the response body should contain "UNAUTHENTICATED"
+    And  the response should match the "graphql-errors" schema
 
   @regression @authenticated
   Scenario: Authenticated user can update account login — idempotent re-apply of current value

@@ -27,15 +27,18 @@ Feature: Password Reset API
     When I reset my password using token "invalid_token_xyz123456" and new password "ValidNewPass1!"
     Then the response status code should be 200
     And  the response body should contain "UNDEFINED_TOKEN_OPERATION"
+    And  the response should match the "graphql-errors" schema
 
   @regression
   Scenario: Reset password with a too-short password returns INPUT_INVALID error
     When I reset my password using token "anytoken12345678" and new password "ab"
     Then the response status code should be 200
     And  the response body should contain "INPUT_INVALID"
+    And  the response should match the "graphql-errors" schema
 
   @regression
   Scenario: Update password without authentication returns UNAUTHENTICATED error
     When I update my password from "OldPassword1!" to "NewPassword2!"
     Then the response status code should be 200
     And  the response body should contain "UNAUTHENTICATED"
+    And  the response should match the "graphql-errors" schema

@@ -11,6 +11,7 @@ Feature: GraphQL Error Handling
       """
     Then the response status code should be 422
     And  the response body should contain "nonExistentField"
+    And  the response should match the "graphql-errors" schema
 
   Scenario: Missing required argument returns HTTP 422
     When I send a POST request to "/api/graphql/v1/query" with body:
@@ -19,6 +20,7 @@ Feature: GraphQL Error Handling
       """
     Then the response status code should be 422
     And  the response body should contain "errors"
+    And  the response should match the "graphql-errors" schema
 
   Scenario: Submitting an empty query string returns an error response
     When I send a POST request to "/api/graphql/v1/query" with body:
@@ -42,3 +44,4 @@ Feature: GraphQL Error Handling
       """
     Then the response status code should be 422
     And  the response body should contain "updateAccountInfo"
+    And  the response should match the "graphql-errors" schema
