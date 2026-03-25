@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Schema for GraphQL account query response (full field set)",
+  "type": "object",
+  "required": [
+    "data"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": [
+        "account"
+      ],
+      "properties": {
+        "account": {
+          "type": "object",
+          "required": [
+            "uid",
+            "email"
+          ],
+          "properties": {
+            "uid": {
+              "type": "string",
+              "minLength": 1
+            },
+            "email": {
+              "type": "string",
+              "minLength": 1
+            },
+            "login": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "level": {
+              "type": [
+                "string",
+                "integer",
+                "null"
+              ]
+            },
+            "referrerCode": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "referralStatus": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

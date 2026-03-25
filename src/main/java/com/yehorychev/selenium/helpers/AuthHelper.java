@@ -38,7 +38,7 @@ public final class AuthHelper {
                 .accept(ContentType.JSON)
                 .config(ApiClientConfig.withTimeouts())
                 .body(body)
-                .post("/api/graphql/v1/query");
+                .post(TestData.UrlPatterns.API_GRAPHQL);
 
         int status = response.getStatusCode();
         if (status < 200 || status >= 300) {
@@ -46,9 +46,11 @@ public final class AuthHelper {
                     "signIn mutation returned HTTP " + status + ": " + response.getBody().asString());
         }
 
-        Boolean signedIn = response.jsonPath().getBoolean("data.signIn");
-        if (!Boolean.TRUE.equals(signedIn)) {
-            throw new AuthenticationException("signIn returned false — invalid credentials for: " + email);
+        Object signInValue = response.jsonPath().get("data.signIn");
+        if (!Boolean.TRUE.equals(signInValue)) {
+            String serverError = response.getBody().asString();
+            throw new AuthenticationException(
+                    "signIn failed for: " + email + " — response: " + serverError);
         }
 
         Map<String, String> authData = new HashMap<>();
@@ -115,7 +117,7 @@ public final class AuthHelper {
                 .config(ApiClientConfig.withTimeouts())
                 .cookies(cookies)
                 .body(body)
-                .post("/api/graphql/v1/query");
+                .post(TestData.UrlPatterns.API_GRAPHQL);
 
         int status = response.getStatusCode();
         if (status < 200 || status >= 300) {

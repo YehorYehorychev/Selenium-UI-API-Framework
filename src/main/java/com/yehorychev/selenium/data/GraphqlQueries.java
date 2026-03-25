@@ -47,4 +47,38 @@ public final class GraphqlQueries {
               }
             }
             """;
+
+    public static final String SIGN_UP = """
+            mutation SignUp($email: String!, $password: String!, $name: String!, $continueFrom: String) {
+              signUp(email: $email, password: $password, name: $name, continueFrom: $continueFrom)
+            }
+            """;
+
+    public static final String REQUEST_PASSWORD_RESET = """
+            mutation RequestPasswordReset($email: String!, $redirectUrl: String!, $lang: String!, $game: Game!) {
+              requestPasswordReset(email: $email, lang: $lang, game: $game, redirectUrl: $redirectUrl)
+            }
+            """;
+
+    public static final String RESET_PASSWORD = """
+            mutation ResetPassword($token: String!, $password1: String!) {
+              resetPassword(token: $token, password1: $password1)
+            }
+            """;
+
+    public static final String UPDATE_ACCOUNT_INFO = """
+            mutation UpdateAccountInfo($login: String) {
+              updateAccountInfo(login: $login) {
+                uid
+                login
+                email
+              }
+            }
+            """;
+
+    public static final String UPDATE_PASSWORD = """
+            mutation UpdatePassword($oldPassword: String!, $newPassword: String!) {
+              updatePassword(oldPassword: $oldPassword, newPassword: $newPassword)
+            }
+            """;
 }
