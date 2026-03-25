@@ -46,9 +46,11 @@ public final class AuthHelper {
                     "signIn mutation returned HTTP " + status + ": " + response.getBody().asString());
         }
 
-        Boolean signedIn = response.jsonPath().getBoolean("data.signIn");
-        if (!Boolean.TRUE.equals(signedIn)) {
-            throw new AuthenticationException("signIn returned false — invalid credentials for: " + email);
+        Object signInValue = response.jsonPath().get("data.signIn");
+        if (!Boolean.TRUE.equals(signInValue)) {
+            String serverError = response.getBody().asString();
+            throw new AuthenticationException(
+                    "signIn failed for: " + email + " — response: " + serverError);
         }
 
         Map<String, String> authData = new HashMap<>();

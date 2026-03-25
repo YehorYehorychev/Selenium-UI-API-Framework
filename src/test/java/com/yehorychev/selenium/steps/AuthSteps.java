@@ -49,11 +49,13 @@ public class AuthSteps {
                 "continueFrom", ""
         );
         Response signInResponse = api.graphql(GraphqlQueries.SIGN_IN, vars);
-        boolean success = Boolean.TRUE.equals(signInResponse.jsonPath().getBoolean("data.signIn"));
+        Object signInValue = signInResponse.jsonPath().get("data.signIn");
+        boolean success = Boolean.TRUE.equals(signInValue);
 
         if (!success) {
+            String serverError = signInResponse.getBody().asString();
             throw new AuthenticationException(
-                    "GraphQL signIn returned false for: " + TestData.Credentials.LOGIN);
+                    "GraphQL signIn failed for: " + TestData.Credentials.LOGIN + " — response: " + serverError);
         }
 
         scenarioContext.set(ScenarioContextKeys.IS_AUTHENTICATED, "true");
