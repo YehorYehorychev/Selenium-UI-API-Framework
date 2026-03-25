@@ -13,6 +13,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import io.restassured.response.Response;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.*;
@@ -66,10 +67,12 @@ public class AccountManagementSteps {
     public void theResponseShouldContainGraphQLError(String expectedError) {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No API response stored");
-        String body = response.getBody().asString();
-        assertTrue(body.contains(expectedError),
-                "Expected GraphQL error \"" + expectedError + "\" in response body but body was:\n" + body);
-        log.info("GraphQL error \"" + expectedError + "\" verified");
+        List<String> errorMessages = response.jsonPath().getList("errors.message");
+        assertTrue(
+                errorMessages != null && errorMessages.contains(expectedError),
+                "Expected GraphQL error \"" + expectedError + "\" in errors[*].message "
+                        + "but response was:\n" + response.getBody().asString());
+        log.info("GraphQL error \"" + expectedError + "\" verified via jsonPath errors.message");
     }
 }
 

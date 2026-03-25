@@ -38,7 +38,7 @@ public final class AuthHelper {
                 .accept(ContentType.JSON)
                 .config(ApiClientConfig.withTimeouts())
                 .body(body)
-                .post("/api/graphql/v1/query");
+                .post(TestData.UrlPatterns.API_GRAPHQL);
 
         int status = response.getStatusCode();
         if (status < 200 || status >= 300) {
@@ -117,7 +117,7 @@ public final class AuthHelper {
                 .config(ApiClientConfig.withTimeouts())
                 .cookies(cookies)
                 .body(body)
-                .post("/api/graphql/v1/query");
+                .post(TestData.UrlPatterns.API_GRAPHQL);
 
         int status = response.getStatusCode();
         if (status < 200 || status >= 300) {

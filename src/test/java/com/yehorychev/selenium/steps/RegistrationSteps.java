@@ -13,6 +13,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import io.restassured.response.Response;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.*;
@@ -65,10 +66,11 @@ public class RegistrationSteps {
     public void theSignUpShouldHaveFailedWithError(String expectedError) {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No API response stored — did you call a sign-up step first?");
-        String body = response.getBody().asString();
-        assertTrue(body.contains(expectedError),
-                "Expected sign-up response to contain error \"" + expectedError + "\" but body was:\n" + body);
-        log.info("Sign-up error \"" + expectedError + "\" verified");
+        List<String> errorMessages = response.jsonPath().getList("errors.message");
+        assertTrue(
+                errorMessages != null && errorMessages.contains(expectedError),
+                "Expected GraphQL error \"" + expectedError + "\" in errors[*].message "
+                        + "but response was:\n" + response.getBody().asString());
+        log.info("Sign-up error \"" + expectedError + "\" verified via jsonPath errors.message");
     }
 }
-

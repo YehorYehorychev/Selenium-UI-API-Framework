@@ -7,6 +7,8 @@ import com.yehorychev.selenium.helpers.ApiClientConfig;
 import com.yehorychev.selenium.helpers.Logger;
 import io.restassured.RestAssured;
 import io.restassured.filter.cookie.CookieFilter;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -32,6 +34,10 @@ public class ApiContext {
                 .config(ApiClientConfig.withTimeouts())
                 .filter(new CookieFilter())
                 .log().ifValidationFails();
+
+        if (!TestConfig.HEADLESS) {
+            requestSpec.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+        }
     }
 
     public RequestSpecification getSpec() {

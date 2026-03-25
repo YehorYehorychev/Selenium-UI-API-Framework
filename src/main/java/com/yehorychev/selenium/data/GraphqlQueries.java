@@ -55,8 +55,8 @@ public final class GraphqlQueries {
             """;
 
     public static final String REQUEST_PASSWORD_RESET = """
-            mutation RequestPasswordReset($email: String!, $redirectUrl: String!) {
-              requestPasswordReset(email: $email, lang: "en", game: LOL, redirectUrl: $redirectUrl)
+            mutation RequestPasswordReset($email: String!, $redirectUrl: String!, $lang: String!, $game: Game!) {
+              requestPasswordReset(email: $email, lang: $lang, game: $game, redirectUrl: $redirectUrl)
             }
             """;
 

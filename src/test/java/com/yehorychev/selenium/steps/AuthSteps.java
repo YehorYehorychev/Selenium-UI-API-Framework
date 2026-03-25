@@ -17,6 +17,7 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Story;
 import io.restassured.response.Response;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.testng.Assert.*;
@@ -123,12 +124,14 @@ public class AuthSteps {
     public void theSignInShouldHaveFailed() {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No sign-in response stored — did you call the sign-in step?");
-        String body = response.getBody().asString();
-        boolean hasFalse = body.contains("\"signIn\":false") || body.contains("\"signIn\": false");
-        boolean hasErrors = body.contains("\"errors\"");
-        boolean httpError = response.getStatusCode() >= 400;
-        assertTrue(hasFalse || hasErrors || httpError,
-                "Expected sign-in to fail (false/errors/4xx) but response was:\n" + body);
-        log.info("Sign-in failure verified");
+        Object signInValue = response.jsonPath().get("data.signIn");
+        List<Object> errors = response.jsonPath().getList("errors");
+        boolean failed = !Boolean.TRUE.equals(signInValue)
+                || (errors != null && !errors.isEmpty())
+                || response.getStatusCode() >= 400;
+        assertTrue(failed,
+                "Expected sign-in to fail (false/null signIn, errors array, or 4xx) but response was:\n"
+                        + response.getBody().asString());
+        log.info("Sign-in failure verified via jsonPath");
     }
 }

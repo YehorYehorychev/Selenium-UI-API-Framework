@@ -1,5 +1,6 @@
 package com.yehorychev.selenium.steps;
 
+import com.yehorychev.selenium.config.TestConfig;
 import com.yehorychev.selenium.data.GraphqlQueries;
 import com.yehorychev.selenium.helpers.Logger;
 import com.yehorychev.selenium.context.ApiContext;
@@ -36,7 +37,9 @@ public class PasswordResetSteps {
     public void iRequestAPasswordResetForEmail(String email) {
         Map<String, Object> vars = Map.of(
                 "email", email,
-                "redirectUrl", "https://mobalytics.gg"
+                "redirectUrl", TestConfig.BASE_URL,
+                "lang", "en",
+                "game", "LOL"
         );
         Response response = api.graphql(GraphqlQueries.REQUEST_PASSWORD_RESET, vars);
         scenarioContext.set(ScenarioContextKeys.LAST_RESPONSE, response);
