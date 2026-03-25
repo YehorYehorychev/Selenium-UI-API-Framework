@@ -63,8 +63,8 @@ public class PasswordResetSteps {
     public void thePasswordResetRequestShouldHaveReturnedTrue() {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No API response stored — did you call a password reset step first?");
-        Boolean result = response.jsonPath().getBoolean("data.requestPasswordReset");
-        assertEquals(result, Boolean.TRUE,
+        Object value = response.jsonPath().get("data.requestPasswordReset");
+        assertEquals(value, Boolean.TRUE,
                 "Expected requestPasswordReset to return true but got: " + response.getBody().asString());
         log.info("Password reset request returned true");
     }

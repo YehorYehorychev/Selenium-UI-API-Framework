@@ -53,11 +53,13 @@ public class AccountManagementSteps {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No API response stored — did you call an update step first?");
         String body = response.getBody().asString();
-        assertFalse(body.contains("\"errors\""),
-                "Expected updateAccountInfo to succeed but got errors:\n" + body);
-        assertNotNull(response.jsonPath().get("data.updateAccountInfo"),
-                "Expected data.updateAccountInfo to be non-null but body was:\n" + body);
-        log.info("Account info update verified as successful");
+        soft.assertThat(body)
+                .as("Expected updateAccountInfo to succeed with no errors")
+                .doesNotContain("\"errors\"");
+        soft.assertThat((Object) response.jsonPath().get("data.updateAccountInfo"))
+                .as("Expected data.updateAccountInfo to be non-null but body was:\n" + body)
+                .isNotNull();
+        log.info("Account info update checks recorded");
     }
 
     @And("the response should contain GraphQL error {string}")

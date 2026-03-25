@@ -55,8 +55,8 @@ public class RegistrationSteps {
     public void theSignUpShouldHaveSucceeded() {
         Response response = scenarioContext.get(ScenarioContextKeys.LAST_RESPONSE);
         assertNotNull(response, "No API response stored — did you call a sign-up step first?");
-        Boolean result = response.jsonPath().getBoolean("data.signUp");
-        assertEquals(result, Boolean.TRUE,
+        Object signUpValue = response.jsonPath().get("data.signUp");
+        assertEquals(signUpValue, Boolean.TRUE,
                 "Expected signUp to return true but got: " + response.getBody().asString());
         log.info("Sign-up success verified");
     }
