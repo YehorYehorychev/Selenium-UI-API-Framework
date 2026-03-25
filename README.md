@@ -373,9 +373,8 @@ And  the response should match the "my-response" schema
 
 ## 🤝 Contributing
 
-- Keep layers separate — steps call pages/components, never Selenium directly
-- No `Thread.sleep()` — use `WaitUtils` or `BasePage` wait helpers
-- No global `RestAssured.*` mutations — `ApiContext` owns its own `RequestSpecification`
-- Add schema files for every new critical API response shape
-- Use `ScenarioSoftAssertions` for multi-assertion steps; hard assertions only for null-guards
-- Run smoke before pushing: `mvn test -Dcucumber.filter.tags="@smoke" -DRETRY_COUNT=0`
+- Follow the architecture: Keep layers separate
+- Use explicit waits: No `Thread.sleep()`
+- Add JavaDoc for public methods
+- Handle exceptions: Catch `FrameworkException` for all framework errors
+- Test locally: Run smoke tests before pushing
