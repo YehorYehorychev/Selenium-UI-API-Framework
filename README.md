@@ -28,7 +28,7 @@ mvn test -Dcucumber.filter.tags="@smoke"
 
 ## 📖 Writing your first test
 
-See the **[Onboarding Guide](src/test/resources/templates/onboarding.md)** — a step-by-step walkthrough that takes you from zero to a working test in ~15 minutes.
+See the **[Onboarding Guide](src/test/resources/templates/onboarding.md)**: a step-by-step walkthrough that takes you from zero to a working test in ~15 minutes.
 
 ### Template files
 
