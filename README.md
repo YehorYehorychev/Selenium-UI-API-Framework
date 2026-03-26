@@ -155,4 +155,3 @@ Released under the [MIT License](LICENSE). Free to use, fork, and share for lear
 ## 👤 Author
 
 **Yehor Yehorychev** — [LinkedIn](https://www.linkedin.com/in/egor-egorychev/)
-
