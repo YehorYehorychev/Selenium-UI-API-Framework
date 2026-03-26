@@ -21,6 +21,7 @@ package com.yehorychev.selenium.pages.templates;
 // ─────────────────────────────────────────────────────────────────────────────
 
 import com.yehorychev.selenium.config.TestConfig;
+import com.yehorychev.selenium.data.TestData;
 import com.yehorychev.selenium.pages.BasePage;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -90,9 +91,14 @@ public class ExamplePage extends BasePage {
      */
     public void open() {
         log.step("Opening Example page");
-        // TestConfig.BASE_URL is resolved from .env / config.properties / system env vars.
-        // Append your page's path from TestData.UrlPatterns — never hard-code URLs.
-        open(TestConfig.BASE_URL + "/example");
+        // Add your page's path to TestData.UrlPatterns, then reference the constant here.
+        // Example — in TestData.UrlPatterns:
+        //   public static final String EXAMPLE = "/example";
+        // Then use it:
+        //   open(TestConfig.BASE_URL + TestData.UrlPatterns.EXAMPLE);
+        //
+        // For now this references HOME as a working placeholder so the template compiles:
+        open(TestConfig.BASE_URL + TestData.UrlPatterns.HOME);
         waitForVisible(PAGE_HEADING);
     }
 

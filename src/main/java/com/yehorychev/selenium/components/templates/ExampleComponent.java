@@ -45,15 +45,13 @@ import java.util.List;
 public class ExampleComponent extends BaseComponent {
 
     // ── Root locator ──────────────────────────────────────────────────────────
-    // The ROOT_LOCATOR targets the outermost wrapper element of this component.
-    // Every other locator inside this class is searched WITHIN that root element.
-    // Think of it as the component's bounding box in the DOM.
-    private static final By ROOT_LOCATOR = By.cssSelector("aside.filter-panel");
+    // The root locator targets the outermost wrapper element of this component.
+    // Pass it directly to super() — every real component in this codebase does so.
+    // Every other locator inside this class is searched WITHIN that root, automatically.
 
     // ── Inner locators ────────────────────────────────────────────────────────
     // These are relative to the root — do NOT include the root selector again.
-    // They are passed to findElement() / click() / getText() which scope them
-    // automatically.
+    // They are passed to findElement() / click() / getText() which scope them automatically.
 
     /** The "Apply filters" button inside this panel. */
     private static final By APPLY_BUTTON = By.cssSelector("button.apply-filters");
@@ -61,8 +59,11 @@ public class ExampleComponent extends BaseComponent {
     /** The "Reset" link that clears all active filters. */
     private static final By RESET_LINK = By.cssSelector("a.reset-filters");
 
-    /** All individual filter checkboxes rendered inside the panel. */
-    private static final By FILTER_CHECKBOXES = By.cssSelector("input[type='checkbox']");
+    /**
+     * Visible label elements for each filter option — labels carry text, not inputs.
+     * Use this for reading filter names; use FILTER_BY_LABEL_XPATH to click a specific one.
+     */
+    private static final By FILTER_LABELS = By.cssSelector("label.filter-option");
 
     /**
      * XPath template to locate a specific filter option by its visible label text.
@@ -81,11 +82,11 @@ public class ExampleComponent extends BaseComponent {
     private static final By RESULT_COUNT_BADGE = By.cssSelector(".filter-result-count");
 
     // ── Constructor ───────────────────────────────────────────────────────────
-    // Pass the WebDriver AND the root locator to BaseComponent.
-    // The root locator tells BaseComponent where to scope all inner lookups.
+    // Pass the WebDriver and the root locator By directly to super().
+    // Replace "aside.filter-panel" with the outermost CSS selector of your section.
 
     public ExampleComponent(WebDriver driver) {
-        super(driver, ROOT_LOCATOR);
+        super(driver, By.cssSelector("aside.filter-panel"));
     }
 
     // ── State checks ──────────────────────────────────────────────────────────
@@ -98,13 +99,13 @@ public class ExampleComponent extends BaseComponent {
     //   if (filterPanel.isVisible()) { filterPanel.applyFilters(); }
 
     /**
-     * Returns how many filter checkboxes are currently rendered in the panel.
+     * Returns how many filter options are currently rendered in the panel.
      *
-     * <p>{@link #findElements(By)} is scoped to the root — only checkboxes
+     * <p>{@link #findElements(By)} is scoped to the root — only labels
      * INSIDE this component are counted.
      */
     public int getFilterCount() {
-        return findElements(FILTER_CHECKBOXES).size();
+        return findElements(FILTER_LABELS).size();
     }
 
     /**
@@ -148,14 +149,14 @@ public class ExampleComponent extends BaseComponent {
     // ── Data extraction ───────────────────────────────────────────────────────
 
     /**
-     * Returns the visible label text of every checkbox filter currently rendered
-     * in the panel.
+     * Returns the visible text of every filter label currently rendered in the panel.
      *
      * <p>{@link #findElements(By)} returns an empty list — never {@code null} —
      * when no elements match, so streaming is always safe.
+     * Mirrors the pattern used in {@code FooterComponent.getAllLinkTexts()}.
      */
     public List<String> getAvailableFilterNames() {
-        return findElements(FILTER_CHECKBOXES).stream()
+        return findElements(FILTER_LABELS).stream()
                 .map(WebElement::getText)
                 .filter(text -> !text.isBlank())
                 .toList();

@@ -124,7 +124,7 @@ Feature: Example Page Search
 
   @regression
   Scenario: Resetting filters restores the original result count
-    When  I save the current result count as "beforeFilter"
+    And   I save the current result count as "beforeFilter"
     # ... (apply a filter step would go here once you write it)
     Then  the result count for "beforeFilter" should be 0
 

@@ -93,9 +93,9 @@ public class ExampleSteps {
     public ExampleSteps(DriverContext driverContext,
                         ScenarioContext scenarioContext,
                         ScenarioSoftAssertions soft) {
-        this.examplePage   = new ExamplePage(driverContext.getDriver());
+        this.examplePage = new ExamplePage(driverContext.getDriver());
         this.scenarioContext = scenarioContext;
-        this.soft           = soft;
+        this.soft = soft;
     }
 
     // =========================================================================
@@ -156,13 +156,16 @@ public class ExampleSteps {
      * Saves the current result count to ScenarioContext so a later Then step
      * can compare it without repeating the read.
      *
-     * <p>Gherkin: {@code When I save the current result count as "initialCount"}
+     * <p>Gherkin: {@code And I save the current result count as "initialCount"}
      *
-     * <p>Use ScenarioContext to pass data between steps. Prefer typed constants
-     * (ScenarioContextKeys) for fixed framework keys; inline strings are fine
-     * for dynamic, feature-file-driven keys like this one.
+     * <p>Use {@code @And} for "save / store" steps — consistent with
+     * {@code CommonSteps.iSaveCurrentUrlAs()} and
+     * {@code NavigationSteps.iSaveAvailableNavigationGamesAs()}.
+     * Use ScenarioContext for cross-step state; prefer typed constants from
+     * ScenarioContextKeys for fixed framework keys, inline strings for
+     * feature-file-driven dynamic keys like this one.
      */
-    @When("I save the current result count as {string}")
+    @And("I save the current result count as {string}")
     public void iSaveCurrentResultCountAs(String key) {
         int count = examplePage.getResultCount();
         scenarioContext.set(key, count);
