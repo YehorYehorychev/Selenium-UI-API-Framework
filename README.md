@@ -12,7 +12,7 @@ Open-sourced for learning purposes — feel free to use it as a starting point f
 
 ```bash
 # 1. Clone and build
-git clone <repository-url>
+git clone https://github.com/YehorYehorychev/Selenium-UI-API-Framework.git
 cd selenium-ui-api
 mvn clean install -DskipTests
 
