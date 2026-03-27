@@ -15,7 +15,7 @@ Open-sourced for learning purposes — feel free to use it as a starting point f
 | JDK | 25 (LTS) | [Download](https://www.oracle.com/in/java/technologies/downloads/#java25) — verify with `java -version` |
 | Maven | 3.8+ | [Download](https://maven.apache.org/download.cgi) — verify with `mvn -version` |
 | Chrome or Firefox | Latest stable | **Browser driver is downloaded automatically** by Selenium Manager (bundled with Selenium 4) — no manual setup required |
-| Docker | Any recent | Optional — only needed for the Selenium Grid mode |
+| Docker | [Download](https://docs.docker.com/desktop/setup/install/mac-install/) | Optional — only needed for the Selenium Grid mode |
 | Allure CLI | 2.x | Optional — needed to open the HTML report locally (`brew install allure` on macOS) |
 
 > **macOS + Safari:** works out of the box — enable Remote Automation in Safari → Develop menu first.
