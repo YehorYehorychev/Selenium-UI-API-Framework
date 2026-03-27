@@ -8,11 +8,25 @@ Open-sourced for learning purposes — feel free to use it as a starting point f
 
 ---
 
+## 🔧 Prerequisites
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| JDK | 25 (LTS) | [Download](https://adoptium.net/) — verify with `java -version` |
+| Maven | 3.8+ | [Download](https://maven.apache.org/download.cgi) — verify with `mvn -version` |
+| Chrome or Firefox | Latest stable | **Browser driver is downloaded automatically** by Selenium Manager (bundled with Selenium 4) — no manual setup required |
+| Docker | Any recent | Optional — only needed for the Selenium Grid mode |
+| Allure CLI | 2.x | Optional — needed to open the HTML report locally (`brew install allure` on macOS) |
+
+> **macOS + Safari:** works out of the box — enable Remote Automation in Safari → Develop menu first.
+
+---
+
 ## 🚀 Quick Start
 
 ```bash
 # 1. Clone and build
-git clone https://github.com/YehorYehorychev/Selenium-UI-API-Framework.git
+git clone <repository-url>
 cd selenium-ui-api
 mvn clean install -DskipTests
 
@@ -28,18 +42,18 @@ mvn test -Dcucumber.filter.tags="@smoke"
 
 ## 📖 Writing your first test
 
-See the **[Onboarding Guide](src/test/resources/templates/onboarding.md)**: a step-by-step walkthrough that takes you from zero to a working test in ~15 minutes.
+See the **[Onboarding Guide](src/test/resources/templates/onboarding.md)** — a step-by-step walkthrough that takes you from zero to a working test in ~15 minutes.
 
 ### Template files
 
-Ready-to-copy examples live in `src/test/resources/templates/`:
+Ready-to-copy examples are spread across their natural source locations:
 
-| File | Copy to | What it shows |
-|------|---------|---------------|
-| [`ExamplePage.java`](src/main/java/com/yehorychev/selenium/pages/templates/ExamplePage.java) | `src/main/java/.../pages/` | Page Object patterns |
-| [`ExampleComponent.java`](src/main/java/com/yehorychev/selenium/components/templates/ExampleComponent.java) | `src/main/java/.../components/` | Component patterns |
-| [`ExampleSteps.java`](src/test/java/com/yehorychev/selenium/templates/ExampleSteps.java) | `src/test/java/.../steps/` | Step definition patterns |
-| [`example.feature`](src/test/resources/templates/example.feature) | `src/test/resources/features/ui/` | Feature file patterns |
+| File | Find it at | Copy to | What it shows |
+|------|------------|---------|---------------|
+| [`ExamplePage.java`](src/main/java/com/yehorychev/selenium/pages/templates/ExamplePage.java) | `src/main/java/.../pages/templates/` | `src/main/java/.../pages/` | Page Object patterns |
+| [`ExampleComponent.java`](src/main/java/com/yehorychev/selenium/components/templates/ExampleComponent.java) | `src/main/java/.../components/templates/` | `src/main/java/.../components/` | Component patterns |
+| [`ExampleSteps.java`](src/test/java/com/yehorychev/selenium/templates/ExampleSteps.java) | `src/test/java/.../templates/` | `src/test/java/.../steps/` | Step definition patterns |
+| [`example.feature`](src/test/resources/templates/example.feature) | `src/test/resources/templates/` | `src/test/resources/features/ui/` | Feature file patterns |
 
 > These files are never executed — they only exist as documented examples.
 
@@ -99,23 +113,26 @@ Every scenario must have **at least one tag**.
 
 ```
 src/main/java/.../
-├── config/       # TestConfig, DriverConfig
+├── config/       # TestConfig, DriverConfig (WebDriver factory)
+├── driver/       # DriverManager — ThreadLocal<WebDriver> for parallel safety
+├── errors/       # Typed exceptions: FrameworkException and subclasses
 ├── pages/        # Page Objects (extend BasePage)
 ├── components/   # Reusable UI sections (extend BaseComponent)
-├── data/         # TestData, Tags, GraphqlQueries
+├── data/         # TestData, Tags, GraphqlQueries constants
 ├── helpers/      # AuthHelper, ApiClientConfig, Logger
-└── utils/        # WaitUtils, ScreenshotUtils
+└── utils/        # WaitUtils, WaitFactory, ScreenshotUtils, AllureUtils, LocatorUtils
 
 src/test/java/.../
 ├── context/      # DriverContext, ApiContext, ScenarioContext, ScenarioSoftAssertions
-├── hooks/        # Cucumber lifecycle hooks
-├── runner/       # CucumberRunner, RetryAnalyzer
-└── steps/        # Step definitions
+├── hooks/        # Cucumber lifecycle hooks (driver, auth, API, retry, soft assertions)
+├── runner/       # CucumberRunner, RetryAnalyzer, DynamicThreadListener
+├── steps/        # Step definitions
+└── templates/    # ExampleSteps.java — copy-paste template (never executed)
 
 src/test/resources/
 ├── features/     # .feature files (ui/, api/, e2e/)
 ├── schemas/      # JSON Schema files for API validation
-└── templates/    # ← onboarding guide + copy-paste templates
+└── templates/    # ← onboarding guide + example.feature template
 ```
 
 ---

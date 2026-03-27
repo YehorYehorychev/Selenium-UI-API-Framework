@@ -427,17 +427,17 @@ mvn allure:serve
 
 ---
 
-## Template files in this folder
+## Template files
 
 These files are **never executed** — they exist only as documented code examples.
 Copy them, rename them, and fill in your own locators and logic.
 
-| File | Copy to | What it shows |
-|---|---|---|
-| `ExamplePage.java` | `src/main/java/.../pages/` | Every Page Object pattern |
-| `ExampleComponent.java` | `src/main/java/.../components/` | Every Component pattern |
-| `ExampleSteps.java` | `src/test/java/.../steps/` | Every Steps class pattern |
-| `example.feature` | `src/test/resources/features/ui/` | Every feature file pattern |
+| File | Find it at | Copy to | What it shows |
+|---|---|---|---|
+| `ExamplePage.java` | `src/main/java/.../pages/templates/` | `src/main/java/.../pages/` | Every Page Object pattern |
+| `ExampleComponent.java` | `src/main/java/.../components/templates/` | `src/main/java/.../components/` | Every Component pattern |
+| `ExampleSteps.java` | `src/test/java/.../templates/` | `src/test/java/.../steps/` | Every Steps class pattern |
+| `example.feature` | `src/test/resources/templates/` | `src/test/resources/features/ui/` | Every feature file pattern |
 
 > Both `ExampleSteps.java` and `example.feature` are excluded from test runs by design:
 > the runner only scans `features/` for feature files and `…selenium.steps` for glue —
