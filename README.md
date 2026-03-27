@@ -12,7 +12,7 @@ Open-sourced for learning purposes — feel free to use it as a starting point f
 
 | Requirement | Version | Notes |
 |-------------|---------|-------|
-| JDK | 25 (LTS) | [Download](https://adoptium.net/) — verify with `java -version` |
+| JDK | 25 (LTS) | [Download](https://www.oracle.com/in/java/technologies/downloads/#java25) — verify with `java -version` |
 | Maven | 3.8+ | [Download](https://maven.apache.org/download.cgi) — verify with `mvn -version` |
 | Chrome or Firefox | Latest stable | **Browser driver is downloaded automatically** by Selenium Manager (bundled with Selenium 4) — no manual setup required |
 | Docker | Any recent | Optional — only needed for the Selenium Grid mode |
